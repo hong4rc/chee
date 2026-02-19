@@ -5,13 +5,12 @@ import {
 } from 'lodash-es';
 import createDebug from '../lib/debug.js';
 import { Emitter } from '../lib/emitter.js';
-import { pvToSan, uciToSan } from './san.js';
+import { pvToSan } from './san.js';
 import { lookupOpening } from './openings.js';
 import {
   PANEL_ID, NUM_LINES as DEFAULT_NUM_LINES, MAX_PV_MOVES, CENTIPAWN_DIVISOR,
   TURN_WHITE, TURN_BLACK,
   EVT_LINE_HOVER, EVT_LINE_LEAVE,
-  EVT_THREAT_HOVER, EVT_THREAT_LEAVE,
 } from '../constants.js';
 
 const log = createDebug('chee:panel');
@@ -88,12 +87,11 @@ function createLines(numLines) {
 function createStatus() {
   const status = el('div', 'chee-status chee-loading');
   const accuracy = el('span', 'chee-accuracy');
-  const threat = el('span', 'chee-threat');
   const text = el('span', 'chee-status-text', 'Initializing...');
   const copyFen = el('button', 'chee-copy-fen');
   copyFen.title = 'Copy FEN';
   copyFen.textContent = 'FEN';
-  status.append(accuracy, threat, text, copyFen);
+  status.append(accuracy, text, copyFen);
   return status;
 }
 
@@ -126,7 +124,6 @@ export class Panel extends Emitter {
     this._fen = null;
     this._numLines = numLines;
     this._lines = Array(numLines).fill(null);
-    this._threatUci = null;
   }
 
   mount(anchor) {
@@ -199,32 +196,7 @@ export class Panel extends Emitter {
 
     this._updateScoreDisplay(bestLine);
     this._updateLineRows(lines);
-    this._updateThreat(bestLine);
   }
-
-  _updateThreat(bestLine) {
-    const threatEl = this._el.querySelector('.chee-threat');
-    if (!threatEl) return;
-
-    if (!this._board || !bestLine.pv || bestLine.pv.length === 0) {
-      threatEl.textContent = '';
-      this._threatUci = null;
-      return;
-    }
-
-    // PV[0] is the best move for the side to move — that's the immediate threat
-    const [threatMove] = bestLine.pv;
-    const san = uciToSan(threatMove, this._board, this._turn);
-    if (san) {
-      threatEl.textContent = `Threat: ${san}`;
-      this._threatUci = threatMove;
-    } else {
-      threatEl.textContent = '';
-      this._threatUci = null;
-    }
-  }
-
-  get threatUci() { return this._threatUci || null; }
 
   showClassification({ label, symbol, color }, insight) {
     if (!this._el) return;
@@ -314,18 +286,6 @@ export class Panel extends Emitter {
       this._showBtn.classList.remove('chee-visible');
     });
     this._bindLineListeners();
-
-    const threatEl = this._el.querySelector('.chee-threat');
-    if (threatEl) {
-      threatEl.addEventListener('mouseenter', () => {
-        if (this._threatUci) {
-          this.emit(EVT_THREAT_HOVER, this._threatUci, this._turn);
-        }
-      });
-      threatEl.addEventListener('mouseleave', () => {
-        this.emit(EVT_THREAT_LEAVE);
-      });
-    }
   }
 
   _bindLineListeners() {

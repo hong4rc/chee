@@ -19,7 +19,7 @@ import {
   TURN_WHITE, TURN_BLACK,
   DEBOUNCE_MS, POLL_INTERVAL_MS, BOARD_TIMEOUT_MS,
   MAX_PIECE_ATTEMPTS,
-  EVT_READY, EVT_EVAL, EVT_ERROR, EVT_LINE_HOVER, EVT_LINE_LEAVE, EVT_THREAT_HOVER, EVT_THREAT_LEAVE,
+  EVT_READY, EVT_EVAL, EVT_ERROR, EVT_LINE_HOVER, EVT_LINE_LEAVE,
   HINT_MIN_DEPTH, HINT_ARROW_OPACITY, HINT_THRESHOLDS,
   CLASSIFICATION_MATE_LOSS,
   ARROW_COLOR_WHITE, ARROW_COLOR_BLACK,
@@ -173,22 +173,6 @@ const log = createDebug('chee:content');
       arrow.draw(moves, turn, adapter.isFlipped(el));
     });
     panel.on(EVT_LINE_LEAVE, () => {
-      arrow.clear();
-      if (currentHint) {
-        arrow.drawHint(
-          currentHint.uci,
-          adapter.isFlipped(boardEl),
-          currentHint.color,
-          currentHint.symbol,
-          HINT_ARROW_OPACITY,
-        );
-      }
-    });
-    panel.on(EVT_THREAT_HOVER, (uci, turn) => {
-      arrow.clearHint();
-      arrow.draw([uci], turn, adapter.isFlipped(el));
-    });
-    panel.on(EVT_THREAT_LEAVE, () => {
       arrow.clear();
       if (currentHint) {
         arrow.drawHint(
