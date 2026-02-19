@@ -239,6 +239,22 @@
   display: flex;
 }
 
+/* Classification slot + badge */
+#chee-analysis-panel .chee-classification-slot {
+  display: contents;
+}
+
+
+#chee-analysis-panel .chee-classification-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 8px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
 /* Lichess: ensure panel parent doesn't clip the absolutely-positioned panel */
 .main-board:has(> #chee-analysis-panel) {
   overflow: visible !important;

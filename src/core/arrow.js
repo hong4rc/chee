@@ -87,6 +87,8 @@ function appendArrow(svg, from, to, opts) {
     opacity,
     strokeWidth,
     originRadius,
+    elClass = 'chee-arrow-el',
+    markerEnd,
   } = opts;
   svg.appendChild(createSvgEl('circle', {
     cx: from.x,
@@ -94,7 +96,7 @@ function appendArrow(svg, from, to, opts) {
     r: originRadius,
     fill: color,
     opacity,
-    class: 'chee-arrow-el',
+    class: elClass,
   }));
   svg.appendChild(createSvgEl('line', {
     x1: from.x,
@@ -105,8 +107,8 @@ function appendArrow(svg, from, to, opts) {
     'stroke-width': strokeWidth,
     'stroke-linecap': 'round',
     opacity,
-    'marker-end': `url(#chee-arrowhead-${colorIdx})`,
-    class: 'chee-arrow-el',
+    'marker-end': markerEnd || `url(#chee-arrowhead-${colorIdx})`,
+    class: elClass,
   }));
 }
 
@@ -142,22 +144,30 @@ export class ArrowOverlay {
     this._svg = svg;
   }
 
+  _getBoardMetrics() {
+    const rect = this._boardEl.getBoundingClientRect();
+    const { width: boardWidth, height: boardHeight } = rect;
+    const sqW = boardWidth / BOARD_SIZE;
+    const sqH = boardHeight / BOARD_SIZE;
+    this._svg.setAttribute('viewBox', `0 0 ${boardWidth} ${boardHeight}`);
+    return {
+      sqW,
+      sqH,
+      strokeWidth: ARROW_WIDTH * sqW,
+      headSize: ARROW_HEAD_SIZE * sqW,
+      originRadius: sqW * ARROW_ORIGIN_RADIUS,
+    };
+  }
+
   draw(uciMoves, startTurn, isFlipped) {
     if (!this._svg || !this._boardEl) return;
     if (!uciMoves || uciMoves.length === 0) return;
 
     this.clear();
 
-    const rect = this._boardEl.getBoundingClientRect();
-    const { width: boardWidth, height: boardHeight } = rect;
-    const sqW = boardWidth / BOARD_SIZE;
-    const sqH = boardHeight / BOARD_SIZE;
-
-    this._svg.setAttribute('viewBox', `0 0 ${boardWidth} ${boardHeight}`);
-
-    const strokeWidth = ARROW_WIDTH * sqW;
-    const headSize = ARROW_HEAD_SIZE * sqW;
-    const originRadius = sqW * ARROW_ORIGIN_RADIUS;
+    const {
+      sqW, sqH, strokeWidth, headSize, originRadius,
+    } = this._getBoardMetrics();
     const total = uciMoves.length;
 
     let turn = startTurn;
@@ -187,5 +197,54 @@ export class ArrowOverlay {
     if (!this._svg) return;
     const els = this._svg.querySelectorAll('.chee-arrow-el');
     forEach(els, (el) => el.remove());
+  }
+
+  drawClassification(uciMove, isFlipped, color) {
+    if (!this._svg || !this._boardEl) return;
+    this.clearClassification();
+
+    if (!uciMove || uciMove.length < UCI_MIN_LEN) return;
+
+    const {
+      sqW, sqH, strokeWidth, headSize, originRadius,
+    } = this._getBoardMetrics();
+
+    // Create marker for classification color
+    const markerId = 'chee-classify-arrowhead';
+    const defs = this._svg.querySelector('defs');
+    const marker = createSvgEl('marker', {
+      id: markerId,
+      markerWidth: ARROW_MARKER_WIDTH,
+      markerHeight: ARROW_MARKER_HEIGHT,
+      refX: ARROW_MARKER_REF_X,
+      refY: ARROW_MARKER_REF_Y,
+      orient: 'auto',
+      class: 'chee-classify-el',
+    });
+    marker.appendChild(createSvgEl('path', {
+      d: `M0,0 L${ARROW_MARKER_WIDTH},${ARROW_MARKER_REF_Y} L0,${ARROW_MARKER_HEIGHT} Z`,
+      fill: color,
+    }));
+    defs.appendChild(marker);
+
+    const {
+      fromFile, fromRank, toFile, toRank,
+    } = parseUci(uciMove);
+    const from = squareCenter(fromFile, fromRank, sqW, sqH, isFlipped);
+    const to = shortenEnd(from, squareCenter(toFile, toRank, sqW, sqH, isFlipped), headSize);
+
+    appendArrow(this._svg, from, to, {
+      color,
+      opacity: ARROW_OPACITY_MAX,
+      strokeWidth,
+      originRadius,
+      elClass: 'chee-classify-el',
+      markerEnd: `url(#${markerId})`,
+    });
+  }
+
+  clearClassification() {
+    if (!this._svg) return;
+    forEach(this._svg.querySelectorAll('.chee-classify-el'), (el) => el.remove());
   }
 }

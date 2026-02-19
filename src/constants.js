@@ -71,7 +71,22 @@ export const MIN_SEARCH_DEPTH = 19;
 export const MAX_SEARCH_DEPTH = 22;
 export const MIN_NUM_LINES = 3;
 export const MAX_NUM_LINES = 5;
-export const SETTINGS_DEFAULTS = { numLines: 3, searchDepth: SEARCH_DEPTH, theme: 'site' };
+export const SETTINGS_DEFAULTS = {
+  numLines: 3, searchDepth: SEARCH_DEPTH, theme: 'site', showClassifications: false,
+};
+
+// ─── Classification ─────────────────────────────────────────
+export const CLASSIFICATION_MIN_DEPTH = 10;
+export const CLASSIFICATION_LOCK_DEPTH = 16;
+export const CLASSIFICATION_MATE_LOSS = 1000;
+export const CLASSIFICATION_BEST = { label: 'Best', color: '#96bc4b' };
+export const CLASSIFICATION_BLUNDER = { label: 'Blunder', color: '#ca3431' };
+export const CLASSIFICATION_THRESHOLDS = [
+  { max: 10, label: 'Excellent', color: '#96bc4b' },
+  { max: 30, label: 'Good', color: '#97af8b' },
+  { max: 80, label: 'Inaccuracy', color: '#f7c631' },
+  { max: 200, label: 'Mistake', color: '#e6912c' },
+];
 
 // ─── Panel / eval display ────────────────────────────────────
 export const PANEL_ID = 'chee-analysis-panel';

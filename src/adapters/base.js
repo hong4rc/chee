@@ -70,6 +70,30 @@ export class BoardAdapter {
 
   detectEnPassant(board) { throw new Error('Not implemented'); }
 
+  // Template Method: subclasses override _getHighlightedSquares(),
+  // base class handles from/to disambiguation via piece occupancy.
+  detectLastMove(boardEl) {
+    const squares = this._getHighlightedSquares(boardEl);
+    if (!squares || squares.length < 2) return null;
+
+    const pieces = this.readPieces(boardEl);
+    const occupied = new Set();
+    pieces.forEach((p) => { occupied.add(`${p.file},${p.rank}`); });
+
+    const k0 = `${squares[0].file},${squares[0].rank}`;
+    const k1 = `${squares[1].file},${squares[1].rank}`;
+
+    if (!occupied.has(k0) && occupied.has(k1)) {
+      return { from: squares[0], to: squares[1] };
+    }
+    if (!occupied.has(k1) && occupied.has(k0)) {
+      return { from: squares[1], to: squares[0] };
+    }
+    return null;
+  }
+
+  _getHighlightedSquares() { return null; }
+
   // Optional methods — no-op by default, overridden by adapters that need them
   findAlternatePieceContainer() { return null; }
   exploreBoardArea() {}

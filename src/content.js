@@ -11,6 +11,7 @@ import { Engine } from './core/engine.js';
 import { Panel } from './core/panel.js';
 import { ArrowOverlay } from './core/arrow.js';
 import { boardToFen } from './core/fen.js';
+import { MoveClassifier } from './core/move-classifier.js';
 import {
   BOARD_SIZE, LAST_RANK,
   DEBOUNCE_MS, POLL_INTERVAL_MS, BOARD_TIMEOUT_MS,
@@ -30,6 +31,9 @@ const log = createDebug('chee:content');
   let engine = new Engine();
   const panel = new Panel(settings.numLines);
   const arrow = new ArrowOverlay();
+  const classifier = new MoveClassifier({
+    panel, arrow, adapter, settings,
+  });
 
   let boardEl = null;
   let debounceTimer = null;
@@ -38,6 +42,7 @@ const log = createDebug('chee:content');
     clearTimeout(debounceTimer);
     adapter.disconnect();
     engine.destroy();
+    classifier.destroy();
     arrow.clear();
     panel.destroy();
   }
@@ -65,12 +70,25 @@ const log = createDebug('chee:content');
     return fen;
   }
 
+  function onEvalData(data) {
+    panel.updateEval(data);
+    classifier.onEval(data, boardEl);
+  }
+
   function onBoardChange() {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
       const fen = readFen();
-      if (fen) engine.analyze(fen);
+      if (!fen) return;
+      classifier.onBoardChange(fen, boardEl);
+      engine.analyze(fen);
     }, DEBOUNCE_MS);
+  }
+
+  function bindEngineListeners() {
+    engine.on(EVT_READY, () => { panel.updateStatus('Ready'); });
+    engine.on(EVT_EVAL, onEvalData);
+    engine.on(EVT_ERROR, (msg) => { panel.updateStatus(`Error: ${msg}`); });
   }
 
   function setupListeners(el) {
@@ -78,10 +96,7 @@ const log = createDebug('chee:content');
       arrow.draw(moves, turn, adapter.isFlipped(el));
     });
     panel.on(EVT_LINE_LEAVE, () => { arrow.clear(); });
-
-    engine.on(EVT_READY, () => { panel.updateStatus('Ready'); });
-    engine.on(EVT_EVAL, (data) => { panel.updateEval(data); });
-    engine.on(EVT_ERROR, (msg) => { panel.updateStatus(`Error: ${msg}`); });
+    bindEngineListeners();
   }
 
   function waitForPieces() {
@@ -99,6 +114,7 @@ const log = createDebug('chee:content');
       if (fen) {
         log('Pieces appeared! FEN:', fen);
         clearInterval(pieceInterval);
+        classifier.initFen(fen);
         engine.analyze(fen);
         return;
       }
@@ -137,6 +153,7 @@ const log = createDebug('chee:content');
     const fen = readFen();
     log('Initial FEN:', fen);
     if (fen) {
+      classifier.initFen(fen);
       engine.analyze(fen);
     } else {
       log('No pieces yet, polling...');
@@ -151,6 +168,10 @@ const log = createDebug('chee:content');
 
     if (newSettings.theme && panel.el) applyTheme(panel.el, settings.theme);
 
+    if ('showClassifications' in newSettings && !newSettings.showClassifications) {
+      classifier.setEnabled(false);
+    }
+
     const engineChanged = 'numLines' in newSettings || 'searchDepth' in newSettings;
     if (!engineChanged) return;
 
@@ -158,9 +179,7 @@ const log = createDebug('chee:content');
 
     engine.destroy();
     engine = new Engine();
-    engine.on(EVT_READY, () => { panel.updateStatus('Ready'); });
-    engine.on(EVT_EVAL, (data) => { panel.updateEval(data); });
-    engine.on(EVT_ERROR, (msg) => { panel.updateStatus(`Error: ${msg}`); });
+    bindEngineListeners();
 
     if (!boardEl) return;
     engine.init(settings);
@@ -175,6 +194,7 @@ const log = createDebug('chee:content');
     if (changes.numLines) update.numLines = changes.numLines.newValue;
     if (changes.searchDepth) update.searchDepth = changes.searchDepth.newValue;
     if (changes.theme) update.theme = changes.theme.newValue;
+    if (changes.showClassifications) update.showClassifications = changes.showClassifications.newValue;
     if (Object.keys(update).length) applySettings(update);
   });
 

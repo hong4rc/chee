@@ -207,6 +207,18 @@ export class ChesscomAdapter extends BoardAdapter {
     return this._detectTurnFromMoveList();
   }
 
+  _getHighlightedSquares() {
+    const highlights = document.querySelectorAll(SEL_HIGHLIGHT);
+    if (highlights.length < 2) return null;
+
+    const squares = reduce(
+      Array.from(highlights),
+      (acc, el) => acc.concat(extractSquares(el)),
+      [],
+    );
+    return squares.length >= 2 ? squares : null;
+  }
+
   detectEnPassant(board) {
     const highlights = document.querySelectorAll(SEL_HIGHLIGHT);
     if (highlights.length < 2) return '-';

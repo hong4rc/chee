@@ -20,6 +20,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     applyTheme(document.body, val);
   });
 
+  // Classification toggle
+  const classifyCheckbox = document.getElementById('show-classifications');
+  classifyCheckbox.checked = settings.showClassifications;
+  classifyCheckbox.addEventListener('change', () => {
+    chrome.storage.sync.set({ showClassifications: classifyCheckbox.checked });
+  });
+
   // Button groups (numLines, searchDepth)
   document.querySelectorAll('.btn-group').forEach((group) => {
     const { key } = group.dataset;

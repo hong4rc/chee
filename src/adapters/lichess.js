@@ -107,6 +107,23 @@ export class LichessAdapter extends BoardAdapter {
     return TURN_WHITE;
   }
 
+  _getHighlightedSquares(boardEl) {
+    const board = boardEl || this.findBoard();
+    if (!board) return null;
+
+    const sqSize = getSquareSize(board);
+    const orientation = getOrientation(board);
+    const lastMoves = board.querySelectorAll('square.last-move');
+    if (lastMoves.length < 2 || sqSize <= 0) return null;
+
+    const squares = [];
+    lastMoves.forEach((sq) => {
+      const pos = parseTransform(sq);
+      if (pos) squares.push(pxToSquare(pos.x, pos.y, sqSize, orientation));
+    });
+    return squares.length >= 2 ? squares : null;
+  }
+
   detectEnPassant(board) {
     const boardEl = this.findBoard();
     if (!boardEl) return '-';

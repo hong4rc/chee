@@ -38,6 +38,7 @@ function createHeader() {
   topRow.append(
     hide,
     el('span', 'chee-title', 'Chee'),
+    el('span', 'chee-classification-slot'),
     el('span', 'chee-eval-score', '0.0'),
     el('span', 'chee-depth'),
     copyFen,
@@ -157,6 +158,22 @@ export class Panel extends Emitter {
 
     this._updateScoreDisplay(bestLine);
     this._updateLineRows(lines);
+  }
+
+  showClassification({ label, color }) {
+    if (!this._el) return;
+    this.clearClassification();
+    const slot = this._el.querySelector('.chee-classification-slot');
+    if (!slot) return;
+    const badge = el('span', 'chee-classification-badge', label);
+    badge.style.background = color;
+    slot.appendChild(badge);
+  }
+
+  clearClassification() {
+    if (!this._el) return;
+    const slot = this._el.querySelector('.chee-classification-slot');
+    if (slot) { slot.innerHTML = ''; }
   }
 
   updateStatus(text) {
