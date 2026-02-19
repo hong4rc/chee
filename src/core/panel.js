@@ -67,6 +67,7 @@ function createLine(rank) {
   const line = el('div', 'chee-line');
   line.append(
     el('span', 'chee-line-rank', String(rank)),
+    el('span', 'chee-line-score'),
     el('span', 'chee-line-moves'),
   );
   return line;
@@ -301,11 +302,25 @@ export class Panel extends Emitter {
   }
 
   _updateLineRow(lineEl, line) {
+    const scoreEl = lineEl.querySelector('.chee-line-score');
     const movesEl = lineEl.querySelector('.chee-line-moves');
 
     if (!line) {
+      scoreEl.textContent = '';
+      scoreEl.className = 'chee-line-score';
       movesEl.textContent = '';
       return null;
+    }
+
+    // Update per-line score
+    if (line.mate !== null) {
+      const wMate = this._whiteMate(line.mate);
+      scoreEl.textContent = formatMate(wMate);
+      scoreEl.className = `chee-line-score ${wMate > 0 ? 'white-advantage' : 'black-advantage'}`;
+    } else {
+      const cp = this._whiteScore(line.score) / CENTIPAWN_DIVISOR;
+      scoreEl.textContent = formatCp(cp);
+      scoreEl.className = `chee-line-score ${cp >= 0 ? 'white-advantage' : 'black-advantage'}`;
     }
 
     const sanMoves = this._formatLineMoves(line);

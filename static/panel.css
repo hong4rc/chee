@@ -94,24 +94,25 @@
 
 /* Lines */
 #chee-analysis-panel .chee-lines {
-  padding: 4px 0;
+  padding: 4px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
 #chee-analysis-panel .chee-line {
   display: flex;
   align-items: baseline;
-  padding: 5px 10px;
-  gap: 8px;
-  border-bottom: 1px solid var(--chee-mantle);
+  padding: 4px 6px;
+  gap: 6px;
+  border: 1px solid var(--chee-surface0);
+  border-radius: 3px;
 }
 
 #chee-analysis-panel .chee-line:hover {
   background: var(--chee-surface1);
+  border-color: var(--chee-overlay0);
   cursor: pointer;
-}
-
-#chee-analysis-panel .chee-line:last-child {
-  border-bottom: none;
 }
 
 #chee-analysis-panel .chee-line-rank {
@@ -119,6 +120,24 @@
   font-size: 11px;
   flex-shrink: 0;
   width: 12px;
+}
+
+#chee-analysis-panel .chee-line-score {
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  padding: 0 3px;
+  border-radius: 2px;
+}
+
+#chee-analysis-panel .chee-line-score.white-advantage {
+  color: #1a1a1a;
+  background: #e8e8e8;
+}
+
+#chee-analysis-panel .chee-line-score.black-advantage {
+  color: #e8e8e8;
+  background: #2a2a2a;
 }
 
 #chee-analysis-panel .chee-line-moves {
