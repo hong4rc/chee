@@ -12,7 +12,7 @@ function rankToFen(row) {
   return empty > 0 ? str + empty : str;
 }
 
-export function buildPlacement(board) {
+function buildPlacement(board) {
   return join(map(board, rankToFen), '/');
 }
 

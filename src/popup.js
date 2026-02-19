@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Button groups (numLines, searchDepth)
   document.querySelectorAll('.btn-group').forEach((group) => {
-    const key = group.dataset.key;
+    const { key } = group.dataset;
     const buttons = group.querySelectorAll('button');
 
     buttons.forEach((btn) => {

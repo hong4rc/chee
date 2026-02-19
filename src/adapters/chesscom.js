@@ -4,19 +4,16 @@ import {
   find, forEach, includes, filter, map, take, reduce, compact,
 } from 'lodash-es';
 import createDebug from '../lib/debug.js';
-import { BoardAdapter } from './base.js';
+import { BoardAdapter, detectEnPassantFromSquares } from './base.js';
 import {
-  FILES, BOARD_SIZE, LAST_RANK, TURN_WHITE, TURN_BLACK,
-  WHITE_KING, WHITE_ROOK,
-  KING_START_FILE, KINGSIDE_ROOK_FILE, QUEENSIDE_ROOK_FILE,
-  WHITE_BACK_ROW, BLACK_BACK_ROW,
+  BOARD_SIZE, TURN_WHITE, TURN_BLACK,
   SQUARE_PREFIX, SQUARE_CLASS_MIN_LEN,
   MAX_EXPLORE_CHILDREN, MAX_EXPLORE_DEPTH, MAX_EXPLORE_DEPTH_LAYOUT,
   MAX_LOG_SAMPLES, MAX_ATTR_DISPLAY_LEN, MAX_CLASS_DISPLAY_LEN,
   MIN_PIECE_CONTAINER_COUNT,
 } from '../constants.js';
 
-const log = createDebug('chee:adapter');
+const log = createDebug('chee:chesscom');
 
 const PIECE_MAP = {
   wp: 'P',
@@ -154,12 +151,6 @@ function formatElementSummary(element) {
 }
 
 export class ChesscomAdapter extends BoardAdapter {
-  constructor() {
-    super();
-    this._observer = null;
-    this._moveListObserver = null;
-  }
-
   findBoard() {
     const pieceContainer = this._findPieceContainer();
     if (pieceContainer) {
@@ -214,19 +205,6 @@ export class ChesscomAdapter extends BoardAdapter {
     return this._detectTurnFromMoveList();
   }
 
-  detectCastling(board) {
-    let castling = '';
-    if (board[WHITE_BACK_ROW][KING_START_FILE] === WHITE_KING) {
-      if (board[WHITE_BACK_ROW][KINGSIDE_ROOK_FILE] === WHITE_ROOK) castling += 'K';
-      if (board[WHITE_BACK_ROW][QUEENSIDE_ROOK_FILE] === WHITE_ROOK) castling += 'Q';
-    }
-    if (board[BLACK_BACK_ROW][KING_START_FILE] === 'k') {
-      if (board[BLACK_BACK_ROW][KINGSIDE_ROOK_FILE] === 'r') castling += 'k';
-      if (board[BLACK_BACK_ROW][QUEENSIDE_ROOK_FILE] === 'r') castling += 'q';
-    }
-    return castling || '-';
-  }
-
   detectEnPassant(board) {
     const highlights = document.querySelectorAll(SEL_HIGHLIGHT);
     if (highlights.length < 2) return '-';
@@ -237,27 +215,7 @@ export class ChesscomAdapter extends BoardAdapter {
       [],
     );
 
-    if (squares.length < 2) return '-';
-    const s0 = squares[0];
-    const s1 = squares[1];
-    if (s0.file !== s1.file || Math.abs(s0.rank - s1.rank) !== 2) return '-';
-
-    const p0 = board[LAST_RANK - s0.rank][s0.file];
-    const p1 = board[LAST_RANK - s1.rank][s1.file];
-    let toSq;
-    let fromSq;
-    if (p0 === 'P' || p0 === 'p') {
-      toSq = s0;
-      fromSq = s1;
-    } else if (p1 === 'P' || p1 === 'p') {
-      toSq = s1;
-      fromSq = s0;
-    } else {
-      return '-';
-    }
-
-    const epRank = (fromSq.rank + toSq.rank) / 2;
-    return FILES[toSq.file] + (epRank + 1);
+    return detectEnPassantFromSquares(squares, board);
   }
 
   detectMoveCount() {
@@ -292,17 +250,6 @@ export class ChesscomAdapter extends BoardAdapter {
     if (moveList) {
       this._moveListObserver = new MutationObserver(onChange);
       this._moveListObserver.observe(moveList, { childList: true, subtree: true });
-    }
-  }
-
-  disconnect() {
-    if (this._observer) {
-      this._observer.disconnect();
-      this._observer = null;
-    }
-    if (this._moveListObserver) {
-      this._moveListObserver.disconnect();
-      this._moveListObserver = null;
     }
   }
 

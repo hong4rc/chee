@@ -27,12 +27,11 @@ const log = createDebug('chee:content');
 
   const adapter = createAdapter();
   let engine = new Engine();
-  let panel = new Panel(settings.numLines);
+  const panel = new Panel(settings.numLines);
   const arrow = new ArrowOverlay();
 
   let boardEl = null;
   let debounceTimer = null;
-  let lastEval = null;
 
   function cleanup() {
     clearTimeout(debounceTimer);
@@ -79,7 +78,7 @@ const log = createDebug('chee:content');
     panel.on('line:leave', () => { arrow.clear(); });
 
     engine.on('ready', () => { panel.updateStatus('Ready'); });
-    engine.on('eval', (data) => { lastEval = data; panel.updateEval(data); });
+    engine.on('eval', (data) => { panel.updateEval(data); });
     engine.on('error', (msg) => { panel.updateStatus(`Error: ${msg}`); });
   }
 
@@ -105,6 +104,7 @@ const log = createDebug('chee:content');
       if (attempts > MAX_PIECE_ATTEMPTS) {
         clearInterval(pieceInterval);
         log.error('Gave up waiting for pieces');
+        panel.updateStatus('No pieces found — try reloading');
       }
     }, POLL_INTERVAL_MS);
   }
@@ -157,7 +157,7 @@ const log = createDebug('chee:content');
     engine.destroy();
     engine = new Engine();
     engine.on('ready', () => { panel.updateStatus('Ready'); });
-    engine.on('eval', (data) => { lastEval = data; panel.updateEval(data); });
+    engine.on('eval', (data) => { panel.updateEval(data); });
     engine.on('error', (msg) => { panel.updateStatus(`Error: ${msg}`); });
 
     if (!boardEl) return;

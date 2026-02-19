@@ -1,15 +1,9 @@
 // Lichess adapter: chessground DOM, piece parsing, turn/EP detection
 
-import createDebug from '../lib/debug.js';
-import { BoardAdapter } from './base.js';
+import { BoardAdapter, detectEnPassantFromSquares } from './base.js';
 import {
-  FILES, BOARD_SIZE, LAST_RANK, TURN_WHITE, TURN_BLACK,
-  WHITE_KING, WHITE_ROOK,
-  KING_START_FILE, KINGSIDE_ROOK_FILE, QUEENSIDE_ROOK_FILE,
-  WHITE_BACK_ROW, BLACK_BACK_ROW,
+  BOARD_SIZE, TURN_WHITE, TURN_BLACK,
 } from '../constants.js';
-
-const log = createDebug('chee:lichess');
 
 // Chessground piece class → FEN char
 const PIECE_MAP = {
@@ -53,12 +47,6 @@ function parseTransform(el) {
 // ─── Adapter ─────────────────────────────────────────────────
 
 export class LichessAdapter extends BoardAdapter {
-  constructor() {
-    super();
-    this._observer = null;
-    this._moveListObserver = null;
-  }
-
   findBoard() {
     return document.querySelector('.main-board cg-board')
       || document.querySelector('cg-board');
@@ -113,19 +101,6 @@ export class LichessAdapter extends BoardAdapter {
     return TURN_WHITE;
   }
 
-  detectCastling(board) {
-    let castling = '';
-    if (board[WHITE_BACK_ROW][KING_START_FILE] === WHITE_KING) {
-      if (board[WHITE_BACK_ROW][KINGSIDE_ROOK_FILE] === WHITE_ROOK) castling += 'K';
-      if (board[WHITE_BACK_ROW][QUEENSIDE_ROOK_FILE] === WHITE_ROOK) castling += 'Q';
-    }
-    if (board[BLACK_BACK_ROW][KING_START_FILE] === 'k') {
-      if (board[BLACK_BACK_ROW][KINGSIDE_ROOK_FILE] === 'r') castling += 'k';
-      if (board[BLACK_BACK_ROW][QUEENSIDE_ROOK_FILE] === 'r') castling += 'q';
-    }
-    return castling || '-';
-  }
-
   detectEnPassant(board) {
     const boardEl = this.findBoard();
     if (!boardEl) return '-';
@@ -140,28 +115,8 @@ export class LichessAdapter extends BoardAdapter {
       const pos = parseTransform(sq);
       if (pos) squares.push(pxToSquare(pos.x, pos.y, sqSize, orientation));
     });
-    if (squares.length < 2) return '-';
 
-    const s0 = squares[0];
-    const s1 = squares[1];
-    if (s0.file !== s1.file || Math.abs(s0.rank - s1.rank) !== 2) return '-';
-
-    const p0 = board[LAST_RANK - s0.rank][s0.file];
-    const p1 = board[LAST_RANK - s1.rank][s1.file];
-    let toSq;
-    let fromSq;
-    if (p0 === 'P' || p0 === 'p') {
-      toSq = s0;
-      fromSq = s1;
-    } else if (p1 === 'P' || p1 === 'p') {
-      toSq = s1;
-      fromSq = s0;
-    } else {
-      return '-';
-    }
-
-    const epRank = (fromSq.rank + toSq.rank) / 2;
-    return FILES[toSq.file] + (epRank + 1);
+    return detectEnPassantFromSquares(squares, board);
   }
 
   detectMoveCount() {
@@ -197,17 +152,6 @@ export class LichessAdapter extends BoardAdapter {
     if (moveList) {
       this._moveListObserver = new MutationObserver(onChange);
       this._moveListObserver.observe(moveList, { childList: true, subtree: true, attributes: true });
-    }
-  }
-
-  disconnect() {
-    if (this._observer) {
-      this._observer.disconnect();
-      this._observer = null;
-    }
-    if (this._moveListObserver) {
-      this._moveListObserver.disconnect();
-      this._moveListObserver = null;
     }
   }
 }
