@@ -98,6 +98,18 @@ export const CLASSIFICATION_THRESHOLDS = [
   },
 ];
 
+// ─── Pre-move hints (spread = score gap between line 1 and 2) ─
+export const HINT_MIN_DEPTH = 14;
+export const HINT_ARROW_OPACITY = 0.5;
+export const HINT_THRESHOLDS = [
+  {
+    min: 200, label: 'Brilliant', symbol: '!!', color: '#1baca6',
+  },
+  {
+    min: 80, label: 'Excellent', symbol: '\u2713', color: '#96bc4b',
+  },
+];
+
 // ─── Panel / eval display ────────────────────────────────────
 export const PANEL_ID = 'chee-analysis-panel';
 export const NUM_LINES = 3;

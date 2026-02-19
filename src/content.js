@@ -1,7 +1,9 @@
 // Chee - Chess Analysis Extension
 // Entry point: detects site, wires modules together
 
-import { times, constant, forEach } from 'lodash-es';
+import {
+  times, constant, forEach, find,
+} from 'lodash-es';
 import createDebug from './lib/debug.js';
 import pollUntil from './lib/poll.js';
 import { loadSettings } from './lib/settings.js';
@@ -18,6 +20,8 @@ import {
   DEBOUNCE_MS, POLL_INTERVAL_MS, BOARD_TIMEOUT_MS,
   MAX_PIECE_ATTEMPTS,
   EVT_READY, EVT_EVAL, EVT_ERROR, EVT_LINE_HOVER, EVT_LINE_LEAVE,
+  HINT_MIN_DEPTH, HINT_ARROW_OPACITY, HINT_THRESHOLDS,
+  CLASSIFICATION_MATE_LOSS,
 } from './constants.js';
 
 const log = createDebug('chee:content');
@@ -40,6 +44,7 @@ const log = createDebug('chee:content');
   let boardEl = null;
   let debounceTimer = null;
   let latestBoard = null;
+  let currentHint = null; // { uci, color, symbol } — pre-move hint, one object only
 
   function cleanup() {
     clearTimeout(debounceTimer);
@@ -99,9 +104,41 @@ const log = createDebug('chee:content');
     return fen;
   }
 
+  function updateHint(data) {
+    arrow.clearHint();
+    currentHint = null;
+
+    if (!settings.showClassifications) return;
+    if (!data.lines || data.lines.length < 2) return;
+    if (data.depth < HINT_MIN_DEPTH) return;
+
+    const line1 = data.lines[0];
+    const line2 = data.lines[1];
+
+    // Compute spread (how much worse the 2nd best move is)
+    let spread;
+    if (line1.mate !== null && line2.mate === null) {
+      spread = CLASSIFICATION_MATE_LOSS;
+    } else if (line1.mate === null && line2.mate === null) {
+      spread = line1.score - line2.score;
+    } else {
+      return;
+    }
+
+    const tier = find(HINT_THRESHOLDS, (t) => spread >= t.min);
+    if (!tier) return;
+
+    const bestUci = line1.pv && line1.pv[0];
+    if (!bestUci) return;
+
+    currentHint = { uci: bestUci, color: tier.color, symbol: tier.symbol };
+    arrow.drawHint(bestUci, adapter.isFlipped(boardEl), tier.color, tier.symbol, HINT_ARROW_OPACITY);
+  }
+
   function onEvalData(data) {
     panel.updateEval(data);
     classifier.onEval(data, boardEl);
+    updateHint(data);
   }
 
   function onBoardChange() {
@@ -109,6 +146,8 @@ const log = createDebug('chee:content');
     debounceTimer = setTimeout(() => {
       const fen = readFen();
       if (!fen) return;
+      arrow.clearHint();
+      currentHint = null;
       classifier.onBoardChange(fen, boardEl, latestBoard, latestPly);
       engine.analyze(fen);
     }, DEBOUNCE_MS);
@@ -122,9 +161,21 @@ const log = createDebug('chee:content');
 
   function setupListeners(el) {
     panel.on(EVT_LINE_HOVER, (moves, turn) => {
+      arrow.clearHint();
       arrow.draw(moves, turn, adapter.isFlipped(el));
     });
-    panel.on(EVT_LINE_LEAVE, () => { arrow.clear(); });
+    panel.on(EVT_LINE_LEAVE, () => {
+      arrow.clear();
+      if (currentHint) {
+        arrow.drawHint(
+          currentHint.uci,
+          adapter.isFlipped(boardEl),
+          currentHint.color,
+          currentHint.symbol,
+          HINT_ARROW_OPACITY,
+        );
+      }
+    });
     bindEngineListeners();
   }
 

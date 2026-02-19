@@ -244,4 +244,85 @@ export class ArrowOverlay {
     if (!this._svg) return;
     forEach(this._svg.querySelectorAll('.chee-classify-el'), (el) => el.remove());
   }
+
+  drawHint(uciMove, isFlipped, color, symbol, opacity) {
+    if (!this._svg || !this._boardEl) return;
+    this.clearHint();
+
+    if (!uciMove || uciMove.length < UCI_MIN_LEN) return;
+
+    const {
+      sqW, sqH, strokeWidth, headSize, originRadius,
+    } = this._getBoardMetrics();
+
+    const {
+      fromFile, fromRank, toFile, toRank,
+    } = parseUci(uciMove);
+    const from = squareCenter(fromFile, fromRank, sqW, sqH, isFlipped);
+    const toRaw = squareCenter(toFile, toRank, sqW, sqH, isFlipped);
+    const to = shortenEnd(from, toRaw, headSize);
+
+    // Arrow marker
+    const markerId = 'chee-hint-arrowhead';
+    const defs = this._svg.querySelector('defs');
+    const marker = createSvgEl('marker', {
+      id: markerId,
+      markerWidth: ARROW_MARKER_WIDTH,
+      markerHeight: ARROW_MARKER_HEIGHT,
+      refX: ARROW_MARKER_REF_X,
+      refY: ARROW_MARKER_REF_Y,
+      orient: 'auto',
+      class: 'chee-hint-el',
+    });
+    marker.appendChild(createSvgEl('path', {
+      d: `M0,0 L${ARROW_MARKER_WIDTH},${ARROW_MARKER_REF_Y} L0,${ARROW_MARKER_HEIGHT} Z`,
+      fill: color,
+    }));
+    defs.appendChild(marker);
+
+    // Arrow line
+    appendArrow(this._svg, from, to, {
+      color,
+      opacity,
+      strokeWidth: strokeWidth * 0.8,
+      originRadius: originRadius * 0.8,
+      elClass: 'chee-hint-el',
+      markerEnd: `url(#${markerId})`,
+    });
+
+    // Icon badge on destination square
+    if (symbol) {
+      const center = squareCenter(toFile, toRank, sqW, sqH, isFlipped);
+      const badgeR = sqW * 0.22;
+      const bx = center.x + sqW * 0.28;
+      const by = center.y - sqH * 0.28;
+
+      this._svg.appendChild(createSvgEl('circle', {
+        cx: bx,
+        cy: by,
+        r: badgeR,
+        fill: color,
+        class: 'chee-hint-el',
+      }));
+
+      const text = createSvgEl('text', {
+        x: bx,
+        y: by,
+        fill: '#fff',
+        'font-size': sqW * 0.18,
+        'font-weight': '700',
+        'font-family': '-apple-system, BlinkMacSystemFont, sans-serif',
+        'text-anchor': 'middle',
+        'dominant-baseline': 'central',
+        class: 'chee-hint-el',
+      });
+      text.textContent = symbol;
+      this._svg.appendChild(text);
+    }
+  }
+
+  clearHint() {
+    if (!this._svg) return;
+    forEach(this._svg.querySelectorAll('.chee-hint-el'), (el) => el.remove());
+  }
 }
