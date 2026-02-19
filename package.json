@@ -19,12 +19,14 @@
     "lint": "eslint src/ static/stockfish-worker.js",
     "lint:fix": "eslint src/ static/stockfish-worker.js --fix",
     "clean": "rm -rf dist",
-    "pack": "npm run build && cd dist && zip -r ../chee-v$(node -p \"require('../package.json').version\").zip . -x '.*'"
+    "pack": "npm run build && cd dist && zip -r ../chee-v$(node -p \"require('../package.json').version\").zip . -x '.*'",
+    "publish:cws": "npm run pack && chrome-webstore-upload upload --source chee-v$(node -p \"require('./package.json').version\").zip --auto-publish"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "@rollup/plugin-replace": "^6.0.3",
+    "chrome-webstore-upload-cli": "^3.5.0",
     "eslint": "^8.57.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.32.0",
