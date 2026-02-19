@@ -131,6 +131,18 @@
   flex: 1;
 }
 
+/* Individual move spans */
+#chee-analysis-panel .chee-move {
+  cursor: pointer;
+  padding: 1px 2px;
+  border-radius: 2px;
+}
+
+#chee-analysis-panel .chee-move:hover {
+  background: var(--chee-surface2);
+  color: var(--chee-text);
+}
+
 /* Status bar */
 #chee-analysis-panel .chee-status {
   padding: 5px 10px;

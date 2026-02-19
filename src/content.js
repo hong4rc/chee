@@ -74,8 +74,8 @@ const log = createDebug('chee:content');
   }
 
   function setupListeners(el) {
-    panel.on(EVT_LINE_HOVER, (lineIndex, uciMove) => {
-      arrow.draw(uciMove, lineIndex, adapter.isFlipped(el));
+    panel.on(EVT_LINE_HOVER, (moves, turn) => {
+      arrow.draw(moves, turn, adapter.isFlipped(el));
     });
     panel.on(EVT_LINE_LEAVE, () => { arrow.clear(); });
 

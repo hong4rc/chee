@@ -100,8 +100,10 @@ export const UCI_MIN_LEN = 4;
 export const UCI_PROMO_LEN = 5;
 
 // ─── Arrow overlay ───────────────────────────────────────────
-export const ARROW_COLORS = ['#5d9948', '#4a90d9', '#e8833a']; // green, blue, orange
-export const ARROW_OPACITY = 0.8;
+export const ARROW_COLOR_WHITE = '#4a90d9'; // blue — white's moves
+export const ARROW_COLOR_BLACK = '#e8833a'; // orange — black's moves
+export const ARROW_OPACITY_MAX = 0.85;
+export const ARROW_OPACITY_MIN = 0.3;
 export const ARROW_HEAD_SIZE = 0.3; // fraction of square size
 export const ARROW_WIDTH = 0.15; // fraction of square size
 export const ARROW_OVERLAY_ID = 'chee-arrow-overlay';

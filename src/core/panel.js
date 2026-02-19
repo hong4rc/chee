@@ -1,7 +1,7 @@
 // Analysis panel UI component
 
 import {
-  clamp, forEach, get, times, join, take,
+  clamp, forEach, times, take,
 } from 'lodash-es';
 import createDebug from '../lib/debug.js';
 import { Emitter } from '../lib/emitter.js';
@@ -217,8 +217,16 @@ export class Panel extends Emitter {
   _bindLineListeners() {
     const lineEls = this._el.querySelectorAll('.chee-line');
     forEach(lineEls, (lineEl, i) => {
-      lineEl.addEventListener('mouseenter', () => {
-        if (this._lines[i]) this.emit(EVT_LINE_HOVER, i, this._lines[i]);
+      lineEl.addEventListener('mouseover', (e) => {
+        const moveSpan = e.target.closest('.chee-move');
+        const pv = this._lines[i];
+        if (!pv) return;
+        if (moveSpan) {
+          const m = parseInt(moveSpan.dataset.idx, 10);
+          this.emit(EVT_LINE_HOVER, pv.slice(0, m + 1), this._turn);
+        } else {
+          this.emit(EVT_LINE_HOVER, pv.slice(0, 1), this._turn);
+        }
       });
       lineEl.addEventListener('mouseleave', () => {
         this.emit(EVT_LINE_LEAVE);
@@ -254,12 +262,12 @@ export class Panel extends Emitter {
 
   _formatLineMoves(line) {
     if (this._board && line.pv && line.pv.length > 0) {
-      return join(pvToSan(line.pv, this._board, this._turn), ' ');
+      return pvToSan(line.pv, this._board, this._turn);
     }
     if (line.pv) {
-      return join(take(line.pv, MAX_PV_MOVES), ' ');
+      return take(line.pv, MAX_PV_MOVES);
     }
-    return '';
+    return [];
   }
 
   _updateLineRow(lineEl, line) {
@@ -270,8 +278,18 @@ export class Panel extends Emitter {
       return null;
     }
 
-    movesEl.textContent = this._formatLineMoves(line);
-    return get(line, 'pv[0]', null);
+    const sanMoves = this._formatLineMoves(line);
+    const pv = line.pv ? take(line.pv, MAX_PV_MOVES) : [];
+
+    movesEl.innerHTML = '';
+    forEach(sanMoves, (san, m) => {
+      if (m > 0) movesEl.appendChild(document.createTextNode(' '));
+      const span = el('span', 'chee-move', san);
+      span.dataset.idx = m;
+      movesEl.appendChild(span);
+    });
+
+    return pv.length > 0 ? pv : null;
   }
 
   _updateLineRows(lines) {

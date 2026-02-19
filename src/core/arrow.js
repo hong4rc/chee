@@ -1,16 +1,18 @@
 // Arrow overlay: draws SVG arrows on the chess board for hovered analysis lines
 
-import { forEach, clamp } from 'lodash-es';
+import { forEach } from 'lodash-es';
 import {
   BOARD_SIZE, LAST_RANK, CHAR_CODE_A,
-  ARROW_COLORS, ARROW_OPACITY, ARROW_HEAD_SIZE, ARROW_WIDTH,
+  ARROW_COLOR_WHITE, ARROW_COLOR_BLACK,
+  ARROW_OPACITY_MAX, ARROW_OPACITY_MIN, ARROW_HEAD_SIZE, ARROW_WIDTH,
   ARROW_OVERLAY_ID, ARROW_OVERLAY_Z, ARROW_ORIGIN_RADIUS,
   ARROW_SHORTEN_FACTOR,
   ARROW_MARKER_WIDTH, ARROW_MARKER_HEIGHT, ARROW_MARKER_REF_X, ARROW_MARKER_REF_Y,
-  UCI_MIN_LEN,
+  UCI_MIN_LEN, TURN_WHITE, TURN_BLACK,
 } from '../constants.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
+const TEAM_COLORS = [ARROW_COLOR_WHITE, ARROW_COLOR_BLACK];
 
 function createSvgEl(tag, attrs) {
   const node = document.createElementNS(SVG_NS, tag);
@@ -20,7 +22,7 @@ function createSvgEl(tag, attrs) {
 
 function createMarkerDefs() {
   const defs = createSvgEl('defs', {});
-  forEach(ARROW_COLORS, (color, i) => {
+  forEach(TEAM_COLORS, (color, i) => {
     const marker = createSvgEl('marker', {
       id: `chee-arrowhead-${i}`,
       markerWidth: ARROW_MARKER_WIDTH,
@@ -50,6 +52,62 @@ function squareCenter(file, rank, sqW, sqH, isFlipped) {
     x: (file + 0.5) * sqW,
     y: (LAST_RANK - rank + 0.5) * sqH,
   };
+}
+
+function parseUci(uciMove) {
+  return {
+    fromFile: uciMove.charCodeAt(0) - CHAR_CODE_A,
+    fromRank: parseInt(uciMove[1], 10) - 1,
+    toFile: uciMove.charCodeAt(2) - CHAR_CODE_A,
+    toRank: parseInt(uciMove[3], 10) - 1,
+  };
+}
+
+function shortenEnd(from, to, headSize) {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+  const shortenBy = headSize * ARROW_SHORTEN_FACTOR;
+  if (dist <= shortenBy) return to;
+  return {
+    x: to.x - (dx / dist) * shortenBy,
+    y: to.y - (dy / dist) * shortenBy,
+  };
+}
+
+function moveOpacity(idx, total) {
+  if (total === 1) return ARROW_OPACITY_MAX;
+  return ARROW_OPACITY_MIN + (ARROW_OPACITY_MAX - ARROW_OPACITY_MIN) * (idx / (total - 1));
+}
+
+function appendArrow(svg, from, to, opts) {
+  const {
+    color,
+    colorIdx,
+    opacity,
+    strokeWidth,
+    originRadius,
+  } = opts;
+  svg.appendChild(createSvgEl('circle', {
+    cx: from.x,
+    cy: from.y,
+    r: originRadius,
+    fill: color,
+    opacity,
+    class: 'chee-arrow-el',
+  }));
+  svg.appendChild(createSvgEl('line', {
+    x1: from.x,
+    y1: from.y,
+    x2: to.x,
+    y2: to.y,
+    stroke: color,
+    'stroke-width': strokeWidth,
+    'stroke-linecap': 'round',
+    opacity,
+    'marker-end': `url(#chee-arrowhead-${colorIdx})`,
+    class: 'chee-arrow-el',
+  }));
 }
 
 export class ArrowOverlay {
@@ -84,9 +142,9 @@ export class ArrowOverlay {
     this._svg = svg;
   }
 
-  draw(uciMove, lineIndex, isFlipped) {
+  draw(uciMoves, startTurn, isFlipped) {
     if (!this._svg || !this._boardEl) return;
-    if (!uciMove || uciMove.length < UCI_MIN_LEN) return;
+    if (!uciMoves || uciMoves.length === 0) return;
 
     this.clear();
 
@@ -95,51 +153,34 @@ export class ArrowOverlay {
     const sqW = boardWidth / BOARD_SIZE;
     const sqH = boardHeight / BOARD_SIZE;
 
-    const fromFile = uciMove.charCodeAt(0) - CHAR_CODE_A;
-    const fromRank = parseInt(uciMove[1], 10) - 1;
-    const toFile = uciMove.charCodeAt(2) - CHAR_CODE_A;
-    const toRank = parseInt(uciMove[3], 10) - 1;
-
-    const from = squareCenter(fromFile, fromRank, sqW, sqH, isFlipped);
-    const to = squareCenter(toFile, toRank, sqW, sqH, isFlipped);
-
     this._svg.setAttribute('viewBox', `0 0 ${boardWidth} ${boardHeight}`);
 
-    const colorIdx = clamp(lineIndex, 0, ARROW_COLORS.length - 1);
-    const color = ARROW_COLORS[colorIdx];
     const strokeWidth = ARROW_WIDTH * sqW;
     const headSize = ARROW_HEAD_SIZE * sqW;
+    const originRadius = sqW * ARROW_ORIGIN_RADIUS;
+    const total = uciMoves.length;
 
-    const dx = to.x - from.x;
-    const dy = to.y - from.y;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    const shortenBy = headSize * ARROW_SHORTEN_FACTOR;
-    const toX = dist > shortenBy ? to.x - (dx / dist) * shortenBy : to.x;
-    const toY = dist > shortenBy ? to.y - (dy / dist) * shortenBy : to.y;
+    let turn = startTurn;
+    forEach(uciMoves, (uciMove, idx) => {
+      if (!uciMove || uciMove.length < UCI_MIN_LEN) return;
 
-    const circle = createSvgEl('circle', {
-      cx: from.x,
-      cy: from.y,
-      r: sqW * ARROW_ORIGIN_RADIUS,
-      fill: color,
-      opacity: ARROW_OPACITY,
-      class: 'chee-arrow-el',
+      const {
+        fromFile, fromRank, toFile, toRank,
+      } = parseUci(uciMove);
+      const from = squareCenter(fromFile, fromRank, sqW, sqH, isFlipped);
+      const to = shortenEnd(from, squareCenter(toFile, toRank, sqW, sqH, isFlipped), headSize);
+      const colorIdx = turn === TURN_WHITE ? 0 : 1;
+
+      appendArrow(this._svg, from, to, {
+        color: TEAM_COLORS[colorIdx],
+        colorIdx,
+        opacity: moveOpacity(idx, total),
+        strokeWidth,
+        originRadius,
+      });
+
+      turn = turn === TURN_WHITE ? TURN_BLACK : TURN_WHITE;
     });
-    this._svg.appendChild(circle);
-
-    const line = createSvgEl('line', {
-      x1: from.x,
-      y1: from.y,
-      x2: toX,
-      y2: toY,
-      stroke: color,
-      'stroke-width': strokeWidth,
-      'stroke-linecap': 'round',
-      opacity: ARROW_OPACITY,
-      'marker-end': `url(#chee-arrowhead-${colorIdx})`,
-      class: 'chee-arrow-el',
-    });
-    this._svg.appendChild(line);
   }
 
   clear() {
