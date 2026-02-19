@@ -4,6 +4,9 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: write
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -17,6 +20,12 @@ jobs:
       - run: npm ci
 
       - run: npm run pack
+
+      - name: Upload zip to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: chee-v*.zip
 
       - name: Upload to Chrome Web Store
         run: npx chrome-webstore-upload upload --source chee-v$(node -p "require('./package.json').version").zip --auto-publish
