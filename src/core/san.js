@@ -3,14 +3,15 @@
 import {
   map, some, reduce, take,
 } from 'lodash-es';
+import { parseUci } from '../lib/uci.js';
 import {
-  FILES, CHAR_CODE_A, BOARD_SIZE, LAST_RANK,
+  FILES, BOARD_SIZE, LAST_RANK,
   WHITE_KING, WHITE_QUEEN, WHITE_ROOK, WHITE_BISHOP, WHITE_KNIGHT, WHITE_PAWN,
   TURN_WHITE, TURN_BLACK,
   SAN_CASTLE_KING, SAN_CASTLE_QUEEN,
   CASTLING_DISTANCE, KINGSIDE_ROOK_FILE, QUEENSIDE_ROOK_FILE,
   KINGSIDE_ROOK_DEST, QUEENSIDE_ROOK_DEST,
-  UCI_MIN_LEN, UCI_PROMO_LEN, MAX_PV_MOVES,
+  UCI_MIN_LEN, MAX_PV_MOVES,
 } from '../constants.js';
 
 function cloneBoard(board) {
@@ -66,11 +67,9 @@ function getDisambiguation(board, pieceType, fromFile, fromRank, toFile, toRank,
 export function uciToSan(uciMove, board, turn) {
   if (!uciMove || uciMove.length < UCI_MIN_LEN) return uciMove;
 
-  const fromFile = uciMove.charCodeAt(0) - CHAR_CODE_A;
-  const fromRank = parseInt(uciMove[1], 10) - 1;
-  const toFile = uciMove.charCodeAt(2) - CHAR_CODE_A;
-  const toRank = parseInt(uciMove[3], 10) - 1;
-  const promotion = uciMove.length === UCI_PROMO_LEN ? uciMove[4] : null;
+  const {
+    fromFile, fromRank, toFile, toRank, promotion,
+  } = parseUci(uciMove);
 
   const piece = board[LAST_RANK - fromRank][fromFile];
   if (!piece) return uciMove;
@@ -102,11 +101,9 @@ export function uciToSan(uciMove, board, turn) {
 
 export function applyUciMove(board, uciMove) {
   const nb = cloneBoard(board);
-  const ff = uciMove.charCodeAt(0) - CHAR_CODE_A;
-  const fr = parseInt(uciMove[1], 10) - 1;
-  const tf = uciMove.charCodeAt(2) - CHAR_CODE_A;
-  const tr = parseInt(uciMove[3], 10) - 1;
-  const promo = uciMove.length === UCI_PROMO_LEN ? uciMove[4] : null;
+  const {
+    fromFile: ff, fromRank: fr, toFile: tf, toRank: tr, promotion: promo,
+  } = parseUci(uciMove);
 
   const piece = nb[LAST_RANK - fr][ff];
   if (!piece) return nb;

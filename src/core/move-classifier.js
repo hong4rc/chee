@@ -3,10 +3,11 @@
 
 import createDebug from '../lib/debug.js';
 import { LruCache } from '../lib/lru.js';
+import { parseUci } from '../lib/uci.js';
 import { classify } from './classify.js';
 import { detectInsight } from './insight.js';
 import {
-  BOARD_SIZE, LAST_RANK, FILES, CHAR_CODE_A,
+  BOARD_SIZE, LAST_RANK, FILES,
   CLASSIFICATION_MIN_DEPTH, CLASSIFICATION_LOCK_DEPTH,
   LABEL_MISTAKE, LABEL_BLUNDER,
   TURN_WHITE, TURN_BLACK,
@@ -161,8 +162,7 @@ export class MoveClassifier {
     let insight = null;
     if ((result.label === LABEL_MISTAKE || result.label === LABEL_BLUNDER)
       && this._boardBeforeMove && this._prevEval.pv && this._prevEval.pv.length > 0) {
-      const fromFile = this._playedMoveUci.charCodeAt(0) - CHAR_CODE_A;
-      const fromRank = parseInt(this._playedMoveUci[1], 10) - 1;
+      const { fromFile, fromRank } = parseUci(this._playedMoveUci);
       const piece = this._boardBeforeMove[LAST_RANK - fromRank][fromFile];
       const turn = piece && piece === piece.toUpperCase() ? TURN_WHITE : TURN_BLACK;
       insight = detectInsight(

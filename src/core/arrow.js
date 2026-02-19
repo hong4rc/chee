@@ -1,8 +1,9 @@
 // Arrow overlay: draws SVG arrows on the chess board for hovered analysis lines
 
 import { forEach } from 'lodash-es';
+import { parseUci } from '../lib/uci.js';
 import {
-  BOARD_SIZE, LAST_RANK, CHAR_CODE_A,
+  BOARD_SIZE, LAST_RANK,
   ARROW_COLOR_WHITE, ARROW_COLOR_BLACK,
   ARROW_OPACITY_MAX, ARROW_OPACITY_MIN, ARROW_HEAD_SIZE, ARROW_WIDTH,
   ARROW_OVERLAY_ID, ARROW_OVERLAY_Z, ARROW_ORIGIN_RADIUS,
@@ -52,15 +53,6 @@ function squareCenter(file, rank, sqW, sqH, isFlipped) {
   return {
     x: (file + 0.5) * sqW,
     y: (LAST_RANK - rank + 0.5) * sqH,
-  };
-}
-
-function parseUci(uciMove) {
-  return {
-    fromFile: uciMove.charCodeAt(0) - CHAR_CODE_A,
-    fromRank: parseInt(uciMove[1], 10) - 1,
-    toFile: uciMove.charCodeAt(2) - CHAR_CODE_A,
-    toRank: parseInt(uciMove[3], 10) - 1,
   };
 }
 

@@ -39,8 +39,6 @@ export const DEBOUNCE_MS = 100;
 export const POLL_INTERVAL_MS = 500;
 export const BOARD_TIMEOUT_MS = 60000;
 export const MAX_PIECE_ATTEMPTS = 60;
-export const EXPLORE_TRIGGER_ATTEMPT = 5;
-export const LOG_INTERVAL_ATTEMPTS = 10;
 
 // ─── Engine resources ────────────────────────────────────────
 export const WORKER_FILE = 'stockfish-worker.js';
@@ -64,13 +62,6 @@ export const MSG_STOP = 'stop';
 
 // ─── Engine config ───────────────────────────────────────────
 export const SEARCH_DEPTH = 22;
-export const HASH_SIZE_MB = 16;
-
-// ─── Settings bounds ────────────────────────────────────────
-export const MIN_SEARCH_DEPTH = 19;
-export const MAX_SEARCH_DEPTH = 22;
-export const MIN_NUM_LINES = 3;
-export const MAX_NUM_LINES = 5;
 export const SETTINGS_DEFAULTS = {
   numLines: 3,
   searchDepth: SEARCH_DEPTH,
@@ -130,9 +121,6 @@ export const PANEL_ID = 'chee-analysis-panel';
 export const NUM_LINES = 3;
 export const MAX_PV_MOVES = 8;
 export const CENTIPAWN_DIVISOR = 100;
-export const EVAL_BAR_MIN_PCT = 2;
-export const EVAL_BAR_MAX_PCT = 98;
-export const EVAL_BAR_CENTER_PCT = 50;
 
 // ─── DOM exploration limits ──────────────────────────────────
 export const MAX_EXPLORE_CHILDREN = 30;

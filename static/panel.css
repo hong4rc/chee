@@ -170,7 +170,7 @@
 }
 
 #chee-analysis-panel .chee-move:hover {
-  background: var(--chee-surface2);
+  background: var(--chee-surface1);
   color: var(--chee-text);
 }
 
