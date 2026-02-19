@@ -245,6 +245,17 @@
 }
 
 
+/* Insight slot (between top row and eval bar) */
+#chee-analysis-panel .chee-insight-slot {
+  padding: 0 10px 4px;
+}
+
+#chee-analysis-panel .chee-insight {
+  font-size: 9px;
+  font-style: italic;
+  color: var(--chee-overlay0);
+}
+
 #chee-analysis-panel .chee-classification-badge {
   font-size: 10px;
   font-weight: 700;

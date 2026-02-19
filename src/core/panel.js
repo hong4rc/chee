@@ -45,12 +45,14 @@ function createHeader() {
     toggle,
   );
 
+  const insightSlot = el('div', 'chee-insight-slot');
+
   const bar = el('div', 'chee-eval-bar');
   const fill = el('div', 'chee-eval-fill');
   fill.style.width = `${EVAL_BAR_CENTER_PCT}%`;
   bar.appendChild(fill);
 
-  header.append(topRow, bar);
+  header.append(topRow, insightSlot, bar);
   return header;
 }
 
@@ -160,7 +162,7 @@ export class Panel extends Emitter {
     this._updateLineRows(lines);
   }
 
-  showClassification({ label, symbol, color }) {
+  showClassification({ label, symbol, color }, insight) {
     if (!this._el) return;
     this.clearClassification();
     const slot = this._el.querySelector('.chee-classification-slot');
@@ -169,12 +171,22 @@ export class Panel extends Emitter {
     const badge = el('span', 'chee-classification-badge', text);
     badge.style.background = color;
     slot.appendChild(badge);
+
+    if (insight) {
+      const insightSlot = this._el.querySelector('.chee-insight-slot');
+      if (insightSlot) {
+        const insightEl = el('div', 'chee-insight', `\u21B3 ${insight}`);
+        insightSlot.appendChild(insightEl);
+      }
+    }
   }
 
   clearClassification() {
     if (!this._el) return;
     const slot = this._el.querySelector('.chee-classification-slot');
     if (slot) { slot.innerHTML = ''; }
+    const insightSlot = this._el.querySelector('.chee-insight-slot');
+    if (insightSlot) { insightSlot.innerHTML = ''; }
   }
 
   updateStatus(text) {
