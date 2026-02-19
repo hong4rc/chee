@@ -20,12 +20,19 @@
 
 /* Header */
 #chee-analysis-panel .chee-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 10px;
   background: var(--chee-mantle);
   border-bottom: 1px solid var(--chee-surface0);
+  padding: 6px 10px 0;
+}
+
+#chee-analysis-panel .chee-header-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 6px;
+}
+
+#chee-analysis-panel .chee-title {
   font-weight: 600;
   font-size: 12px;
   letter-spacing: 0.5px;
@@ -33,65 +40,56 @@
   color: var(--chee-subtext1);
 }
 
-#chee-analysis-panel .chee-header .chee-title {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-#chee-analysis-panel .chee-header .chee-depth {
-  font-weight: 400;
-  font-size: 11px;
-  color: var(--chee-overlay0);
-  text-transform: none;
-  letter-spacing: normal;
-}
-
-/* Eval section */
-#chee-analysis-panel .chee-eval-section {
-  display: flex;
-  align-items: stretch;
-  border-bottom: 1px solid var(--chee-surface0);
-  height: 40px;
-}
-
-#chee-analysis-panel .chee-eval-bar {
-  width: 24px;
-  background: var(--chee-crust);
-  position: relative;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-#chee-analysis-panel .chee-eval-bar .chee-eval-fill {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: var(--chee-text);
-  transition: height 0.3s ease;
-}
-
 #chee-analysis-panel .chee-eval-score {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
+  font-size: 13px;
   font-weight: 700;
-  padding: 0 8px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  margin-left: auto;
 }
 
 #chee-analysis-panel .chee-eval-score.white-advantage {
-  color: var(--chee-text);
+  color: #1a1a1a;
+  background: #e8e8e8;
+  border-color: #ccc;
 }
 
 #chee-analysis-panel .chee-eval-score.black-advantage {
-  color: var(--chee-overlay1);
+  color: #e8e8e8;
+  background: #2a2a2a;
+  border-color: #444;
 }
 
 #chee-analysis-panel .chee-eval-score.mate-score {
-  color: var(--chee-peach);
+  color: var(--chee-peach) !important;
+}
+
+#chee-analysis-panel .chee-depth {
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--chee-overlay0);
+}
+
+/* Horizontal eval bar */
+#chee-analysis-panel .chee-eval-bar {
+  height: 6px;
+  background: #2a2a2a;
+  border: 1px solid var(--chee-surface0);
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+  margin: 0 0 6px;
+}
+
+#chee-analysis-panel .chee-eval-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background: #e8e8e8;
+  transition: width 0.3s ease;
+  border-radius: 2px 0 0 2px;
 }
 
 /* Lines */
@@ -121,26 +119,6 @@
   font-size: 11px;
   flex-shrink: 0;
   width: 12px;
-}
-
-#chee-analysis-panel .chee-line-eval {
-  font-weight: 700;
-  font-size: 12px;
-  flex-shrink: 0;
-  width: 44px;
-  text-align: right;
-}
-
-#chee-analysis-panel .chee-line-eval.positive {
-  color: var(--chee-text);
-}
-
-#chee-analysis-panel .chee-line-eval.negative {
-  color: var(--chee-overlay1);
-}
-
-#chee-analysis-panel .chee-line-eval.mate {
-  color: var(--chee-peach);
 }
 
 #chee-analysis-panel .chee-line-moves {
@@ -182,7 +160,7 @@
   color: var(--chee-text);
 }
 
-#chee-analysis-panel.chee-minimized .chee-eval-section,
+#chee-analysis-panel.chee-minimized .chee-eval-bar,
 #chee-analysis-panel.chee-minimized .chee-lines,
 #chee-analysis-panel.chee-minimized .chee-status {
   display: none;

@@ -24,32 +24,30 @@ function el(tag, className, text) {
 
 function createHeader() {
   const header = el('div', 'chee-header');
+  const topRow = el('div', 'chee-header-top');
   const toggle = el('button', 'chee-toggle');
   toggle.title = 'Minimize';
   toggle.innerHTML = '&#x2212;';
-  header.append(
+  topRow.append(
     el('span', 'chee-title', 'Chee'),
-    el('span', 'chee-depth'),
     toggle,
+    el('span', 'chee-eval-score', '0.0'),
+    el('span', 'chee-depth'),
   );
-  return header;
-}
 
-function createEvalSection() {
-  const section = el('div', 'chee-eval-section');
   const bar = el('div', 'chee-eval-bar');
   const fill = el('div', 'chee-eval-fill');
-  fill.style.height = `${EVAL_BAR_CENTER_PCT}%`;
+  fill.style.width = `${EVAL_BAR_CENTER_PCT}%`;
   bar.appendChild(fill);
-  section.append(bar, el('div', 'chee-eval-score', '0.0'));
-  return section;
+
+  header.append(topRow, bar);
+  return header;
 }
 
 function createLine(rank) {
   const line = el('div', 'chee-line');
   line.append(
     el('span', 'chee-line-rank', String(rank)),
-    el('span', 'chee-line-eval', '...'),
     el('span', 'chee-line-moves'),
   );
   return line;
@@ -93,7 +91,6 @@ export class Panel extends Emitter {
     this._el.id = PANEL_ID;
     this._el.append(
       createHeader(),
-      createEvalSection(),
       createLines(this._numLines),
       createStatus(),
     );
@@ -129,7 +126,7 @@ export class Panel extends Emitter {
     if (!lines || lines.length === 0) return;
 
     const depthEl = this._el.querySelector('.chee-depth');
-    if (depthEl) depthEl.textContent = `d${data.depth}${data.complete ? '' : '...'}`;
+    if (depthEl) depthEl.textContent = `d${data.depth}`;
 
     const bestLine = lines[0];
     if (!bestLine) return;
@@ -196,21 +193,23 @@ export class Panel extends Emitter {
     if (bestLine.mate !== null) {
       const wMate = this._whiteMate(bestLine.mate);
       scoreEl.textContent = formatMate(wMate);
-      scoreEl.className = 'chee-eval-score mate-score';
-      barFill.style.height = wMate > 0 ? '100%' : '0%';
+      scoreEl.className = `chee-eval-score mate-score ${wMate > 0 ? 'white-advantage' : 'black-advantage'}`;
+      if (barFill) barFill.style.width = wMate > 0 ? '100%' : '0%';
       return;
     }
 
     const cp = this._whiteScore(bestLine.score) / CENTIPAWN_DIVISOR;
     scoreEl.textContent = formatCp(cp);
     scoreEl.className = `chee-eval-score ${cp >= 0 ? 'white-advantage' : 'black-advantage'}`;
-    const sigmoid = 2 / (1 + Math.exp(-cp / 2)) - 1;
-    const pct = clamp(
-      EVAL_BAR_CENTER_PCT + EVAL_BAR_CENTER_PCT * sigmoid,
-      EVAL_BAR_MIN_PCT,
-      EVAL_BAR_MAX_PCT,
-    );
-    barFill.style.height = `${pct}%`;
+    if (barFill) {
+      const sigmoid = 2 / (1 + Math.exp(-cp / 2)) - 1;
+      const pct = clamp(
+        EVAL_BAR_CENTER_PCT + EVAL_BAR_CENTER_PCT * sigmoid,
+        EVAL_BAR_MIN_PCT,
+        EVAL_BAR_MAX_PCT,
+      );
+      barFill.style.width = `${pct}%`;
+    }
   }
 
   _formatLineMoves(line) {
@@ -224,24 +223,11 @@ export class Panel extends Emitter {
   }
 
   _updateLineRow(lineEl, line) {
-    const evalEl = lineEl.querySelector('.chee-line-eval');
     const movesEl = lineEl.querySelector('.chee-line-moves');
 
     if (!line) {
-      evalEl.textContent = '...';
-      evalEl.className = 'chee-line-eval';
       movesEl.textContent = '';
       return null;
-    }
-
-    if (line.mate !== null) {
-      const wMate = this._whiteMate(line.mate);
-      evalEl.textContent = formatMate(wMate);
-      evalEl.className = 'chee-line-eval mate';
-    } else {
-      const cp = this._whiteScore(line.score) / CENTIPAWN_DIVISOR;
-      evalEl.textContent = formatCp(cp);
-      evalEl.className = `chee-line-eval ${cp >= 0 ? 'positive' : 'negative'}`;
     }
 
     movesEl.textContent = this._formatLineMoves(line);
