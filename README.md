@@ -1,6 +1,6 @@
 # Chee
 
-Real-time Stockfish analysis for chess.com and lichess.org. A Chrome extension that reads the board, runs Stockfish via WebAssembly, and displays evaluation + best lines in a panel beside the board.
+Live chess analysis overlay powered by Stockfish WASM. A Chrome extension that reads the board from chess.com and lichess.org, runs Stockfish via WebAssembly, and displays evaluation + best lines in a panel beside the board.
 
 ## Setup
 
@@ -41,4 +41,9 @@ localStorage.debug = 'chee:*'
 - Arrow overlays showing suggested moves
 - Eval bar and score with white/black advantage indicator
 - Hide/show and minimize panel controls
+- Copy FEN to clipboard
 - Catppuccin theme system (Latte, Frappe, Macchiato, Mocha) + site-matching mode
+
+## License
+
+[GPL-3.0](LICENSE)

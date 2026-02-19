@@ -1,6 +1,17 @@
 {
   "name": "chee",
   "version": "1.0.0",
+  "description": "Live chess analysis overlay powered by Stockfish WASM",
+  "author": "Hong4rc <hong4rc@gmail.com>",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hong4rc/chee.git"
+  },
+  "homepage": "https://github.com/hong4rc/chee",
+  "bugs": {
+    "url": "https://github.com/hong4rc/chee/issues"
+  },
   "private": true,
   "scripts": {
     "build": "rollup -c",
