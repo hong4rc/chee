@@ -72,6 +72,8 @@ const log = createDebug('chee:content');
     return arrivedPiece === arrivedPiece.toUpperCase() ? TURN_BLACK : TURN_WHITE;
   }
 
+  let latestPly = 0;
+
   function readFen() {
     if (!boardEl) return null;
 
@@ -93,6 +95,7 @@ const log = createDebug('chee:content');
     const fen = boardToFen(board, turn, castling, enPassant, moveCount);
     panel.setBoard(board, turn, fen);
     latestBoard = board;
+    latestPly = adapter.detectPly();
     return fen;
   }
 
@@ -106,7 +109,7 @@ const log = createDebug('chee:content');
     debounceTimer = setTimeout(() => {
       const fen = readFen();
       if (!fen) return;
-      classifier.onBoardChange(fen, boardEl, latestBoard);
+      classifier.onBoardChange(fen, boardEl, latestBoard, latestPly);
       engine.analyze(fen);
     }, DEBOUNCE_MS);
   }
@@ -140,7 +143,7 @@ const log = createDebug('chee:content');
       if (fen) {
         log.info('Pieces appeared! FEN:', fen);
         clearInterval(pieceInterval);
-        classifier.initFen(fen, latestBoard);
+        classifier.initFen(fen, latestBoard, latestPly);
         engine.analyze(fen);
         return;
       }
@@ -179,7 +182,7 @@ const log = createDebug('chee:content');
     const fen = readFen();
     log.info('Initial FEN:', fen);
     if (fen) {
-      classifier.initFen(fen, latestBoard);
+      classifier.initFen(fen, latestBoard, latestPly);
       engine.analyze(fen);
     } else {
       log.warn('No pieces yet, polling...');
@@ -207,6 +210,7 @@ const log = createDebug('chee:content');
     if (!engineChanged) return;
 
     panel.reconfigure(settings.numLines);
+    classifier.clearCache();
 
     engine.destroy();
     engine = new Engine();

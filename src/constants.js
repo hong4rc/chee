@@ -79,13 +79,23 @@ export const SETTINGS_DEFAULTS = {
 export const CLASSIFICATION_MIN_DEPTH = 10;
 export const CLASSIFICATION_LOCK_DEPTH = 16;
 export const CLASSIFICATION_MATE_LOSS = 1000;
-export const CLASSIFICATION_BEST = { label: 'Best', color: '#96bc4b' };
-export const CLASSIFICATION_BLUNDER = { label: 'Blunder', color: '#ca3431' };
+export const CLASSIFICATION_BRILLIANT_THRESHOLD = -50;
+export const CLASSIFICATION_BRILLIANT = { label: 'Brilliant', symbol: '!!', color: '#1baca6' };
+export const CLASSIFICATION_BEST = { label: 'Best', symbol: '\u2605', color: '#96bc4b' };
+export const CLASSIFICATION_BLUNDER = { label: 'Blunder', symbol: '??', color: '#ca3431' };
 export const CLASSIFICATION_THRESHOLDS = [
-  { max: 10, label: 'Excellent', color: '#96bc4b' },
-  { max: 30, label: 'Good', color: '#97af8b' },
-  { max: 80, label: 'Inaccuracy', color: '#f7c631' },
-  { max: 200, label: 'Mistake', color: '#e6912c' },
+  {
+    max: 10, label: 'Excellent', symbol: '\u2713', color: '#96bc4b',
+  },
+  {
+    max: 30, label: 'Good', symbol: '', color: '#97af8b',
+  },
+  {
+    max: 80, label: 'Inaccuracy', symbol: '?!', color: '#f7c631',
+  },
+  {
+    max: 200, label: 'Mistake', symbol: '\u2715', color: '#e04040',
+  },
 ];
 
 // ─── Panel / eval display ────────────────────────────────────

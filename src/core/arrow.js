@@ -199,48 +199,45 @@ export class ArrowOverlay {
     forEach(els, (el) => el.remove());
   }
 
-  drawClassification(uciMove, isFlipped, color) {
+  drawClassification(uciMove, isFlipped, color, symbol) {
     if (!this._svg || !this._boardEl) return;
     this.clearClassification();
 
     if (!uciMove || uciMove.length < UCI_MIN_LEN) return;
 
-    const {
-      sqW, sqH, strokeWidth, headSize, originRadius,
-    } = this._getBoardMetrics();
+    const { sqW, sqH } = this._getBoardMetrics();
 
-    // Create marker for classification color
-    const markerId = 'chee-classify-arrowhead';
-    const defs = this._svg.querySelector('defs');
-    const marker = createSvgEl('marker', {
-      id: markerId,
-      markerWidth: ARROW_MARKER_WIDTH,
-      markerHeight: ARROW_MARKER_HEIGHT,
-      refX: ARROW_MARKER_REF_X,
-      refY: ARROW_MARKER_REF_Y,
-      orient: 'auto',
-      class: 'chee-classify-el',
-    });
-    marker.appendChild(createSvgEl('path', {
-      d: `M0,0 L${ARROW_MARKER_WIDTH},${ARROW_MARKER_REF_Y} L0,${ARROW_MARKER_HEIGHT} Z`,
+    const { toFile, toRank } = parseUci(uciMove);
+    const center = squareCenter(toFile, toRank, sqW, sqH, isFlipped);
+
+    // Badge at top-right corner of destination square
+    const badgeR = sqW * 0.22;
+    const bx = center.x + sqW * 0.28;
+    const by = center.y - sqH * 0.28;
+
+    this._svg.appendChild(createSvgEl('circle', {
+      cx: bx,
+      cy: by,
+      r: badgeR,
       fill: color,
+      class: 'chee-classify-el',
     }));
-    defs.appendChild(marker);
 
-    const {
-      fromFile, fromRank, toFile, toRank,
-    } = parseUci(uciMove);
-    const from = squareCenter(fromFile, fromRank, sqW, sqH, isFlipped);
-    const to = shortenEnd(from, squareCenter(toFile, toRank, sqW, sqH, isFlipped), headSize);
-
-    appendArrow(this._svg, from, to, {
-      color,
-      opacity: ARROW_OPACITY_MAX,
-      strokeWidth,
-      originRadius,
-      elClass: 'chee-classify-el',
-      markerEnd: `url(#${markerId})`,
-    });
+    if (symbol) {
+      const text = createSvgEl('text', {
+        x: bx,
+        y: by,
+        fill: '#fff',
+        'font-size': sqW * 0.18,
+        'font-weight': '700',
+        'font-family': '-apple-system, BlinkMacSystemFont, sans-serif',
+        'text-anchor': 'middle',
+        'dominant-baseline': 'central',
+        class: 'chee-classify-el',
+      });
+      text.textContent = symbol;
+      this._svg.appendChild(text);
+    }
   }
 
   clearClassification() {

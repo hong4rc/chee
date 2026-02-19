@@ -82,7 +82,7 @@ Chess sites update DOM elements (clocks, move lists, highlights) at unpredictabl
 - **Move detection wrong**: Highlight squares (`square-XY` on chess.com, `square.last-move` on lichess) can flicker, producing ghost moves like `e2f7`. Fix: `boardDiffToUci()` in `move-classifier.js` diffs previous/current board arrays — handles normal moves, captures, castling, en passant, and promotion.
 - **Move count wrong**: Adapter counts all moves in the DOM move list, but during game review the user may be at an earlier position. Fix: find the selected/active move node first, count up to that index. Selector varies by site (chess.com: `.node-highlight-content.selected`; lichess: `kwdb.a1t` / `.tview2 move.active`).
 
-**Rule of thumb for new adapters**: implement `readPieces()` and `isFlipped()` accurately. Turn detection and move detection are handled by the board-diff layer in `content.js` and `move-classifier.js` — adapter-level `detectTurn()` is only a fallback.
+**Rule of thumb for new adapters**: implement `readPieces()`, `isFlipped()`, and `detectPly()` accurately. Turn detection and move detection are handled by the board-diff layer in `content.js` and `move-classifier.js` — adapter-level `detectTurn()` is only a fallback. `detectPly()` is critical for distinguishing new moves from backward navigation (revert).
 
 ### chess.com DOM structure (as of 2025)
 
@@ -106,12 +106,26 @@ Chess sites update DOM elements (clocks, move lists, highlights) at unpredictabl
 
 ## Move Classification
 
-`core/move-classifier.js` — compares eval before/after each move to classify as Best/Excellent/Good/Inaccuracy/Mistake/Blunder. Shows colored arrow on board + badge in panel header. Togglable via popup (default off).
+`core/move-classifier.js` — compares eval before/after each move to classify moves. Shows symbol badge on board square + badge in panel header. Togglable via popup (default off).
 
 - `core/classify.js` — pure classification logic: `computeCpLoss()` and `classify()`
 - Board diff detects played move (no DOM highlight dependency)
-- Classification starts at depth 10, locks at depth 16 to prevent flickering
-- Thresholds: Best (engine's #1), Excellent (≤10cp), Good (≤30), Inaccuracy (≤80), Mistake (≤200), Blunder (>200)
+- Classification starts at depth 10 (panel badge only), locks at depth 16 (board icon appears)
+- Tiers with symbols: Brilliant (`!!`, teal, cpLoss ≤ −50 and not engine's #1), Best (`★`, green, engine's PV[0]), Excellent (`✓`, green, ≤10cp), Good (muted green, ≤30), Inaccuracy (`?!`, yellow, ≤80), Mistake (`?`, orange, ≤200), Blunder (`??`, red, >200)
+- Board icon: colored circle with symbol drawn on destination square (SVG in arrow overlay), only shown at lock depth
+- Panel badge: `"!! Brilliant"`, `"★ Best"`, `"?? Blunder"` etc.
+
+### Move revert / navigation detection
+
+**Board diff alone cannot distinguish a new move from reverting (navigating backward).** When a user clicks "revert" or navigates to an earlier move, the board changes just like a forward move — the diff sees pieces "moving" and would misclassify the revert as a played move (e.g., queen returns to a threatened square → classified as blunder).
+
+**Fix:** `detectPly()` in each adapter returns the half-move index (1-based) from the active/selected move in the DOM move list. The classifier tracks `_prevPly` and only treats a board diff as a played move when `ply > _prevPly`. Backward navigation (ply decreased or unchanged) skips new classification but restores the cached result for that ply.
+
+**Classification cache:** When a classification locks (depth 16), it's stored in `_cache` (Map keyed by ply). On revert/navigation, the cached classification for the target ply is restored — both the panel badge and the board icon reappear instantly without re-running the engine.
+
+- chess.com: index of active `.node` within `wc-simple-move-list .node` elements
+- lichess: index of active `kwdb.a1t` / `.tview2 move.active` within all move elements
+- New adapters must implement `detectPly()` alongside `detectMoveCount()`
 
 ## Theme System
 

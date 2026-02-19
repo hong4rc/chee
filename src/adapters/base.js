@@ -60,6 +60,7 @@ export class BoardAdapter {
   readPieces(boardEl) { throw new Error('Not implemented'); }
   detectTurn() { throw new Error('Not implemented'); }
   detectMoveCount() { throw new Error('Not implemented'); }
+  detectPly() { throw new Error('Not implemented'); }
   getPanelAnchor(boardEl) { throw new Error('Not implemented'); }
   isFlipped(boardEl) { throw new Error('Not implemented'); }
   observe(boardEl, onChange) { throw new Error('Not implemented'); }

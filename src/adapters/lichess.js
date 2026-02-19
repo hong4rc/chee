@@ -155,6 +155,19 @@ export class LichessAdapter extends BoardAdapter {
     return Math.floor(moves.length / 2) + 1;
   }
 
+  detectPly() {
+    const moves = document.querySelectorAll('l4x kwdb, .tview2 move');
+    if (moves.length === 0) return 0;
+
+    const activeMove = document.querySelector('kwdb.a1t, .tview2 move.active');
+    if (activeMove) {
+      const idx = Array.from(moves).indexOf(activeMove);
+      if (idx >= 0) return idx + 1;
+    }
+
+    return moves.length;
+  }
+
   getPanelAnchor(boardEl) {
     // Return cg-wrap (child of .main-board) so mount() appends panel to
     // .main-board — a board-width container. This positions the panel

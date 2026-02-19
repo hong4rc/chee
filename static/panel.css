@@ -253,6 +253,7 @@
   border-radius: 8px;
   line-height: 1.4;
   white-space: nowrap;
+  letter-spacing: 0.3px;
 }
 
 /* Lichess: ensure panel parent doesn't clip the absolutely-positioned panel */

@@ -2,11 +2,14 @@
 // Compares eval before/after each board change to label the played move.
 
 import createDebug from '../lib/debug.js';
+import { LruCache } from '../lib/lru.js';
 import { classify } from './classify.js';
 import {
   BOARD_SIZE, LAST_RANK, FILES,
   CLASSIFICATION_MIN_DEPTH, CLASSIFICATION_LOCK_DEPTH,
 } from '../constants.js';
+
+const CLASSIFICATION_CACHE_SIZE = 512;
 
 const log = createDebug('chee:classify');
 
@@ -100,14 +103,17 @@ export class MoveClassifier {
     this._prevEval = null;
     this._prevFen = null;
     this._prevBoard = null;
+    this._prevPly = 0;
     this._locked = false;
     this._playedMoveUci = null;
+    this._cache = new LruCache(CLASSIFICATION_CACHE_SIZE);
   }
 
-  initFen(fen, board) {
+  initFen(fen, board, ply) {
     this._prevFen = fen;
     this._prevBoard = board || null;
-    log('initFen:', fen);
+    this._prevPly = ply || 0;
+    log('initFen:', fen, 'ply:', this._prevPly);
   }
 
   onEval(data, boardEl) {
@@ -140,23 +146,28 @@ export class MoveClassifier {
       { cp: data.lines[0].score, m: data.lines[0].mate },
     );
     this._panel.showClassification(result);
-    this._arrow.drawClassification(
-      this._playedMoveUci,
-      this._adapter.isFlipped(boardEl),
-      result.color,
-    );
 
     if (data.depth >= CLASSIFICATION_LOCK_DEPTH) {
-      log.info('locked at depth', data.depth);
+      this._arrow.drawClassification(
+        this._playedMoveUci,
+        this._adapter.isFlipped(boardEl),
+        result.color,
+        result.symbol,
+      );
+      this._cache.set(this._prevPly, { result, moveUci: this._playedMoveUci });
+      log.info('locked at depth', data.depth, 'cached ply:', this._prevPly);
       this._locked = true;
     }
   }
 
-  onBoardChange(fen, boardEl, board) {
+  onBoardChange(fen, boardEl, board, ply) {
     if (fen === this._prevFen) return;
 
+    const isForward = ply > this._prevPly;
+
     this._prevEval = this._latestEval ? { ...this._latestEval } : null;
-    this._playedMoveUci = this._prevBoard && board
+    // Only detect a played move when ply advances (new move, not revert/navigation)
+    this._playedMoveUci = isForward && this._prevBoard && board
       ? boardDiffToUci(this._prevBoard, board)
       : null;
     this._locked = false;
@@ -164,17 +175,34 @@ export class MoveClassifier {
     this._arrow.clearClassification();
     this._prevFen = fen;
     this._prevBoard = board || null;
+    this._prevPly = ply || 0;
+
+    // Restore cached classification when navigating (revert/forward through history)
+    if (!isForward && this._settings.showClassifications) {
+      const cached = this._cache.get(ply);
+      if (cached) {
+        this._panel.showClassification(cached.result);
+        this._arrow.drawClassification(
+          cached.moveUci,
+          this._adapter.isFlipped(boardEl),
+          cached.result.color,
+          cached.result.symbol,
+        );
+        this._locked = true;
+        log.info('restored cached classification for ply:', ply, cached.result.label);
+      }
+    }
 
     log(
       'board changed',
+      'ply:',
+      ply,
+      'forward:',
+      isForward,
       'enabled:',
       this._settings.showClassifications,
       'move:',
       this._playedMoveUci,
-      'prevEval:',
-      this._prevEval
-        ? { cp: this._prevEval.score, m: this._prevEval.mate, d: this._prevEval.depth }
-        : null,
     );
   }
 
@@ -185,13 +213,19 @@ export class MoveClassifier {
     }
   }
 
+  clearCache() {
+    this._cache.clear();
+  }
+
   destroy() {
     this._arrow.clearClassification();
     this._latestEval = null;
     this._prevEval = null;
     this._prevFen = null;
     this._prevBoard = null;
+    this._prevPly = 0;
     this._locked = false;
     this._playedMoveUci = null;
+    this._cache.clear();
   }
 }

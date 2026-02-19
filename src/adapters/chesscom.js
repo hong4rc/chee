@@ -246,6 +246,19 @@ export class ChesscomAdapter extends BoardAdapter {
     return Math.floor(moveNodes.length / 2) + 1;
   }
 
+  detectPly() {
+    const moveNodes = document.querySelectorAll(SEL_MOVE_LIST);
+    const selectedContent = document.querySelector(SEL_SELECTED_MOVE);
+    const activeNode = selectedContent ? selectedContent.closest('.node') : null;
+
+    if (activeNode) {
+      const idx = Array.from(moveNodes).indexOf(activeNode);
+      if (idx >= 0) return idx + 1;
+    }
+
+    return moveNodes.length;
+  }
+
   getPanelAnchor(boardEl) {
     return boardEl;
   }

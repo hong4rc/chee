@@ -160,12 +160,13 @@ export class Panel extends Emitter {
     this._updateLineRows(lines);
   }
 
-  showClassification({ label, color }) {
+  showClassification({ label, symbol, color }) {
     if (!this._el) return;
     this.clearClassification();
     const slot = this._el.querySelector('.chee-classification-slot');
     if (!slot) return;
-    const badge = el('span', 'chee-classification-badge', label);
+    const text = symbol ? `${symbol} ${label}` : label;
+    const badge = el('span', 'chee-classification-badge', text);
     badge.style.background = color;
     slot.appendChild(badge);
   }
