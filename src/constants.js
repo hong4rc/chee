@@ -85,21 +85,31 @@ export const CLASSIFICATION_MIN_DEPTH = 10;
 export const CLASSIFICATION_LOCK_DEPTH = 16;
 export const CLASSIFICATION_MATE_LOSS = 1000;
 export const CLASSIFICATION_BRILLIANT_THRESHOLD = -50;
-export const CLASSIFICATION_BRILLIANT = { label: 'Brilliant', symbol: '!!', color: '#1baca6' };
-export const CLASSIFICATION_BEST = { label: 'Best', symbol: '\u2605', color: '#96bc4b' };
-export const CLASSIFICATION_BLUNDER = { label: 'Blunder', symbol: '??', color: '#ca3431' };
+
+// Classification labels
+export const LABEL_BRILLIANT = 'Brilliant';
+export const LABEL_BEST = 'Best';
+export const LABEL_EXCELLENT = 'Excellent';
+export const LABEL_GOOD = 'Good';
+export const LABEL_INACCURACY = 'Inaccuracy';
+export const LABEL_MISTAKE = 'Mistake';
+export const LABEL_BLUNDER = 'Blunder';
+
+export const CLASSIFICATION_BRILLIANT = { label: LABEL_BRILLIANT, symbol: '!!', color: '#1baca6' };
+export const CLASSIFICATION_BEST = { label: LABEL_BEST, symbol: '\u2605', color: '#96bc4b' };
+export const CLASSIFICATION_BLUNDER = { label: LABEL_BLUNDER, symbol: '??', color: '#ca3431' };
 export const CLASSIFICATION_THRESHOLDS = [
   {
-    max: 10, label: 'Excellent', symbol: '\u2713', color: '#96bc4b',
+    max: 10, label: LABEL_EXCELLENT, symbol: '\u2713', color: '#96bc4b',
   },
   {
-    max: 30, label: 'Good', symbol: '', color: '#97af8b',
+    max: 30, label: LABEL_GOOD, symbol: '', color: '#97af8b',
   },
   {
-    max: 80, label: 'Inaccuracy', symbol: '?!', color: '#f7c631',
+    max: 80, label: LABEL_INACCURACY, symbol: '?!', color: '#f7c631',
   },
   {
-    max: 200, label: 'Mistake', symbol: '\u2715', color: '#e04040',
+    max: 200, label: LABEL_MISTAKE, symbol: '\u2715', color: '#e04040',
   },
 ];
 
@@ -108,10 +118,10 @@ export const HINT_MIN_DEPTH = 14;
 export const HINT_ARROW_OPACITY = 0.5;
 export const HINT_THRESHOLDS = [
   {
-    min: 200, label: 'Brilliant', symbol: '!!', color: '#1baca6',
+    min: 200, label: LABEL_BRILLIANT, symbol: '!!', color: '#1baca6',
   },
   {
-    min: 80, label: 'Excellent', symbol: '\u2713', color: '#96bc4b',
+    min: 80, label: LABEL_EXCELLENT, symbol: '\u2713', color: '#96bc4b',
   },
 ];
 

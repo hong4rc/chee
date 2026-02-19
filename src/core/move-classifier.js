@@ -8,6 +8,7 @@ import { detectInsight } from './insight.js';
 import {
   BOARD_SIZE, LAST_RANK, FILES, CHAR_CODE_A,
   CLASSIFICATION_MIN_DEPTH, CLASSIFICATION_LOCK_DEPTH,
+  LABEL_MISTAKE, LABEL_BLUNDER,
   TURN_WHITE, TURN_BLACK,
 } from '../constants.js';
 
@@ -116,7 +117,7 @@ export class MoveClassifier {
   }
 
   get isBlunderLocked() {
-    return this._lockedLabel === 'Mistake' || this._lockedLabel === 'Blunder';
+    return this._lockedLabel === LABEL_MISTAKE || this._lockedLabel === LABEL_BLUNDER;
   }
 
   initFen(fen, board, ply) {
@@ -158,7 +159,7 @@ export class MoveClassifier {
     );
 
     let insight = null;
-    if ((result.label === 'Mistake' || result.label === 'Blunder')
+    if ((result.label === LABEL_MISTAKE || result.label === LABEL_BLUNDER)
       && this._boardBeforeMove && this._prevEval.pv && this._prevEval.pv.length > 0) {
       const fromFile = this._playedMoveUci.charCodeAt(0) - CHAR_CODE_A;
       const fromRank = parseInt(this._playedMoveUci[1], 10) - 1;
@@ -183,7 +184,7 @@ export class MoveClassifier {
         result.color,
         result.symbol,
       );
-      const bestUci = (result.label === 'Mistake' || result.label === 'Blunder')
+      const bestUci = (result.label === LABEL_MISTAKE || result.label === LABEL_BLUNDER)
         && this._prevEval.pv && this._prevEval.pv[0]
         ? this._prevEval.pv[0] : null;
       if (bestUci) {
