@@ -1,14 +1,13 @@
 // Analysis panel UI component
 
 import {
-  clamp, forEach, times, take,
+  forEach, times, take,
 } from 'lodash-es';
 import createDebug from '../lib/debug.js';
 import { Emitter } from '../lib/emitter.js';
 import { pvToSan } from './san.js';
 import {
   PANEL_ID, NUM_LINES as DEFAULT_NUM_LINES, MAX_PV_MOVES, CENTIPAWN_DIVISOR,
-  EVAL_BAR_MIN_PCT, EVAL_BAR_MAX_PCT, EVAL_BAR_CENTER_PCT,
   TURN_WHITE, TURN_BLACK,
   EVT_LINE_HOVER, EVT_LINE_LEAVE,
 } from '../constants.js';
@@ -44,11 +43,20 @@ function createHeader() {
   const insightSlot = el('div', 'chee-insight-slot');
 
   const bar = el('div', 'chee-eval-bar');
-  const fill = el('div', 'chee-eval-fill');
-  fill.style.width = `${EVAL_BAR_CENTER_PCT}%`;
-  bar.appendChild(fill);
+  bar.append(
+    el('div', 'chee-wdl-w'),
+    el('div', 'chee-wdl-d'),
+    el('div', 'chee-wdl-l'),
+  );
 
-  header.append(topRow, insightSlot, bar);
+  const wdlText = el('div', 'chee-wdl-text');
+  wdlText.append(
+    el('span', 'chee-wdl-w-pct', '50%'),
+    el('span', 'chee-wdl-d-pct', '0%'),
+    el('span', 'chee-wdl-l-pct', '50%'),
+  );
+
+  header.append(topRow, insightSlot, bar, wdlText);
   return header;
 }
 
@@ -92,6 +100,16 @@ function formatMate(wMate) {
 
 function formatCp(cp) {
   return (cp >= 0 ? '+' : '') + cp.toFixed(1);
+}
+
+function cpToWdl(cp) {
+  const winRaw = 1 / (1 + Math.exp(-0.00368208 * cp));
+  const drawMax = 0.33;
+  const drawRaw = drawMax * Math.exp(-(cp * cp) / (2 * 200 * 200));
+  const w = Math.round(winRaw * (1 - drawRaw) * 100);
+  const l = Math.round((1 - winRaw) * (1 - drawRaw) * 100);
+  const d = 100 - w - l;
+  return { w, d, l };
 }
 
 // ─── Panel ───────────────────────────────────────────────────
@@ -270,28 +288,37 @@ export class Panel extends Emitter {
 
   _updateScoreDisplay(bestLine) {
     const scoreEl = this._el.querySelector('.chee-eval-score');
-    const barFill = this._el.querySelector('.chee-eval-fill');
 
     if (bestLine.mate !== null) {
       const wMate = this._whiteMate(bestLine.mate);
       scoreEl.textContent = formatMate(wMate);
       scoreEl.className = `chee-eval-score mate-score ${wMate > 0 ? 'white-advantage' : 'black-advantage'}`;
-      if (barFill) barFill.style.width = wMate > 0 ? '100%' : '0%';
+      this._updateWdlBar(wMate > 0 ? 100 : 0, 0, wMate > 0 ? 0 : 100);
       return;
     }
 
     const cp = this._whiteScore(bestLine.score) / CENTIPAWN_DIVISOR;
     scoreEl.textContent = formatCp(cp);
     scoreEl.className = `chee-eval-score ${cp >= 0 ? 'white-advantage' : 'black-advantage'}`;
-    if (barFill) {
-      const sigmoid = 2 / (1 + Math.exp(-cp / 2)) - 1;
-      const pct = clamp(
-        EVAL_BAR_CENTER_PCT + EVAL_BAR_CENTER_PCT * sigmoid,
-        EVAL_BAR_MIN_PCT,
-        EVAL_BAR_MAX_PCT,
-      );
-      barFill.style.width = `${pct}%`;
-    }
+    const cpRaw = this._whiteScore(bestLine.score);
+    const { w, d, l } = cpToWdl(cpRaw);
+    this._updateWdlBar(w, d, l);
+  }
+
+  _updateWdlBar(w, d, l) {
+    const wEl = this._el.querySelector('.chee-wdl-w');
+    const dEl = this._el.querySelector('.chee-wdl-d');
+    const lEl = this._el.querySelector('.chee-wdl-l');
+    if (wEl) wEl.style.width = `${w}%`;
+    if (dEl) dEl.style.width = `${d}%`;
+    if (lEl) lEl.style.width = `${l}%`;
+
+    const wPct = this._el.querySelector('.chee-wdl-w-pct');
+    const dPct = this._el.querySelector('.chee-wdl-d-pct');
+    const lPct = this._el.querySelector('.chee-wdl-l-pct');
+    if (wPct) wPct.textContent = `${w}%`;
+    if (dPct) dPct.textContent = `${d}%`;
+    if (lPct) lPct.textContent = `${l}%`;
   }
 
   _formatLineMoves(line) {
