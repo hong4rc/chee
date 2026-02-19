@@ -11,6 +11,7 @@ import {
   PANEL_ID, NUM_LINES as DEFAULT_NUM_LINES, MAX_PV_MOVES, CENTIPAWN_DIVISOR,
   TURN_WHITE, TURN_BLACK,
   EVT_LINE_HOVER, EVT_LINE_LEAVE,
+  EVT_THREAT_HOVER, EVT_THREAT_LEAVE,
 } from '../constants.js';
 
 const log = createDebug('chee:panel');
@@ -126,6 +127,7 @@ export class Panel extends Emitter {
     this._fen = null;
     this._numLines = numLines;
     this._lines = Array(numLines).fill(null);
+    this._threatUci = null;
   }
 
   mount(anchor) {
@@ -207,16 +209,26 @@ export class Panel extends Emitter {
 
     if (!this._board || !bestLine.pv || bestLine.pv.length < 2) {
       threatEl.textContent = '';
+      this._threatUci = null;
       return;
     }
 
     const opponentTurn = this._turn === TURN_WHITE ? TURN_BLACK : TURN_WHITE;
     const boardAfter = applyUciMove(this._board, bestLine.pv[0]);
-    if (!boardAfter) { threatEl.textContent = ''; return; }
+    if (!boardAfter) { threatEl.textContent = ''; this._threatUci = null; return; }
 
-    const san = uciToSan(bestLine.pv[1], boardAfter, opponentTurn);
-    threatEl.textContent = san ? `\u26A0 ${san}` : '';
+    const [, threatMove] = bestLine.pv;
+    const san = uciToSan(threatMove, boardAfter, opponentTurn);
+    if (san) {
+      threatEl.textContent = `Threat: ${san}`;
+      this._threatUci = threatMove;
+    } else {
+      threatEl.textContent = '';
+      this._threatUci = null;
+    }
   }
+
+  get threatUci() { return this._threatUci || null; }
 
   showClassification({ label, symbol, color }, insight) {
     if (!this._el) return;
@@ -241,7 +253,7 @@ export class Panel extends Emitter {
     if (!this._el) return;
     const acc = this._el.querySelector('.chee-accuracy');
     if (!acc) return;
-    acc.textContent = pct !== null ? `${pct}%` : '';
+    acc.textContent = pct !== null ? `Acc: ${pct}%` : '';
   }
 
   clearClassification() {
@@ -306,6 +318,18 @@ export class Panel extends Emitter {
       this._showBtn.classList.remove('chee-visible');
     });
     this._bindLineListeners();
+
+    const threatEl = this._el.querySelector('.chee-threat');
+    if (threatEl) {
+      threatEl.addEventListener('mouseenter', () => {
+        if (this._threatUci) {
+          this.emit(EVT_THREAT_HOVER, this._threatUci, this._turn);
+        }
+      });
+      threatEl.addEventListener('mouseleave', () => {
+        this.emit(EVT_THREAT_LEAVE);
+      });
+    }
   }
 
   _bindLineListeners() {

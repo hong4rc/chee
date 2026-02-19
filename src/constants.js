@@ -53,6 +53,8 @@ export const EVT_EVAL = 'eval';
 export const EVT_ERROR = 'error';
 export const EVT_LINE_HOVER = 'line:hover';
 export const EVT_LINE_LEAVE = 'line:leave';
+export const EVT_THREAT_HOVER = 'threat:hover';
+export const EVT_THREAT_LEAVE = 'threat:leave';
 
 // ─── Worker message types ────────────────────────────────────
 export const MSG_SETUP = '__setup';

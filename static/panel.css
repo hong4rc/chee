@@ -208,6 +208,11 @@
 #chee-analysis-panel .chee-threat {
   font-size: 10px;
   color: var(--chee-peach);
+  cursor: pointer;
+}
+
+#chee-analysis-panel .chee-threat:hover {
+  color: var(--chee-text);
 }
 
 #chee-analysis-panel .chee-threat:empty {
