@@ -18,7 +18,8 @@
     "watch": "rollup -c -w",
     "lint": "eslint src/ static/stockfish-worker.js",
     "lint:fix": "eslint src/ static/stockfish-worker.js --fix",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "pack": "npm run build && cd dist && zip -r ../chee-v$(node -p \"require('../package.json').version\").zip . -x '.*'"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
