@@ -35,7 +35,6 @@ function createHeader() {
   toggle.innerHTML = '&#x2212;';
   topRow.append(
     hide,
-    el('span', 'chee-title', 'Chee'),
     el('span', 'chee-classification-slot'),
     el('span', 'chee-eval-score', '0.0'),
     el('span', 'chee-depth'),

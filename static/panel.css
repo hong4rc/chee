@@ -32,14 +32,6 @@
   padding-bottom: 6px;
 }
 
-#chee-analysis-panel .chee-title {
-  font-weight: 600;
-  font-size: 12px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  color: var(--chee-subtext1);
-}
-
 #chee-analysis-panel .chee-eval-score {
   font-size: 13px;
   font-weight: 700;
