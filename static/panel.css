@@ -107,6 +107,11 @@
   border-bottom: 1px solid #2a2826;
 }
 
+#chee-analysis-panel .chee-line:hover {
+  background: #3d3b38;
+  cursor: pointer;
+}
+
 #chee-analysis-panel .chee-line:last-child {
   border-bottom: none;
 }

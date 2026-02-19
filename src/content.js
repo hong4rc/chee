@@ -1,0 +1,140 @@
+// Chee - Chess Analysis Extension
+// Entry point: detects site, wires modules together
+
+import { times, constant, forEach } from 'lodash-es';
+import createDebug from './lib/debug.js';
+import pollUntil from './lib/poll.js';
+import { createAdapter } from './adapters/factory.js';
+import { Engine } from './core/engine.js';
+import { Panel } from './core/panel.js';
+import { ArrowOverlay } from './core/arrow.js';
+import { boardToFen } from './core/fen.js';
+import {
+  BOARD_SIZE, LAST_RANK,
+  DEBOUNCE_MS, POLL_INTERVAL_MS, BOARD_TIMEOUT_MS,
+  MAX_PIECE_ATTEMPTS,
+} from './constants.js';
+
+const log = createDebug('chee:content');
+
+(function main() {
+  log('Content script loaded on', window.location.href);
+
+  const adapter = createAdapter();
+  const engine = new Engine();
+  const panel = new Panel();
+  const arrow = new ArrowOverlay();
+
+  let boardEl = null;
+  let debounceTimer = null;
+
+  function cleanup() {
+    clearTimeout(debounceTimer);
+    adapter.disconnect();
+    engine.destroy();
+    arrow.clear();
+    panel.destroy();
+  }
+
+  window.addEventListener('unload', cleanup);
+
+  function readFen() {
+    if (!boardEl) return null;
+
+    const pieces = adapter.readPieces(boardEl);
+    if (pieces.length === 0) return null;
+
+    const board = times(BOARD_SIZE, () => times(BOARD_SIZE, constant(null)));
+    forEach(pieces, (p) => {
+      board[LAST_RANK - p.rank][p.file] = p.piece;
+    });
+
+    const turn = adapter.detectTurn();
+    const castling = adapter.detectCastling(board);
+    const enPassant = adapter.detectEnPassant(board);
+    const moveCount = adapter.detectMoveCount();
+
+    panel.setBoard(board, turn);
+    return boardToFen(board, turn, castling, enPassant, moveCount);
+  }
+
+  function onBoardChange() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      const fen = readFen();
+      if (fen) engine.analyze(fen);
+    }, DEBOUNCE_MS);
+  }
+
+  function setupListeners(el) {
+    panel.on('line:hover', (lineIndex, uciMove) => {
+      arrow.draw(uciMove, lineIndex, adapter.isFlipped(el));
+    });
+    panel.on('line:leave', () => { arrow.clear(); });
+
+    engine.on('ready', () => { panel.updateStatus('Ready'); });
+    engine.on('eval', (data) => { panel.updateEval(data); });
+    engine.on('error', (msg) => { panel.updateStatus(`Error: ${msg}`); });
+  }
+
+  function waitForPieces() {
+    let attempts = 0;
+    const pieceInterval = setInterval(() => {
+      attempts += 1;
+
+      const alt = adapter.findAlternatePieceContainer(boardEl);
+      if (alt) {
+        boardEl = alt;
+        adapter.observe(alt, onBoardChange);
+      }
+
+      const fen = readFen();
+      if (fen) {
+        log('Pieces appeared! FEN:', fen);
+        clearInterval(pieceInterval);
+        engine.analyze(fen);
+        return;
+      }
+
+      if (attempts > MAX_PIECE_ATTEMPTS) {
+        clearInterval(pieceInterval);
+        log.error('Gave up waiting for pieces');
+      }
+    }, POLL_INTERVAL_MS);
+  }
+
+  async function init() {
+    log('init() called, searching for board...');
+
+    let el;
+    try {
+      el = await pollUntil(() => adapter.findBoard(), POLL_INTERVAL_MS, BOARD_TIMEOUT_MS);
+    } catch (err) {
+      log.error(err.message);
+      return;
+    }
+
+    boardEl = el;
+    log('Board found:', el.tagName, el.id, el.className);
+
+    panel.mount(adapter.getPanelAnchor(el));
+    arrow.mount(el);
+    setupListeners(el);
+
+    panel.updateStatus('Loading Stockfish...');
+    engine.init();
+    adapter.observe(el, onBoardChange);
+
+    const fen = readFen();
+    log('Initial FEN:', fen);
+    if (fen) {
+      engine.analyze(fen);
+    } else {
+      log('No pieces yet, polling...');
+      adapter.exploreBoardArea();
+      waitForPieces();
+    }
+  }
+
+  init();
+}());

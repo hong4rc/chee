@@ -1,0 +1,25 @@
+{
+  "name": "chee",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "rollup -c",
+    "watch": "rollup -c -w",
+    "lint": "eslint src/ static/stockfish-worker.js",
+    "lint:fix": "eslint src/ static/stockfish-worker.js --fix",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.3",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.32.0",
+    "globals": "^17.3.0",
+    "rollup": "^4.0.0",
+    "rollup-plugin-copy": "^3.5.0"
+  },
+  "dependencies": {
+    "lodash-es": "^4.17.23"
+  }
+}
