@@ -22,6 +22,7 @@ import {
   EVT_READY, EVT_EVAL, EVT_ERROR, EVT_LINE_HOVER, EVT_LINE_LEAVE,
   HINT_MIN_DEPTH, HINT_ARROW_OPACITY, HINT_THRESHOLDS,
   CLASSIFICATION_MATE_LOSS,
+  ARROW_COLOR_WHITE, ARROW_COLOR_BLACK,
 } from './constants.js';
 
 const log = createDebug('chee:content');
@@ -108,31 +109,38 @@ const log = createDebug('chee:content');
     arrow.clearHint();
     currentHint = null;
 
-    if (!settings.showClassifications) return;
-    if (!data.lines || data.lines.length < 2) return;
-    if (data.depth < HINT_MIN_DEPTH) return;
-
+    if (!data.lines || data.lines.length === 0) return;
     const line1 = data.lines[0];
-    const line2 = data.lines[1];
-
-    // Compute spread (how much worse the 2nd best move is)
-    let spread;
-    if (line1.mate !== null && line2.mate === null) {
-      spread = CLASSIFICATION_MATE_LOSS;
-    } else if (line1.mate === null && line2.mate === null) {
-      spread = line1.score - line2.score;
-    } else {
-      return;
-    }
-
-    const tier = find(HINT_THRESHOLDS, (t) => spread >= t.min);
-    if (!tier) return;
-
     const bestUci = line1.pv && line1.pv[0];
     if (!bestUci) return;
 
-    currentHint = { uci: bestUci, color: tier.color, symbol: tier.symbol };
-    arrow.drawHint(bestUci, adapter.isFlipped(boardEl), tier.color, tier.symbol, HINT_ARROW_OPACITY);
+    // Classification-based hint (requires spread threshold)
+    if (settings.showClassifications && data.lines.length >= 2 && data.depth >= HINT_MIN_DEPTH) {
+      const line2 = data.lines[1];
+      let spread;
+      if (line1.mate !== null && line2.mate === null) {
+        spread = CLASSIFICATION_MATE_LOSS;
+      } else if (line1.mate === null && line2.mate === null) {
+        spread = line1.score - line2.score;
+      } else {
+        spread = 0;
+      }
+
+      const tier = find(HINT_THRESHOLDS, (t) => spread >= t.min);
+      if (tier) {
+        currentHint = { uci: bestUci, color: tier.color, symbol: tier.symbol };
+        arrow.drawHint(bestUci, adapter.isFlipped(boardEl), tier.color, tier.symbol, HINT_ARROW_OPACITY);
+        return;
+      }
+    }
+
+    // Always-on best move arrow (no badge, team color)
+    if (settings.showBestMove) {
+      const turn = panel._turn; // eslint-disable-line no-underscore-dangle
+      const color = turn === TURN_WHITE ? ARROW_COLOR_WHITE : ARROW_COLOR_BLACK;
+      currentHint = { uci: bestUci, color, symbol: null };
+      arrow.drawHint(bestUci, adapter.isFlipped(boardEl), color, null, HINT_ARROW_OPACITY);
+    }
   }
 
   function onEvalData(data) {
@@ -281,6 +289,7 @@ const log = createDebug('chee:content');
     if (changes.searchDepth) update.searchDepth = changes.searchDepth.newValue;
     if (changes.theme) update.theme = changes.theme.newValue;
     if (changes.showClassifications) update.showClassifications = changes.showClassifications.newValue;
+    if (changes.showBestMove) update.showBestMove = changes.showBestMove.newValue;
     if (changes.debugMode) update.debugMode = changes.debugMode.newValue;
     if (Object.keys(update).length) applySettings(update);
   });

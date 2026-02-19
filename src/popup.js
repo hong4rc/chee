@@ -27,6 +27,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     chrome.storage.sync.set({ showClassifications: classifyCheckbox.checked });
   });
 
+  // Best move toggle
+  const bestMoveCheckbox = document.getElementById('show-best-move');
+  bestMoveCheckbox.checked = settings.showBestMove;
+  bestMoveCheckbox.addEventListener('change', () => {
+    chrome.storage.sync.set({ showBestMove: bestMoveCheckbox.checked });
+  });
+
   // Debug toggle
   const debugCheckbox = document.getElementById('debug-mode');
   debugCheckbox.checked = settings.debugMode;

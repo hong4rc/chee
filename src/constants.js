@@ -72,7 +72,12 @@ export const MAX_SEARCH_DEPTH = 22;
 export const MIN_NUM_LINES = 3;
 export const MAX_NUM_LINES = 5;
 export const SETTINGS_DEFAULTS = {
-  numLines: 3, searchDepth: SEARCH_DEPTH, theme: 'site', showClassifications: false, debugMode: false,
+  numLines: 3,
+  searchDepth: SEARCH_DEPTH,
+  theme: 'site',
+  showClassifications: false,
+  showBestMove: false,
+  debugMode: false,
 };
 
 // ─── Classification ─────────────────────────────────────────
