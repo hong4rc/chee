@@ -112,6 +112,11 @@ export class MoveClassifier {
     this._cache = new LruCache(CLASSIFICATION_CACHE_SIZE);
     this._totalCpLoss = 0;
     this._moveCount = 0;
+    this._lockedLabel = null;
+  }
+
+  get isBlunderLocked() {
+    return this._lockedLabel === 'Mistake' || this._lockedLabel === 'Blunder';
   }
 
   initFen(fen, board, ply) {
@@ -178,7 +183,8 @@ export class MoveClassifier {
         result.color,
         result.symbol,
       );
-      const bestUci = insight && this._prevEval.pv && this._prevEval.pv[0]
+      const bestUci = (result.label === 'Mistake' || result.label === 'Blunder')
+        && this._prevEval.pv && this._prevEval.pv[0]
         ? this._prevEval.pv[0] : null;
       if (bestUci) {
         this._arrow.drawInsight(bestUci, isFlipped, result.color);
@@ -189,6 +195,7 @@ export class MoveClassifier {
       this._totalCpLoss += Math.max(0, result.cpLoss);
       this._moveCount += 1;
       this._panel.showAccuracy(this.getAccuracy());
+      this._lockedLabel = result.label;
       log.info('locked at depth', data.depth, 'cached ply:', this._prevPly);
       this._locked = true;
     }
@@ -204,6 +211,7 @@ export class MoveClassifier {
   onBoardChange(fen, boardEl, board, ply) {
     if (fen === this._prevFen) return;
 
+    this._lockedLabel = null;
     const isForward = ply > this._prevPly;
 
     this._prevEval = this._latestEval ? { ...this._latestEval } : null;
@@ -232,7 +240,7 @@ export class MoveClassifier {
           cached.result.color,
           cached.result.symbol,
         );
-        if (cached.insight && cached.bestUci) {
+        if (cached.bestUci) {
           this._arrow.drawInsight(cached.bestUci, isFlipped, cached.result.color);
         }
         this._locked = true;
