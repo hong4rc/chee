@@ -25,14 +25,18 @@ function el(tag, className, text) {
 function createHeader() {
   const header = el('div', 'chee-header');
   const topRow = el('div', 'chee-header-top');
+  const hide = el('button', 'chee-hide');
+  hide.title = 'Hide panel';
+  hide.innerHTML = '&#x2039;';
   const toggle = el('button', 'chee-toggle');
   toggle.title = 'Minimize';
   toggle.innerHTML = '&#x2212;';
   topRow.append(
+    hide,
     el('span', 'chee-title', 'Chee'),
-    toggle,
     el('span', 'chee-eval-score', '0.0'),
     el('span', 'chee-depth'),
+    toggle,
   );
 
   const bar = el('div', 'chee-eval-bar');
@@ -42,6 +46,13 @@ function createHeader() {
 
   header.append(topRow, bar);
   return header;
+}
+
+function createShowButton() {
+  const btn = el('button', 'chee-show');
+  btn.title = 'Show Chee';
+  btn.innerHTML = '&#x203a;';
+  return btn;
 }
 
 function createLine(rank) {
@@ -86,6 +97,8 @@ export class Panel extends Emitter {
   mount(anchor) {
     const existing = document.getElementById(PANEL_ID);
     if (existing) existing.remove();
+    const existingBtn = document.getElementById('chee-show-btn');
+    if (existingBtn) existingBtn.remove();
 
     this._el = el('div');
     this._el.id = PANEL_ID;
@@ -95,13 +108,18 @@ export class Panel extends Emitter {
       createStatus(),
     );
 
+    this._showBtn = createShowButton();
+    this._showBtn.id = 'chee-show-btn';
+
     const parent = anchor.parentElement;
     log('parent:', parent?.tagName, parent?.className);
     if (parent) {
       parent.style.position = 'relative';
       parent.appendChild(this._el);
+      parent.appendChild(this._showBtn);
     } else {
       document.body.appendChild(this._el);
+      document.body.appendChild(this._showBtn);
     }
 
     this._attachListeners();
@@ -110,9 +128,8 @@ export class Panel extends Emitter {
   get el() { return this._el; }
 
   destroy() {
-    if (!this._el) return;
-    this._el.remove();
-    this._el = null;
+    if (this._el) { this._el.remove(); this._el = null; }
+    if (this._showBtn) { this._showBtn.remove(); this._showBtn = null; }
   }
 
   setBoard(board, turn) {
@@ -170,6 +187,14 @@ export class Panel extends Emitter {
       this._el.querySelector('.chee-toggle').innerHTML = this._el.classList.contains('chee-minimized')
         ? '&#x2b;'
         : '&#x2212;';
+    });
+    this._el.querySelector('.chee-hide').addEventListener('click', () => {
+      this._el.classList.add('chee-hidden');
+      this._showBtn.classList.add('chee-visible');
+    });
+    this._showBtn.addEventListener('click', () => {
+      this._el.classList.remove('chee-hidden');
+      this._showBtn.classList.remove('chee-visible');
     });
     this._bindLineListeners();
   }

@@ -145,7 +145,8 @@
   color: var(--chee-peach);
 }
 
-/* Toggle button */
+/* Hide / Toggle buttons */
+#chee-analysis-panel .chee-hide,
 #chee-analysis-panel .chee-toggle {
   cursor: pointer;
   color: var(--chee-overlay0);
@@ -156,14 +157,53 @@
   background: none;
 }
 
+#chee-analysis-panel .chee-hide:hover,
 #chee-analysis-panel .chee-toggle:hover {
   color: var(--chee-text);
 }
 
-#chee-analysis-panel.chee-minimized .chee-eval-bar,
+/* Minimized state — hide lines + status, keep header + bar */
 #chee-analysis-panel.chee-minimized .chee-lines,
 #chee-analysis-panel.chee-minimized .chee-status {
   display: none;
+}
+
+/* Hidden state */
+#chee-analysis-panel.chee-hidden {
+  display: none;
+}
+
+/* Show button (>) — appears at panel's left edge when hidden */
+#chee-show-btn {
+  display: none;
+  position: absolute;
+  top: 0;
+  right: -52px;
+  width: 32px;
+  height: 36px;
+  border-radius: 4px;
+  border: 2px solid var(--chee-surface0, #404040);
+  background: var(--chee-mantle, #1a1714);
+  color: var(--chee-subtext1, #b9b9b9);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  padding: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+#chee-show-btn:hover {
+  color: var(--chee-text, #ccc);
+  background: var(--chee-surface0, #404040);
+}
+
+#chee-show-btn.chee-visible {
+  display: flex;
 }
 
 /* Lichess: ensure panel parent doesn't clip the absolutely-positioned panel */
