@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.2.0](https://github.com/hong4rc/chee/compare/v1.1.0...v1.2.0) (2026-02-19)
+
+### Features
+
+* add accuracy tracker showing running accuracy % in status bar ([c5af113](https://github.com/hong4rc/chee/commit/c5af113fd028cbc8df9ea595c9a828fae85fe197))
+* add best move arrow toggle in popup settings ([dfc92d2](https://github.com/hong4rc/chee/commit/dfc92d2fa245ef2c4d9aa6a4f89f7853c4384bc1))
+* add classification symbols, Brilliant tier, and revert-safe ply tracking ([bd8c8b7](https://github.com/hong4rc/chee/commit/bd8c8b76c74fb9fa3314119de84ee223c0dd1f84)), closes [#1](https://github.com/hong4rc/chee/issues/1)
+* add dashed insight arrow showing best move on board for mistakes/blunders ([bc6fc09](https://github.com/hong4rc/chee/commit/bc6fc091f40315d850e2926730e3edead78544ab))
+* add eval score chart and remove status text ([2bd3ad1](https://github.com/hong4rc/chee/commit/2bd3ad1500ae7fe419755184674c71205323bf79))
+* add pre-move hint arrows for clearly best moves ([c660f03](https://github.com/hong4rc/chee/commit/c660f038788d9630e54063b61d95ad6b1b3b72eb))
+* add threat indicator showing opponent's best response in status bar ([3d873d9](https://github.com/hong4rc/chee/commit/3d873d956dbc3b726c0ba4d23c3dea9b7174d119))
+* add W/D/L bar with win/draw/loss percentages alongside eval score ([0bb61f9](https://github.com/hong4rc/chee/commit/0bb61f9e66e75cd5cf68418b450847063b695aad))
+* auto-show best move arrow on mistake/blunder ([f4fedaf](https://github.com/hong4rc/chee/commit/f4fedafcf032095e6f5ca20a908595ae452db09a))
+* show opening name in panel header with 193-entry ECO lookup ([bc418dc](https://github.com/hong4rc/chee/commit/bc418dc2a3681f980761a6b14fe6b1ca4db2c219))
+* show per-line score badges with bordered line cards ([ae1741c](https://github.com/hong4rc/chee/commit/ae1741c8bece3f6499bda653c263138657bc649b))
+* show tactical insight for Mistake/Blunder moves ([8650d1f](https://github.com/hong4rc/chee/commit/8650d1f721ed7c542b45cfddeea23d551ff31be0))
+
+### Bug Fixes
+
+* add labels to accuracy and threat, show arrow on threat hover ([57bf08f](https://github.com/hong4rc/chee/commit/57bf08f1dd8807bb9801a16a8473e97a1666ec41))
+* move FEN button from header to status bar to prevent overlay ([6f23c6f](https://github.com/hong4rc/chee/commit/6f23c6f87fcee56ef43e9d043275b681dd73564f))
+* prevent Stockfish WASM crash from UCI race condition ([887cef9](https://github.com/hong4rc/chee/commit/887cef9fa665e9a37007d2502524d0e735d1d715))
+* require minimum prevEval depth for all classifications ([066da4b](https://github.com/hong4rc/chee/commit/066da4b7b27a9b3f454314cac2722396ca937885))
+* require minimum prevEval depth for Brilliant classification ([f45ff94](https://github.com/hong4rc/chee/commit/f45ff9418ba86d3aadbf155014c750f60a826c9a))
+* show opponent's move as threat instead of user's response ([248280d](https://github.com/hong4rc/chee/commit/248280d1bc4e66cb86f54f2a60b59c5d2f204f76))
+
 ## 1.1.0 (2026-02-19)
 
 ### Features
