@@ -7,7 +7,7 @@ import createDebug from '../lib/debug.js';
 import { Emitter } from '../lib/emitter.js';
 import { pvToSan } from './san.js';
 import {
-  PANEL_ID, NUM_LINES, MAX_PV_MOVES, CENTIPAWN_DIVISOR,
+  PANEL_ID, NUM_LINES as DEFAULT_NUM_LINES, MAX_PV_MOVES, CENTIPAWN_DIVISOR,
   EVAL_BAR_MIN_PCT, EVAL_BAR_MAX_PCT, EVAL_BAR_CENTER_PCT,
   TURN_BLACK,
 } from '../constants.js';
@@ -55,9 +55,9 @@ function createLine(rank) {
   return line;
 }
 
-function createLines() {
+function createLines(numLines) {
   const container = el('div', 'chee-lines');
-  times(NUM_LINES, (i) => container.appendChild(createLine(i + 1)));
+  times(numLines, (i) => container.appendChild(createLine(i + 1)));
   return container;
 }
 
@@ -76,12 +76,13 @@ function formatCp(cp) {
 
 // ─── Panel ───────────────────────────────────────────────────
 export class Panel extends Emitter {
-  constructor() {
+  constructor(numLines = DEFAULT_NUM_LINES) {
     super();
     this._el = null;
     this._board = null;
     this._turn = 'w';
-    this._lines = Array(NUM_LINES).fill(null);
+    this._numLines = numLines;
+    this._lines = Array(numLines).fill(null);
   }
 
   mount(anchor) {
@@ -93,7 +94,7 @@ export class Panel extends Emitter {
     this._el.append(
       createHeader(),
       createEvalSection(),
-      createLines(),
+      createLines(this._numLines),
       createStatus(),
     );
 
@@ -152,6 +153,18 @@ export class Panel extends Emitter {
     return this._turn === TURN_BLACK ? -mate : mate;
   }
 
+  reconfigure(numLines) {
+    if (numLines === this._numLines) return;
+    this._numLines = numLines;
+    this._lines = Array(numLines).fill(null);
+    if (!this._el) return;
+    const container = this._el.querySelector('.chee-lines');
+    if (!container) return;
+    container.innerHTML = '';
+    times(numLines, (i) => container.appendChild(createLine(i + 1)));
+    this._bindLineListeners();
+  }
+
   _attachListeners() {
     this._el.querySelector('.chee-toggle').addEventListener('click', () => {
       this._el.classList.toggle('chee-minimized');
@@ -159,7 +172,10 @@ export class Panel extends Emitter {
         ? '&#x2b;'
         : '&#x2212;';
     });
+    this._bindLineListeners();
+  }
 
+  _bindLineListeners() {
     const lineEls = this._el.querySelectorAll('.chee-line');
     forEach(lineEls, (lineEl, i) => {
       lineEl.addEventListener('mouseenter', () => {
@@ -232,7 +248,7 @@ export class Panel extends Emitter {
 
   _updateLineRows(lines) {
     const lineEls = this._el.querySelectorAll('.chee-line');
-    times(NUM_LINES, (i) => {
+    times(this._numLines, (i) => {
       if (!lineEls[i]) return;
       const line = i < lines.length ? lines[i] : null;
       this._lines[i] = this._updateLineRow(lineEls[i], line);

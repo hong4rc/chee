@@ -30,7 +30,7 @@ export class Engine extends Emitter {
   get state() { return this._state; }
   get currentFen() { return this._currentFen; }
 
-  async init() {
+  async init(settings = {}) {
     if (this._state !== State.IDLE) return;
     this._state = State.INITIALIZING;
     log('fetching resources...');
@@ -53,6 +53,8 @@ export class Engine extends Emitter {
         '    self.removeEventListener("message", __h);',
         '    self.__sfCode = e.data.sfCode;',
         '    self.__wasmBinary = e.data.wasmBinary;',
+        '    self.__numLines = e.data.numLines;',
+        '    self.__searchDepth = e.data.searchDepth;',
         '    try { (0, eval)(e.data.workerCode); }',
         `    catch(err) { self.postMessage({ type: "${MSG_ERROR}", message: "Worker eval failed: " + err.message }); }`,
         '  }',
@@ -79,6 +81,8 @@ export class Engine extends Emitter {
         workerCode,
         sfCode,
         wasmBinary: wasmBuf,
+        numLines: settings.numLines,
+        searchDepth: settings.searchDepth,
       }, [wasmBuf]);
 
       log('setup message sent');
@@ -90,13 +94,12 @@ export class Engine extends Emitter {
   }
 
   analyze(fen) {
-    if (!this._worker) return;
-    if (fen === this._currentFen) return;
-
     if (this._state === State.INITIALIZING) {
       this._pendingFen = fen;
       return;
     }
+    if (!this._worker) return;
+    if (fen === this._currentFen) return;
 
     log('analyzing:', fen);
     this._state = State.ANALYZING;

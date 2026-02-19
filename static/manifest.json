@@ -3,6 +3,10 @@
   "name": "Chee - Chess.com Live Analysis",
   "version": "1.0.0",
   "description": "Real-time Stockfish analysis for chess.com games",
+  "permissions": ["storage"],
+  "action": {
+    "default_popup": "popup.html"
+  },
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",

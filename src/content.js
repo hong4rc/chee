@@ -4,6 +4,7 @@
 import { times, constant, forEach } from 'lodash-es';
 import createDebug from './lib/debug.js';
 import pollUntil from './lib/poll.js';
+import { loadSettings } from './lib/settings.js';
 import { createAdapter } from './adapters/factory.js';
 import { Engine } from './core/engine.js';
 import { Panel } from './core/panel.js';
@@ -17,16 +18,20 @@ import {
 
 const log = createDebug('chee:content');
 
-(function main() {
+(async function main() {
   log('Content script loaded on', window.location.href);
 
+  const settings = await loadSettings();
+  log('settings:', settings);
+
   const adapter = createAdapter();
-  const engine = new Engine();
-  const panel = new Panel();
+  let engine = new Engine();
+  let panel = new Panel(settings.numLines);
   const arrow = new ArrowOverlay();
 
   let boardEl = null;
   let debounceTimer = null;
+  let lastEval = null;
 
   function cleanup() {
     clearTimeout(debounceTimer);
@@ -73,7 +78,7 @@ const log = createDebug('chee:content');
     panel.on('line:leave', () => { arrow.clear(); });
 
     engine.on('ready', () => { panel.updateStatus('Ready'); });
-    engine.on('eval', (data) => { panel.updateEval(data); });
+    engine.on('eval', (data) => { lastEval = data; panel.updateEval(data); });
     engine.on('error', (msg) => { panel.updateStatus(`Error: ${msg}`); });
   }
 
@@ -122,7 +127,7 @@ const log = createDebug('chee:content');
     setupListeners(el);
 
     panel.updateStatus('Loading Stockfish...');
-    engine.init();
+    engine.init(settings);
     adapter.observe(el, onBoardChange);
 
     const fen = readFen();
@@ -135,6 +140,33 @@ const log = createDebug('chee:content');
       waitForPieces();
     }
   }
+
+  function applySettings(newSettings) {
+    Object.assign(settings, newSettings);
+    log('settings changed:', settings);
+
+    panel.reconfigure(settings.numLines);
+
+    engine.destroy();
+    engine = new Engine();
+    engine.on('ready', () => { panel.updateStatus('Ready'); });
+    engine.on('eval', (data) => { lastEval = data; panel.updateEval(data); });
+    engine.on('error', (msg) => { panel.updateStatus(`Error: ${msg}`); });
+
+    if (!boardEl) return;
+    engine.init(settings);
+
+    const fen = readFen();
+    if (fen) engine.analyze(fen);
+  }
+
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== 'sync') return;
+    const update = {};
+    if (changes.numLines) update.numLines = changes.numLines.newValue;
+    if (changes.searchDepth) update.searchDepth = changes.searchDepth.newValue;
+    if (Object.keys(update).length) applySettings(update);
+  });
 
   init();
 }());

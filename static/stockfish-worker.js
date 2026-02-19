@@ -2,10 +2,10 @@
 // Stockfish Web Worker (blob-compatible, single-threaded)
 // Globals __sfCode and __wasmBinary are injected by the bootstrap before this runs.
 
-// ─── Engine config ───────────────────────────────────────────
-const SEARCH_DEPTH = 22;
+// ─── Engine config (overridden by setup message) ────────────
+let SEARCH_DEPTH = 22;
 const HASH_SIZE_MB = 32;
-const NUM_LINES = 3;
+let NUM_LINES = 3;
 
 // ─── UCI tokens ──────────────────────────────────────────────
 const UCI_INFO = 'info';
@@ -154,6 +154,11 @@ function stopAnalysis() {
 }
 
 function bootstrapStockfish() {
+  // Apply config from setup message
+  if (self.__numLines) NUM_LINES = self.__numLines;
+  if (self.__searchDepth) SEARCH_DEPTH = self.__searchDepth;
+  currentLines = Array(NUM_LINES).fill(null);
+
   // Override fetch to serve WASM binary from memory
   const origFetch = self.fetch.bind(self);
   self.fetch = (url, opts) => {
