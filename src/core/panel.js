@@ -29,9 +29,6 @@ function createHeader() {
   const hide = el('button', 'chee-hide');
   hide.title = 'Hide panel';
   hide.innerHTML = '&#x2039;';
-  const copyFen = el('button', 'chee-copy-fen');
-  copyFen.title = 'Copy FEN';
-  copyFen.textContent = 'FEN';
   const toggle = el('button', 'chee-toggle');
   toggle.title = 'Minimize';
   toggle.innerHTML = '&#x2212;';
@@ -41,7 +38,6 @@ function createHeader() {
     el('span', 'chee-classification-slot'),
     el('span', 'chee-eval-score', '0.0'),
     el('span', 'chee-depth'),
-    copyFen,
     toggle,
   );
 
@@ -80,7 +76,13 @@ function createLines(numLines) {
 }
 
 function createStatus() {
-  return el('div', 'chee-status chee-loading', 'Initializing...');
+  const status = el('div', 'chee-status chee-loading');
+  const text = el('span', 'chee-status-text', 'Initializing...');
+  const copyFen = el('button', 'chee-copy-fen');
+  copyFen.title = 'Copy FEN';
+  copyFen.textContent = 'FEN';
+  status.append(text, copyFen);
+  return status;
 }
 
 // ─── Score formatting ────────────────────────────────────────
@@ -193,8 +195,9 @@ export class Panel extends Emitter {
   updateStatus(text) {
     if (!this._el) return;
     const statusEl = this._el.querySelector('.chee-status');
-    if (!statusEl) return;
-    statusEl.textContent = text;
+    const textEl = this._el.querySelector('.chee-status-text');
+    if (!statusEl || !textEl) return;
+    textEl.textContent = text;
     statusEl.className = `chee-status${text.includes('Loading') || text.includes('Initializing') ? ' chee-loading' : ''}`;
   }
 

@@ -164,15 +164,23 @@
 
 /* Status bar */
 #chee-analysis-panel .chee-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   padding: 5px 10px;
   font-size: 10px;
   color: var(--chee-overlay0);
   border-top: 1px solid var(--chee-surface0);
   background: var(--chee-mantle);
+}
+
+#chee-analysis-panel .chee-status-text {
+  flex: 1;
   text-align: center;
 }
 
-#chee-analysis-panel .chee-status.chee-loading {
+#chee-analysis-panel .chee-status.chee-loading .chee-status-text {
   color: var(--chee-peach);
 }
 
