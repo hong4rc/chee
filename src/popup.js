@@ -6,6 +6,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   const settings = await loadSettings();
   applyTheme(document.body, settings.theme);
 
+  // Version info
+  const { version } = chrome.runtime.getManifest();
+  const versionEl = document.getElementById('chee-version');
+  if (versionEl) versionEl.textContent = `v${version} (${__COMMIT_HASH__})`;
+
   // Theme dropdown
   const themeSelect = document.getElementById('theme-select');
   themeSelect.value = settings.theme;
