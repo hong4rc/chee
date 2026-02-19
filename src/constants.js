@@ -136,6 +136,10 @@ export const SAN_CASTLE_QUEEN = 'O-O-O';
 export const UCI_MIN_LEN = 4;
 export const UCI_PROMO_LEN = 5;
 
+// ─── Insight arrow (best move after mistake/blunder) ────────
+export const INSIGHT_ARROW_OPACITY = 0.55;
+export const INSIGHT_ARROW_DASH = '6,4';
+
 // ─── Arrow overlay ───────────────────────────────────────────
 export const ARROW_COLOR_WHITE = '#4a90d9'; // blue — white's moves
 export const ARROW_COLOR_BLACK = '#e8833a'; // orange — black's moves

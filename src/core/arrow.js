@@ -9,6 +9,7 @@ import {
   ARROW_SHORTEN_FACTOR,
   ARROW_MARKER_WIDTH, ARROW_MARKER_HEIGHT, ARROW_MARKER_REF_X, ARROW_MARKER_REF_Y,
   UCI_MIN_LEN, TURN_WHITE, TURN_BLACK,
+  INSIGHT_ARROW_OPACITY, INSIGHT_ARROW_DASH,
 } from '../constants.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -324,5 +325,71 @@ export class ArrowOverlay {
   clearHint() {
     if (!this._svg) return;
     forEach(this._svg.querySelectorAll('.chee-hint-el'), (el) => el.remove());
+  }
+
+  drawInsight(uciMove, isFlipped, color) {
+    if (!this._svg || !this._boardEl) return;
+    this.clearInsight();
+
+    if (!uciMove || uciMove.length < UCI_MIN_LEN) return;
+
+    const {
+      sqW, sqH, strokeWidth, headSize, originRadius,
+    } = this._getBoardMetrics();
+
+    const {
+      fromFile, fromRank, toFile, toRank,
+    } = parseUci(uciMove);
+    const from = squareCenter(fromFile, fromRank, sqW, sqH, isFlipped);
+    const toRaw = squareCenter(toFile, toRank, sqW, sqH, isFlipped);
+    const to = shortenEnd(from, toRaw, headSize);
+
+    // Dedicated arrowhead marker
+    const markerId = 'chee-insight-arrowhead';
+    const defs = this._svg.querySelector('defs');
+    const marker = createSvgEl('marker', {
+      id: markerId,
+      markerWidth: ARROW_MARKER_WIDTH,
+      markerHeight: ARROW_MARKER_HEIGHT,
+      refX: ARROW_MARKER_REF_X,
+      refY: ARROW_MARKER_REF_Y,
+      orient: 'auto',
+      class: 'chee-insight-el',
+    });
+    marker.appendChild(createSvgEl('path', {
+      d: `M0,0 L${ARROW_MARKER_WIDTH},${ARROW_MARKER_REF_Y} L0,${ARROW_MARKER_HEIGHT} Z`,
+      fill: color,
+    }));
+    defs.appendChild(marker);
+
+    // Origin circle
+    this._svg.appendChild(createSvgEl('circle', {
+      cx: from.x,
+      cy: from.y,
+      r: originRadius * 0.7,
+      fill: color,
+      opacity: INSIGHT_ARROW_OPACITY,
+      class: 'chee-insight-el',
+    }));
+
+    // Dashed line with arrowhead
+    this._svg.appendChild(createSvgEl('line', {
+      x1: from.x,
+      y1: from.y,
+      x2: to.x,
+      y2: to.y,
+      stroke: color,
+      'stroke-width': strokeWidth * 0.6,
+      'stroke-linecap': 'round',
+      'stroke-dasharray': INSIGHT_ARROW_DASH,
+      opacity: INSIGHT_ARROW_OPACITY,
+      'marker-end': `url(#${markerId})`,
+      class: 'chee-insight-el',
+    }));
+  }
+
+  clearInsight() {
+    if (!this._svg) return;
+    forEach(this._svg.querySelectorAll('.chee-insight-el'), (el) => el.remove());
   }
 }

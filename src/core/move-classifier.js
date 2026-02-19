@@ -168,13 +168,21 @@ export class MoveClassifier {
     this._panel.showClassification(result, insight);
 
     if (data.depth >= CLASSIFICATION_LOCK_DEPTH) {
+      const isFlipped = this._adapter.isFlipped(boardEl);
       this._arrow.drawClassification(
         this._playedMoveUci,
-        this._adapter.isFlipped(boardEl),
+        isFlipped,
         result.color,
         result.symbol,
       );
-      this._cache.set(this._prevPly, { result, moveUci: this._playedMoveUci, insight });
+      const bestUci = insight && this._prevEval.pv && this._prevEval.pv[0]
+        ? this._prevEval.pv[0] : null;
+      if (bestUci) {
+        this._arrow.drawInsight(bestUci, isFlipped, result.color);
+      }
+      this._cache.set(this._prevPly, {
+        result, moveUci: this._playedMoveUci, insight, bestUci,
+      });
       log.info('locked at depth', data.depth, 'cached ply:', this._prevPly);
       this._locked = true;
     }
@@ -194,6 +202,7 @@ export class MoveClassifier {
     this._locked = false;
     this._panel.clearClassification();
     this._arrow.clearClassification();
+    this._arrow.clearInsight();
     this._prevFen = fen;
     this._prevBoard = board || null;
     this._prevPly = ply || 0;
@@ -202,13 +211,17 @@ export class MoveClassifier {
     if (!isForward && this._settings.showClassifications) {
       const cached = this._cache.get(ply);
       if (cached) {
+        const isFlipped = this._adapter.isFlipped(boardEl);
         this._panel.showClassification(cached.result, cached.insight);
         this._arrow.drawClassification(
           cached.moveUci,
-          this._adapter.isFlipped(boardEl),
+          isFlipped,
           cached.result.color,
           cached.result.symbol,
         );
+        if (cached.insight && cached.bestUci) {
+          this._arrow.drawInsight(cached.bestUci, isFlipped, cached.result.color);
+        }
         this._locked = true;
         log.info('restored cached classification for ply:', ply, cached.result.label);
       }
@@ -231,6 +244,7 @@ export class MoveClassifier {
     if (!enabled) {
       this._panel.clearClassification();
       this._arrow.clearClassification();
+      this._arrow.clearInsight();
     }
   }
 
@@ -240,6 +254,7 @@ export class MoveClassifier {
 
   destroy() {
     this._arrow.clearClassification();
+    this._arrow.clearInsight();
     this._latestEval = null;
     this._prevEval = null;
     this._prevFen = null;
