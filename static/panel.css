@@ -205,6 +205,15 @@
   display: none;
 }
 
+#chee-analysis-panel .chee-threat {
+  font-size: 10px;
+  color: var(--chee-peach);
+}
+
+#chee-analysis-panel .chee-threat:empty {
+  display: none;
+}
+
 #chee-analysis-panel .chee-status-text {
   flex: 1;
   text-align: center;

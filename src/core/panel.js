@@ -5,7 +5,7 @@ import {
 } from 'lodash-es';
 import createDebug from '../lib/debug.js';
 import { Emitter } from '../lib/emitter.js';
-import { pvToSan } from './san.js';
+import { pvToSan, uciToSan, applyUciMove } from './san.js';
 import { lookupOpening } from './openings.js';
 import {
   PANEL_ID, NUM_LINES as DEFAULT_NUM_LINES, MAX_PV_MOVES, CENTIPAWN_DIVISOR,
@@ -88,11 +88,12 @@ function createLines(numLines) {
 function createStatus() {
   const status = el('div', 'chee-status chee-loading');
   const accuracy = el('span', 'chee-accuracy');
+  const threat = el('span', 'chee-threat');
   const text = el('span', 'chee-status-text', 'Initializing...');
   const copyFen = el('button', 'chee-copy-fen');
   copyFen.title = 'Copy FEN';
   copyFen.textContent = 'FEN';
-  status.append(accuracy, text, copyFen);
+  status.append(accuracy, threat, text, copyFen);
   return status;
 }
 
@@ -197,6 +198,24 @@ export class Panel extends Emitter {
 
     this._updateScoreDisplay(bestLine);
     this._updateLineRows(lines);
+    this._updateThreat(bestLine);
+  }
+
+  _updateThreat(bestLine) {
+    const threatEl = this._el.querySelector('.chee-threat');
+    if (!threatEl) return;
+
+    if (!this._board || !bestLine.pv || bestLine.pv.length < 2) {
+      threatEl.textContent = '';
+      return;
+    }
+
+    const opponentTurn = this._turn === TURN_WHITE ? TURN_BLACK : TURN_WHITE;
+    const boardAfter = applyUciMove(this._board, bestLine.pv[0]);
+    if (!boardAfter) { threatEl.textContent = ''; return; }
+
+    const san = uciToSan(bestLine.pv[1], boardAfter, opponentTurn);
+    threatEl.textContent = san ? `\u26A0 ${san}` : '';
   }
 
   showClassification({ label, symbol, color }, insight) {
