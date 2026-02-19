@@ -1,8 +1,11 @@
 // Encapsulates move classification state and logic.
 // Compares eval before/after each board change to label the played move.
 
+import createDebug from '../lib/debug.js';
 import { classify } from './classify.js';
 import { FILES, CLASSIFICATION_MIN_DEPTH, CLASSIFICATION_LOCK_DEPTH } from '../constants.js';
+
+const log = createDebug('chee:classify');
 
 export class MoveClassifier {
   constructor({
@@ -22,6 +25,7 @@ export class MoveClassifier {
 
   initFen(fen) {
     this._prevFen = fen;
+    log('initFen:', fen);
   }
 
   onEval(data, boardEl) {
@@ -39,6 +43,20 @@ export class MoveClassifier {
     if (data.depth < CLASSIFICATION_MIN_DEPTH) return;
 
     const result = classify(this._prevEval, data.lines[0], this._playedMoveUci);
+    log.info(
+      'classify:',
+      result.label,
+      'cpLoss:',
+      result.cpLoss,
+      'd:',
+      data.depth,
+      'move:',
+      this._playedMoveUci,
+      'prev:',
+      { cp: this._prevEval.score, m: this._prevEval.mate },
+      'curr:',
+      { cp: data.lines[0].score, m: data.lines[0].mate },
+    );
     this._panel.showClassification(result);
     this._arrow.drawClassification(
       this._playedMoveUci,
@@ -47,6 +65,7 @@ export class MoveClassifier {
     );
 
     if (data.depth >= CLASSIFICATION_LOCK_DEPTH) {
+      log.info('locked at depth', data.depth);
       this._locked = true;
     }
   }
@@ -60,6 +79,18 @@ export class MoveClassifier {
     this._panel.clearClassification();
     this._arrow.clearClassification();
     this._prevFen = fen;
+
+    log(
+      'board changed',
+      'enabled:',
+      this._settings.showClassifications,
+      'move:',
+      this._playedMoveUci,
+      'prevEval:',
+      this._prevEval
+        ? { cp: this._prevEval.score, m: this._prevEval.mate, d: this._prevEval.depth }
+        : null,
+    );
   }
 
   setEnabled(enabled) {
@@ -81,8 +112,13 @@ export class MoveClassifier {
   _detectPlayedMoveUci(boardEl) {
     if (!boardEl) return null;
     const lastMove = this._adapter.detectLastMove(boardEl);
-    if (!lastMove) return null;
+    if (!lastMove) {
+      log.warn('detectLastMove: no highlights found');
+      return null;
+    }
     const { from, to } = lastMove;
-    return FILES[from.file] + (from.rank + 1) + FILES[to.file] + (to.rank + 1);
+    const uci = FILES[from.file] + (from.rank + 1) + FILES[to.file] + (to.rank + 1);
+    log('detectLastMove:', uci, from, '->', to);
+    return uci;
   }
 }

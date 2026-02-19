@@ -22,10 +22,11 @@ import {
 const log = createDebug('chee:content');
 
 (async function main() {
-  log('Content script loaded on', window.location.href);
+  log.info('Content script loaded on', window.location.href);
 
   const settings = await loadSettings();
-  log('settings:', settings);
+  if (settings.debugMode) { localStorage.debug = 'chee:*'; } // eslint-disable-line no-restricted-globals
+  log.info('settings:', settings);
 
   const adapter = createAdapter();
   let engine = new Engine();
@@ -112,7 +113,7 @@ const log = createDebug('chee:content');
 
       const fen = readFen();
       if (fen) {
-        log('Pieces appeared! FEN:', fen);
+        log.info('Pieces appeared! FEN:', fen);
         clearInterval(pieceInterval);
         classifier.initFen(fen);
         engine.analyze(fen);
@@ -128,7 +129,7 @@ const log = createDebug('chee:content');
   }
 
   async function init() {
-    log('init() called, searching for board...');
+    log.info('init() called, searching for board...');
 
     let el;
     try {
@@ -139,7 +140,7 @@ const log = createDebug('chee:content');
     }
 
     boardEl = el;
-    log('Board found:', el.tagName, el.id, el.className);
+    log.info('Board found:', el.tagName, el.id, el.className);
 
     panel.mount(adapter.getPanelAnchor(el));
     applyTheme(panel.el, settings.theme);
@@ -151,12 +152,12 @@ const log = createDebug('chee:content');
     adapter.observe(el, onBoardChange);
 
     const fen = readFen();
-    log('Initial FEN:', fen);
+    log.info('Initial FEN:', fen);
     if (fen) {
       classifier.initFen(fen);
       engine.analyze(fen);
     } else {
-      log('No pieces yet, polling...');
+      log.warn('No pieces yet, polling...');
       adapter.exploreBoardArea();
       waitForPieces();
     }
@@ -164,7 +165,12 @@ const log = createDebug('chee:content');
 
   function applySettings(newSettings) {
     Object.assign(settings, newSettings);
-    log('settings changed:', settings);
+    log.info('settings changed:', settings);
+
+    if ('debugMode' in newSettings) { // eslint-disable-line no-restricted-globals
+      if (newSettings.debugMode) localStorage.debug = 'chee:*';
+      else localStorage.removeItem('debug');
+    }
 
     if (newSettings.theme && panel.el) applyTheme(panel.el, settings.theme);
 
@@ -195,6 +201,7 @@ const log = createDebug('chee:content');
     if (changes.searchDepth) update.searchDepth = changes.searchDepth.newValue;
     if (changes.theme) update.theme = changes.theme.newValue;
     if (changes.showClassifications) update.showClassifications = changes.showClassifications.newValue;
+    if (changes.debugMode) update.debugMode = changes.debugMode.newValue;
     if (Object.keys(update).length) applySettings(update);
   });
 

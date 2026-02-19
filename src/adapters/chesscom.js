@@ -156,13 +156,13 @@ export class ChesscomAdapter extends BoardAdapter {
   findBoard() {
     const pieceContainer = this._findPieceContainer();
     if (pieceContainer) {
-      log('Found piece container:', pieceContainer.tagName, pieceContainer.id, pieceContainer.className);
+      log.info('Found piece container:', pieceContainer.tagName, pieceContainer.id, pieceContainer.className);
       return pieceContainer;
     }
 
     const sel = find(BOARD_SELECTORS, (s) => document.querySelector(s));
     if (!sel) return null;
-    log('Board found with selector:', sel);
+    log.info('Board found with selector:', sel);
     return document.querySelector(sel);
   }
 
@@ -171,7 +171,7 @@ export class ChesscomAdapter extends BoardAdapter {
     const elements = discoverPieceElements(root);
 
     if (elements.length === 0) {
-      log('No pieces found. Exploring board DOM...');
+      log.warn('No pieces found. Exploring board DOM...');
       this._exploreDOM(root, 0, MAX_EXPLORE_DEPTH);
       return [];
     }
@@ -179,7 +179,7 @@ export class ChesscomAdapter extends BoardAdapter {
     const result = compact(map(Array.from(elements), parsePieceElement));
 
     if (result.length === 0 && elements.length > 0) {
-      log('Found', elements.length, 'piece-like elements but parsed 0. Sample classes:');
+      log.warn('Found', elements.length, 'piece-like elements but parsed 0. Sample classes:');
       forEach(take(Array.from(elements), MAX_LOG_SAMPLES), (el) => {
         log(' ', el.getAttribute('class'));
       });

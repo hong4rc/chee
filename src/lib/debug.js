@@ -33,6 +33,16 @@ export default function createDebug(namespace) {
     console.log(tag, ...args); // eslint-disable-line no-console
   };
 
+  log.info = (...args) => {
+    if (!isEnabled(namespace)) return;
+    console.info(tag, ...args); // eslint-disable-line no-console
+  };
+
+  log.warn = (...args) => {
+    if (!isEnabled(namespace)) return;
+    console.warn(tag, ...args); // eslint-disable-line no-console
+  };
+
   log.error = (...args) => {
     if (!isEnabled(namespace)) return;
     console.error(tag, ...args); // eslint-disable-line no-console

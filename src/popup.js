@@ -27,6 +27,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     chrome.storage.sync.set({ showClassifications: classifyCheckbox.checked });
   });
 
+  // Debug toggle
+  const debugCheckbox = document.getElementById('debug-mode');
+  debugCheckbox.checked = settings.debugMode;
+  debugCheckbox.addEventListener('change', () => {
+    chrome.storage.sync.set({ debugMode: debugCheckbox.checked });
+  });
+
   // Button groups (numLines, searchDepth)
   document.querySelectorAll('.btn-group').forEach((group) => {
     const { key } = group.dataset;

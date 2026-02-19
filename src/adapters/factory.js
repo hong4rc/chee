@@ -15,9 +15,9 @@ const ADAPTERS = [
 export function createAdapter() {
   const match = find(ADAPTERS, (a) => a.test());
   if (match) {
-    log('Detected site:', match.name);
+    log.info('Detected site:', match.name);
     return match.create();
   }
-  log('No adapter matched, falling back to chess.com');
+  log.warn('No adapter matched, falling back to chess.com');
   return new ChesscomAdapter();
 }

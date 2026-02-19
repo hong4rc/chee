@@ -34,7 +34,7 @@ export class Engine extends Emitter {
   async init(settings = {}) {
     if (this._state !== State.IDLE) return;
     this._state = State.INITIALIZING;
-    log('fetching resources...');
+    log.info('fetching resources...');
 
     try {
       const [workerCode, sfCode, wasmBuf] = await Promise.all([
@@ -67,7 +67,7 @@ export class Engine extends Emitter {
 
       this._worker = new Worker(blobUrl);
       URL.revokeObjectURL(blobUrl);
-      log('blob worker created');
+      log.info('blob worker created');
 
       this._worker.onmessage = (e) => this._handleMessage(e.data);
 
@@ -128,7 +128,7 @@ export class Engine extends Emitter {
   _handleMessage(msg) {
     if (msg.type === MSG_READY) {
       this._state = State.READY;
-      log('Stockfish ready!');
+      log.info('Stockfish ready!');
       this.emit(EVT_READY);
       if (this._pendingFen) {
         const fen = this._pendingFen;
