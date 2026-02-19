@@ -23,7 +23,7 @@ npm run lint     # check code style
 npm run lint:fix # auto-fix lint issues
 ```
 
-Enable debug logging in the browser console:
+Enable debug logging via the extension popup (toggle **Debug logging**), or manually in the browser console:
 
 ```js
 localStorage.debug = 'chee:*'
@@ -39,6 +39,7 @@ localStorage.debug = 'chee:*'
 - Multi-line analysis (configurable 3-5 lines)
 - Configurable search depth (19-22)
 - Arrow overlays showing suggested moves
+- Move classification (Best, Excellent, Good, Inaccuracy, Mistake, Blunder) with colored arrows and badge
 - Eval bar and score with white/black advantage indicator
 - Hide/show and minimize panel controls
 - Copy FEN to clipboard

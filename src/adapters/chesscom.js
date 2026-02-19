@@ -45,6 +45,7 @@ const SEL_PIECE_SQUARE = '.piece[class*="square-"]';
 const SEL_CUSTOM_BOARDS = 'wc-chess-board, chess-board';
 const SEL_CLOCK_TURN = '.clock-player-turn';
 const SEL_MOVE_LIST = 'wc-simple-move-list .node';
+const SEL_SELECTED_MOVE = 'wc-simple-move-list .node-highlight-content.selected';
 const SEL_HIGHLIGHT = '.highlight';
 const SEL_MOVE_LIST_EL = 'wc-simple-move-list';
 const SEL_BOARD_LAYOUT = '.board-layout-chessboard';
@@ -234,6 +235,14 @@ export class ChesscomAdapter extends BoardAdapter {
 
   detectMoveCount() {
     const moveNodes = document.querySelectorAll(SEL_MOVE_LIST);
+    const selectedContent = document.querySelector(SEL_SELECTED_MOVE);
+    const activeNode = selectedContent ? selectedContent.closest('.node') : null;
+
+    if (activeNode) {
+      const idx = Array.from(moveNodes).indexOf(activeNode);
+      if (idx >= 0) return Math.floor(idx / 2) + 1;
+    }
+
     return Math.floor(moveNodes.length / 2) + 1;
   }
 
@@ -329,15 +338,20 @@ export class ChesscomAdapter extends BoardAdapter {
   }
 
   _detectTurnFromMoveList() {
-    const moveNodes = document.querySelectorAll(SEL_MOVE_LIST);
-    if (moveNodes.length === 0) return TURN_WHITE;
+    // Prefer the currently selected move (important for game review / analysis)
+    const selectedContent = document.querySelector(SEL_SELECTED_MOVE);
+    const activeNode = selectedContent ? selectedContent.closest('.node') : null;
 
-    const lastMove = moveNodes[moveNodes.length - 1];
-    if (lastMove) {
-      if (lastMove.classList.contains(CLS_WHITE_MOVE)) return TURN_BLACK;
-      if (lastMove.classList.contains(CLS_BLACK_MOVE)) return TURN_WHITE;
+    // Fallback: last move in the list (live game at latest position)
+    const moveNodes = document.querySelectorAll(SEL_MOVE_LIST);
+    const node = activeNode || moveNodes[moveNodes.length - 1];
+
+    if (node) {
+      if (node.classList.contains(CLS_WHITE_MOVE)) return TURN_BLACK;
+      if (node.classList.contains(CLS_BLACK_MOVE)) return TURN_WHITE;
     }
 
+    if (moveNodes.length === 0) return TURN_WHITE;
     return moveNodes.length % 2 === 0 ? TURN_WHITE : TURN_BLACK;
   }
 

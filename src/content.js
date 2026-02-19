@@ -14,6 +14,7 @@ import { boardToFen } from './core/fen.js';
 import { MoveClassifier } from './core/move-classifier.js';
 import {
   BOARD_SIZE, LAST_RANK,
+  TURN_WHITE, TURN_BLACK,
   DEBOUNCE_MS, POLL_INTERVAL_MS, BOARD_TIMEOUT_MS,
   MAX_PIECE_ATTEMPTS,
   EVT_READY, EVT_EVAL, EVT_ERROR, EVT_LINE_HOVER, EVT_LINE_LEAVE,
@@ -38,6 +39,7 @@ const log = createDebug('chee:content');
 
   let boardEl = null;
   let debounceTimer = null;
+  let latestBoard = null;
 
   function cleanup() {
     clearTimeout(debounceTimer);
@@ -50,6 +52,26 @@ const log = createDebug('chee:content');
 
   window.addEventListener('unload', cleanup);
 
+  // Detect whose turn it is by diffing two boards.
+  // If a piece moved (≤4 squares changed), the arrived piece's color tells us who moved.
+  // Returns the side to move NEXT, or null if the diff is ambiguous.
+  function detectTurnFromDiff(prev, curr) {
+    let changes = 0;
+    let arrivedPiece = null;
+    for (let row = 0; row < BOARD_SIZE; row++) {
+      for (let col = 0; col < BOARD_SIZE; col++) {
+        if (prev[row][col] !== curr[row][col]) {
+          changes += 1;
+          if (changes > 4) return null; // position jump, not a single move
+          const c = curr[row][col];
+          if (c && c !== prev[row][col] && !arrivedPiece) arrivedPiece = c;
+        }
+      }
+    }
+    if (!arrivedPiece) return null;
+    return arrivedPiece === arrivedPiece.toUpperCase() ? TURN_BLACK : TURN_WHITE;
+  }
+
   function readFen() {
     if (!boardEl) return null;
 
@@ -61,13 +83,16 @@ const log = createDebug('chee:content');
       board[LAST_RANK - p.rank][p.file] = p.piece;
     });
 
-    const turn = adapter.detectTurn();
+    // Prefer board-diff turn detection (reliable); fall back to adapter (DOM-based)
+    const diffTurn = latestBoard ? detectTurnFromDiff(latestBoard, board) : null;
+    const turn = diffTurn || adapter.detectTurn();
     const castling = adapter.detectCastling(board);
     const enPassant = adapter.detectEnPassant(board);
     const moveCount = adapter.detectMoveCount();
 
     const fen = boardToFen(board, turn, castling, enPassant, moveCount);
     panel.setBoard(board, turn, fen);
+    latestBoard = board;
     return fen;
   }
 
@@ -81,7 +106,7 @@ const log = createDebug('chee:content');
     debounceTimer = setTimeout(() => {
       const fen = readFen();
       if (!fen) return;
-      classifier.onBoardChange(fen, boardEl);
+      classifier.onBoardChange(fen, boardEl, latestBoard);
       engine.analyze(fen);
     }, DEBOUNCE_MS);
   }
@@ -115,7 +140,7 @@ const log = createDebug('chee:content');
       if (fen) {
         log.info('Pieces appeared! FEN:', fen);
         clearInterval(pieceInterval);
-        classifier.initFen(fen);
+        classifier.initFen(fen, latestBoard);
         engine.analyze(fen);
         return;
       }
@@ -154,7 +179,7 @@ const log = createDebug('chee:content');
     const fen = readFen();
     log.info('Initial FEN:', fen);
     if (fen) {
-      classifier.initFen(fen);
+      classifier.initFen(fen, latestBoard);
       engine.analyze(fen);
     } else {
       log.warn('No pieces yet, polling...');

@@ -54,6 +54,47 @@ After building, load `dist/` as an unpacked Chrome extension.
 
 `static/stockfish-worker.js`, `stockfish.js`, `stockfish.wasm` are loaded at runtime via `chrome.runtime.getURL()`. Rollup copies them to `dist/` via the copy plugin.
 
+## Common Pitfalls & Fixes
+
+### DOM-based detection is fragile — prefer board diff
+
+Chess sites update DOM elements (clocks, move lists, highlights) at unpredictable times relative to piece positions. This causes:
+
+- **Turn detection wrong**: `detectTurn()` reads clock/move-list DOM, but these may not have updated when the MutationObserver fires on piece movement. Fix: `detectTurnFromDiff()` in `content.js` compares previous board array to current — if a white piece arrived, it's black's turn. Falls back to adapter only for initial position or large jumps (>4 squares changed).
+- **Move detection wrong**: Highlight squares (`square-XY` on chess.com, `square.last-move` on lichess) can flicker, producing ghost moves like `e2f7`. Fix: `boardDiffToUci()` in `move-classifier.js` diffs previous/current board arrays — handles normal moves, captures, castling, en passant, and promotion.
+- **Move count wrong**: Adapter counts all moves in the DOM move list, but during game review the user may be at an earlier position. Fix: find the selected/active move node first, count up to that index. Selector varies by site (chess.com: `.node-highlight-content.selected`; lichess: `kwdb.a1t` / `.tview2 move.active`).
+
+**Rule of thumb for new adapters**: implement `readPieces()` and `isFlipped()` accurately. Turn detection and move detection are handled by the board-diff layer in `content.js` and `move-classifier.js` — adapter-level `detectTurn()` is only a fallback.
+
+### chess.com DOM structure (as of 2025)
+
+- Move list: `wc-simple-move-list` → `.main-line-row` → `.node.white-move` / `.node.black-move` → `span.node-highlight-content` (`.selected` on active move)
+- Clocks: `.clock-component.clock-white` / `.clock-component.clock-black`, active has `.clock-player-turn`
+- Highlights: `.highlight.square-XY` (XY = file+rank, 1-indexed)
+- Pieces: `.piece` with two-char color+type class (`wp`, `br`) and `square-XY` class
+
+### lichess DOM structure (as of 2025)
+
+- Move list: `l4x kwdb` elements (`.a1t` = active) or `.tview2 move` (`.active` = active)
+- Board: `cg-board` inside `.cg-wrap` (`.orientation-black` when flipped)
+- Pieces: `piece` elements with color class (`white`/`black`) + type class (`king`, `pawn`, etc.), positioned via `translate(Xpx, Ypx)`
+- Highlights: `square.last-move` positioned via `translate()`
+
+### Debug logging
+
+- Use `log()` for verbose trace, `log.info()` for milestones, `log.warn()` for degraded states, `log.error()` for failures
+- **Never use printf format strings** (`%s`, `%d`) — the debug library prepends a `[namespace]` tag as the first `console.log` argument, which shifts format strings to position 2 where they print literally. Use comma-separated args with inline objects instead.
+- Debug toggle in popup sets `localStorage.debug = 'chee:*'`; Chrome DevTools can filter by level (info/warn/error)
+
+## Move Classification
+
+`core/move-classifier.js` — compares eval before/after each move to classify as Best/Excellent/Good/Inaccuracy/Mistake/Blunder. Shows colored arrow on board + badge in panel header. Togglable via popup (default off).
+
+- `core/classify.js` — pure classification logic: `computeCpLoss()` and `classify()`
+- Board diff detects played move (no DOM highlight dependency)
+- Classification starts at depth 10, locks at depth 16 to prevent flickering
+- Thresholds: Best (engine's #1), Excellent (≤10cp), Good (≤30), Inaccuracy (≤80), Mistake (≤200), Blunder (>200)
+
 ## Theme System
 
 Catppuccin color palette (Latte, Frappé, Macchiato, Mocha) plus a "Match Site" option. Applied via CSS custom properties (`--chee-base`, `--chee-text`, etc.) on the panel element.

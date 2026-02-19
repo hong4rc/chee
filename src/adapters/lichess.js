@@ -144,8 +144,15 @@ export class LichessAdapter extends BoardAdapter {
 
   detectMoveCount() {
     const moves = document.querySelectorAll('l4x kwdb, .tview2 move');
-    if (moves.length > 0) return Math.floor(moves.length / 2) + 1;
-    return 1;
+    if (moves.length === 0) return 1;
+
+    const activeMove = document.querySelector('kwdb.a1t, .tview2 move.active');
+    if (activeMove) {
+      const idx = Array.from(moves).indexOf(activeMove);
+      if (idx >= 0) return Math.floor(idx / 2) + 1;
+    }
+
+    return Math.floor(moves.length / 2) + 1;
   }
 
   getPanelAnchor(boardEl) {
