@@ -1,3 +1,4 @@
 node_modules/
 dist/
 chee-v*.zip
+.DS_Store
