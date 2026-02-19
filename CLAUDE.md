@@ -18,6 +18,24 @@ npm run clean      # Remove dist/
 
 After building, load `dist/` as an unpacked Chrome extension.
 
+## Releasing
+
+Uses `release-it` with `@release-it/conventional-changelog`. Reads Conventional Commits to auto-generate `CHANGELOG.md` and determine the version bump.
+
+```bash
+npm run release          # auto patch/minor/major based on commits (feat: → minor, fix: → patch)
+npm run release:minor    # force minor bump
+npm run release:major    # force major bump
+```
+
+What `npm run release` does:
+1. Bumps version in `package.json`
+2. Runs `scripts/sync-manifest-version.js` to sync version into `static/manifest.json`
+3. Runs `npm run build` to rebuild dist/
+4. Updates `CHANGELOG.md` from conventional commits
+5. Commits, tags (`v1.x.x`), and creates a GitHub release
+6. After release, run `npm run pack` to create the zip for Chrome Web Store upload
+
 ## Architecture
 
 **Two entry points** bundled by Rollup:

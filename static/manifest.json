@@ -4,7 +4,9 @@
   "version": "1.0.0",
   "description": "Live chess analysis overlay powered by Stockfish WASM",
   "homepage_url": "https://github.com/hong4rc/chee",
-  "permissions": ["storage"],
+  "permissions": [
+    "storage"
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -25,8 +27,12 @@
         "*://www.chess.com/play/*",
         "*://lichess.org/*"
       ],
-      "js": ["content.js"],
-      "css": ["panel.css"],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "panel.css"
+      ],
       "run_at": "document_idle"
     }
   ],
@@ -37,7 +43,10 @@
         "stockfish.wasm",
         "stockfish-worker.js"
       ],
-      "matches": ["*://www.chess.com/*", "*://lichess.org/*"]
+      "matches": [
+        "*://www.chess.com/*",
+        "*://lichess.org/*"
+      ]
     }
   ]
 }
