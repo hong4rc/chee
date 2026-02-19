@@ -8,6 +8,7 @@ import {
   CLASSIFICATION_BEST,
   CLASSIFICATION_BRILLIANT,
   CLASSIFICATION_BRILLIANT_THRESHOLD,
+  CLASSIFICATION_MIN_DEPTH,
 } from '../constants.js';
 
 export function computeCpLoss(prevScore, prevMate, currScore, currMate) {
@@ -42,7 +43,8 @@ export function classify(prevEval, currLine, playedUci) {
   const rawCpLoss = computeCpLoss(prevEval.score, prevEval.mate, currLine.score, currLine.mate);
 
   // Brilliant = not engine's #1, but position improved significantly (beyond eval noise)
-  if (rawCpLoss <= CLASSIFICATION_BRILLIANT_THRESHOLD) {
+  // Require prevEval at sufficient depth — shallow evals produce false positives
+  if (rawCpLoss <= CLASSIFICATION_BRILLIANT_THRESHOLD && prevEval.depth >= CLASSIFICATION_MIN_DEPTH) {
     return { ...CLASSIFICATION_BRILLIANT, cpLoss: rawCpLoss };
   }
 
