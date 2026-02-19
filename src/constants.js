@@ -64,7 +64,7 @@ export const MSG_STOP = 'stop';
 
 // ─── Engine config ───────────────────────────────────────────
 export const SEARCH_DEPTH = 22;
-export const HASH_SIZE_MB = 32;
+export const HASH_SIZE_MB = 16;
 
 // ─── Settings bounds ────────────────────────────────────────
 export const MIN_SEARCH_DEPTH = 19;

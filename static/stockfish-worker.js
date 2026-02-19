@@ -4,7 +4,7 @@
 
 // ─── Engine config (overridden by setup message) ────────────
 let SEARCH_DEPTH = 22;
-const HASH_SIZE_MB = 32;
+const HASH_SIZE_MB = 16;
 let NUM_LINES = 3;
 
 // ─── UCI tokens ──────────────────────────────────────────────
@@ -95,25 +95,39 @@ function parseInfoLine(line) {
   });
 }
 
-function doAnalyze(fen) {
+let awaitingReady = false; // waiting for readyok before starting new analysis
+
+function startAnalysis(fen) {
   currentLines = Array(NUM_LINES).fill(null);
   currentDepth = 0;
   analyzing = true;
+  awaitingReady = false;
 
-  sendUCI('stop');
   sendUCI(`position fen ${fen}`);
   sendUCI(`go depth ${SEARCH_DEPTH}`);
 }
 
+// After stop+bestmove, sync with isready/readyok before new analysis
+function syncBeforeNext() {
+  if (pendingFen) {
+    awaitingReady = true;
+    sendUCI('isready');
+  }
+}
+
 function onStockfishMessage(line) {
   if (line === UCI_READY_OK) {
-    isReady = true;
-    realPostMessage({ type: MSG_READY });
+    // Initial readyok (bootstrap) or sync readyok (between analyses)
+    if (!isReady) {
+      isReady = true;
+      realPostMessage({ type: MSG_READY });
+    }
 
-    if (pendingFen) {
-      const fen = pendingFen;
+    if (awaitingReady && pendingFen) {
+      awaitingReady = false;
+      const readyFen = pendingFen;
       pendingFen = null;
-      doAnalyze(fen);
+      startAnalysis(readyFen);
     }
     return;
   }
@@ -135,6 +149,16 @@ function onStockfishMessage(line) {
       lines: currentLines.filter(Boolean),
       complete: true,
     });
+
+    // Sync engine state before starting queued analysis
+    syncBeforeNext();
+  }
+}
+
+function requestStop() {
+  if (analyzing) {
+    sendUCI('stop');
+    // Don't set analyzing = false here — wait for bestmove
   }
 }
 
@@ -143,14 +167,18 @@ function analyzePosition(fen) {
     pendingFen = fen;
     return;
   }
-  doAnalyze(fen);
+  // If analyzing or waiting for readyok, queue and stop
+  if (analyzing || awaitingReady) {
+    pendingFen = fen;
+    if (analyzing) sendUCI('stop');
+    return;
+  }
+  startAnalysis(fen);
 }
 
 function stopAnalysis() {
-  if (analyzing) {
-    sendUCI('stop');
-    analyzing = false;
-  }
+  pendingFen = null;
+  requestStop();
 }
 
 function bootstrapStockfish() {

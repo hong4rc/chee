@@ -74,7 +74,8 @@ export class Engine extends Emitter {
       this._worker.onerror = (err) => {
         log.error('worker onerror:', err.message, err);
         this._state = State.ERROR;
-        this.emit(EVT_ERROR, 'Worker crashed');
+        this.emit(EVT_ERROR, 'Engine crashed — restarting...');
+        this._autoRecover(settings);
       };
 
       this._worker.postMessage({
@@ -118,11 +119,30 @@ export class Engine extends Emitter {
   }
 
   destroy() {
+    this._recovering = false;
     if (this._worker) {
       this._worker.terminate();
       this._worker = null;
     }
     this._state = State.IDLE;
+  }
+
+  _autoRecover(settings) {
+    if (this._recovering) return;
+    this._recovering = true;
+    const fen = this._currentFen;
+    log.warn('auto-recovering, will re-analyze:', fen);
+    if (this._worker) {
+      this._worker.terminate();
+      this._worker = null;
+    }
+    this._state = State.IDLE;
+    this._currentFen = null;
+    this._pendingFen = fen;
+    setTimeout(() => {
+      this._recovering = false;
+      this.init(settings);
+    }, 1000);
   }
 
   _handleMessage(msg) {
