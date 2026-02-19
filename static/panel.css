@@ -302,6 +302,20 @@
 }
 
 
+/* Opening name */
+#chee-analysis-panel .chee-opening-slot {
+  font-size: 10px;
+  color: var(--chee-subtext0);
+  padding: 0 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#chee-analysis-panel .chee-opening-slot:empty {
+  display: none;
+}
+
 /* Insight slot (between top row and eval bar) */
 #chee-analysis-panel .chee-insight-slot {
   padding: 0 10px 4px;

@@ -6,6 +6,7 @@ import {
 import createDebug from '../lib/debug.js';
 import { Emitter } from '../lib/emitter.js';
 import { pvToSan } from './san.js';
+import { lookupOpening } from './openings.js';
 import {
   PANEL_ID, NUM_LINES as DEFAULT_NUM_LINES, MAX_PV_MOVES, CENTIPAWN_DIVISOR,
   TURN_WHITE, TURN_BLACK,
@@ -40,6 +41,7 @@ function createHeader() {
     toggle,
   );
 
+  const openingSlot = el('div', 'chee-opening-slot');
   const insightSlot = el('div', 'chee-insight-slot');
 
   const bar = el('div', 'chee-eval-bar');
@@ -56,7 +58,7 @@ function createHeader() {
     el('span', 'chee-wdl-l-pct', '50%'),
   );
 
-  header.append(topRow, insightSlot, bar, wdlText);
+  header.append(topRow, openingSlot, insightSlot, bar, wdlText);
   return header;
 }
 
@@ -167,6 +169,19 @@ export class Panel extends Emitter {
     this._board = board;
     this._turn = turn;
     this._fen = fen;
+    this._updateOpening(fen);
+  }
+
+  _updateOpening(fen) {
+    if (!this._el) return;
+    const slot = this._el.querySelector('.chee-opening-slot');
+    if (!slot) return;
+    const name = lookupOpening(fen);
+    if (name && name !== 'Starting Position') {
+      slot.textContent = name;
+    } else {
+      slot.textContent = '';
+    }
   }
 
   updateEval(data) {
