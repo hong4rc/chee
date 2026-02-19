@@ -16,7 +16,8 @@
     {
       "matches": [
         "*://www.chess.com/game/*",
-        "*://www.chess.com/play/*"
+        "*://www.chess.com/play/*",
+        "*://lichess.org/*"
       ],
       "js": ["content.js"],
       "css": ["panel.css"],
@@ -30,7 +31,7 @@
         "stockfish.wasm",
         "stockfish-worker.js"
       ],
-      "matches": ["*://www.chess.com/*"]
+      "matches": ["*://www.chess.com/*", "*://lichess.org/*"]
     }
   ]
 }

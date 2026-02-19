@@ -187,3 +187,8 @@
 #chee-analysis-panel.chee-minimized .chee-status {
   display: none;
 }
+
+/* Lichess: ensure panel parent doesn't clip the absolutely-positioned panel */
+.main-board:has(> #chee-analysis-panel) {
+  overflow: visible !important;
+}

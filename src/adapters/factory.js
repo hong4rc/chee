@@ -3,11 +3,13 @@
 import { find } from 'lodash-es';
 import createDebug from '../lib/debug.js';
 import { ChesscomAdapter } from './chesscom.js';
+import { LichessAdapter } from './lichess.js';
 
 const log = createDebug('chee:adapter-factory');
 
 const ADAPTERS = [
   { test: () => window.location.hostname.includes('chess.com'), create: () => new ChesscomAdapter(), name: 'chess.com' },
+  { test: () => window.location.hostname.includes('lichess.org'), create: () => new LichessAdapter(), name: 'lichess' },
 ];
 
 export function createAdapter() {
