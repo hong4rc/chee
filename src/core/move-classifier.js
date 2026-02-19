@@ -134,6 +134,7 @@ export class MoveClassifier {
     if (!this._settings.showClassifications) return;
     if (!this._prevEval || !this._playedMoveUci || this._locked) return;
     if (data.depth < CLASSIFICATION_MIN_DEPTH) return;
+    if (this._prevEval.depth < CLASSIFICATION_MIN_DEPTH) return;
 
     const result = classify(this._prevEval, data.lines[0], this._playedMoveUci);
     log.info(
