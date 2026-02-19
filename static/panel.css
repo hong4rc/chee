@@ -145,6 +145,27 @@
   color: var(--chee-peach);
 }
 
+/* Copy FEN button */
+#chee-analysis-panel .chee-copy-fen {
+  cursor: pointer;
+  color: var(--chee-overlay0);
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 2px 4px;
+  min-width: 28px;
+  text-align: center;
+  border: 1px solid var(--chee-surface1);
+  border-radius: 3px;
+  background: var(--chee-surface0);
+  letter-spacing: 0.5px;
+}
+
+#chee-analysis-panel .chee-copy-fen:hover {
+  color: var(--chee-text);
+  border-color: var(--chee-overlay0);
+}
+
 /* Hide / Toggle buttons */
 #chee-analysis-panel .chee-hide,
 #chee-analysis-panel .chee-toggle {

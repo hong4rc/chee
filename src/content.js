@@ -60,8 +60,9 @@ const log = createDebug('chee:content');
     const enPassant = adapter.detectEnPassant(board);
     const moveCount = adapter.detectMoveCount();
 
-    panel.setBoard(board, turn);
-    return boardToFen(board, turn, castling, enPassant, moveCount);
+    const fen = boardToFen(board, turn, castling, enPassant, moveCount);
+    panel.setBoard(board, turn, fen);
+    return fen;
   }
 
   function onBoardChange() {

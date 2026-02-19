@@ -29,6 +29,9 @@ function createHeader() {
   const hide = el('button', 'chee-hide');
   hide.title = 'Hide panel';
   hide.innerHTML = '&#x2039;';
+  const copyFen = el('button', 'chee-copy-fen');
+  copyFen.title = 'Copy FEN';
+  copyFen.textContent = 'FEN';
   const toggle = el('button', 'chee-toggle');
   toggle.title = 'Minimize';
   toggle.innerHTML = '&#x2212;';
@@ -37,6 +40,7 @@ function createHeader() {
     el('span', 'chee-title', 'Chee'),
     el('span', 'chee-eval-score', '0.0'),
     el('span', 'chee-depth'),
+    copyFen,
     toggle,
   );
 
@@ -91,6 +95,7 @@ export class Panel extends Emitter {
     this._el = null;
     this._board = null;
     this._turn = TURN_WHITE;
+    this._fen = null;
     this._numLines = numLines;
     this._lines = Array(numLines).fill(null);
   }
@@ -133,9 +138,10 @@ export class Panel extends Emitter {
     if (this._showBtn) { this._showBtn.remove(); this._showBtn = null; }
   }
 
-  setBoard(board, turn) {
+  setBoard(board, turn, fen) {
     this._board = board;
     this._turn = turn;
+    this._fen = fen;
   }
 
   updateEval(data) {
@@ -188,6 +194,14 @@ export class Panel extends Emitter {
       this._el.querySelector('.chee-toggle').innerHTML = this._el.classList.contains('chee-minimized')
         ? '&#x2b;'
         : '&#x2212;';
+    });
+    this._el.querySelector('.chee-copy-fen').addEventListener('click', () => {
+      if (!this._fen) return;
+      navigator.clipboard.writeText(this._fen).then(() => {
+        const btn = this._el.querySelector('.chee-copy-fen');
+        btn.textContent = '\u2713';
+        setTimeout(() => { btn.textContent = 'FEN'; }, 1000);
+      });
     });
     this._el.querySelector('.chee-hide').addEventListener('click', () => {
       this._el.classList.add('chee-hidden');
