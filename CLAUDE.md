@@ -33,8 +33,23 @@ What `npm run release` does:
 2. Runs `scripts/sync-manifest-version.js` to sync version into `static/manifest.json`
 3. Runs `npm run build` to rebuild dist/
 4. Updates `CHANGELOG.md` from conventional commits
-5. Commits, tags (`v1.x.x`), and creates a GitHub release
-6. After release, run `npm run pack` to create the zip for Chrome Web Store upload
+5. Commits and tags (`v1.x.x`)
+
+## CI/CD
+
+Two GitHub Actions workflows (`.github/workflows/`):
+
+1. **`release.yml`** — triggered on `v*` tag push. Creates a GitHub Release with changelog body extracted from `CHANGELOG.md`.
+2. **`publish.yml`** — triggered when a GitHub Release is published. Builds, zips, uploads zip to the release, and publishes to Chrome Web Store.
+
+Release flow:
+```bash
+git push origin main        # push commits
+npm run release             # bump, changelog, commit, tag
+git push origin main --tags # triggers release.yml → publish.yml
+```
+
+GitHub Secrets required: `EXTENSION_ID`, `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET`, `CWS_REFRESH_TOKEN`.
 
 ## Architecture
 
@@ -50,10 +65,12 @@ What `npm run release` does:
 
 **Core modules:**
 - `core/engine.js` — Stockfish worker lifecycle (state machine: IDLE→INITIALIZING→READY→ANALYZING), UCI protocol
-- `core/panel.js` — panel DOM creation and updates, extends `lib/emitter.js` for events
+- `core/panel.js` — panel DOM creation and updates (eval display, W/D/L bar, opening name, analysis lines, score chart, accuracy), extends `lib/emitter.js` for events
 - `core/arrow.js` — SVG arrow overlay (analysis arrows, classification badges, hint arrows, insight arrows)
 - `core/classify.js` — pure classification logic: `computeCpLoss()` and `classify()`
 - `core/insight.js` — tactical insight detection for Mistake/Blunder (right piece, right square, delayed move)
+- `core/move-classifier.js` — classification state machine, accuracy tracking, ply cache
+- `core/openings.js` — 193-entry ECO opening lookup by FEN position
 - `core/fen.js` / `core/san.js` — FEN generation and PV-to-SAN conversion
 
 **Flow:** MutationObserver detects board change → 100ms debounce → adapter reads pieces + turn → FEN built → engine analyzes → panel + arrows update.
@@ -106,45 +123,54 @@ Chess sites update DOM elements (clocks, move lists, highlights) at unpredictabl
 - **Never use printf format strings** (`%s`, `%d`) — the debug library prepends a `[namespace]` tag as the first `console.log` argument, which shifts format strings to position 2 where they print literally. Use comma-separated args with inline objects instead.
 - Debug toggle in popup sets `localStorage.debug = 'chee:*'`; Chrome DevTools can filter by level (info/warn/error)
 
+## Panel Features
+
+The analysis panel displays (top to bottom): header (classification badge, eval score, depth), opening name, insight text, W/D/L bar with percentages, analysis lines, eval chart, status bar (accuracy, FEN button).
+
+### W/D/L bar
+
+Three-segment bar showing Win/Draw/Loss percentages. Uses sigmoid model: `winRaw = 1 / (1 + exp(-0.00368208 * cp))` with Gaussian draw component. Mate → 100/0/0 or 0/0/100.
+
+### Opening name
+
+`core/openings.js` — 193-entry ECO lookup Map keyed by first two FEN fields (position + turn). Shows opening name below the header row. Hidden for starting position or unknown positions.
+
+### Eval score chart
+
+SVG area chart plotting white-perspective eval at each ply. White area fills from bottom up to the score line (more white = white winning). Dark background = black's territory. Orange cursor line marks current ply. Scores clamped to ±500cp, mate = ±500. Updates live as engine depth increases, persists through navigation.
+
+### Accuracy tracker
+
+Running accuracy percentage in the status bar. Formula: `103.1668 * exp(-0.04354 * acpl) - 3.1668` (chess.com style). Updates when classifications lock. Only visible when `showClassifications` is enabled.
+
+### Per-line scores
+
+Each analysis line shows its own eval score badge (cp or mate) next to the rank number. Lines are bordered cards with hover highlight.
+
 ## Move Classification
 
 `core/move-classifier.js` — compares eval before/after each move to classify moves. Shows symbol badge on board square + badge in panel header. Togglable via popup (default off).
 
 - `core/classify.js` — pure classification logic: `computeCpLoss()` and `classify()`
+- Classification labels defined as `LABEL_*` constants in `constants.js`
 - Board diff detects played move (no DOM highlight dependency)
 - Classification starts at depth 10 (panel badge only), locks at depth 16 (board icon appears)
-- Tiers with symbols: Brilliant (`!!`, teal, cpLoss ≤ −50 and not engine's #1), Best (`★`, green, engine's PV[0]), Excellent (`✓`, green, ≤10cp), Good (muted green, ≤30), Inaccuracy (`?!`, yellow, ≤80), Mistake (`?`, orange, ≤200), Blunder (`??`, red, >200)
-- Board icon: colored circle with symbol drawn on destination square (SVG in arrow overlay), only shown at lock depth
-- Panel badge: `"!! Brilliant"`, `"★ Best"`, `"?? Blunder"` etc.
-- Brilliant requires `prevEval.depth >= CLASSIFICATION_MIN_DEPTH` — shallow evals produce false positives in fast play
+- Both `prevEval` and current eval must have `depth >= CLASSIFICATION_MIN_DEPTH` — shallow evals produce false classifications
+- Tiers: Brilliant (`!!`, teal, cpLoss ≤ −50 and not engine's #1), Best (`★`, green, engine's PV[0]), Excellent (`✓`, green, ≤10cp), Good (muted green, ≤30), Inaccuracy (`?!`, yellow, ≤80), Mistake (`✕`, orange, ≤200), Blunder (`??`, red, >200)
 
 ### Insight arrows
 
-For Mistake/Blunder moves, a **dashed arrow** shows the engine's best move on the board (what the player should have played). Uses `chee-insight-el` class so it persists during line hover. Drawn at lock depth alongside the classification badge. Cached and restored on revert navigation.
-
-- `INSIGHT_ARROW_OPACITY = 0.55`, `INSIGHT_ARROW_DASH = '6,4'`
-- Stroke width 0.6×, origin radius 0.7× standard arrows
-- `arrow.drawInsight(uciMove, isFlipped, color)` / `arrow.clearInsight()`
-
-### Per-line scores
-
-Each analysis line shows its own eval score badge (cp or mate) next to the rank number. Lines are bordered cards with hover highlight. Score uses same white/black advantage styling as the header score.
+For Mistake/Blunder moves, a **dashed arrow** always shows the engine's best move on the board (what the player should have played). Uses `chee-insight-el` class so it persists during line hover. Drawn at lock depth alongside the classification badge. Cached and restored on revert navigation.
 
 ### Pre-move hints
 
-When classifications are enabled and the engine finds a clearly best move (score spread ≥ 80cp between line 1 and 2), a semi-transparent arrow shows the best move before the player moves. Thresholds: ≥200cp spread → Brilliant hint (teal), ≥80cp → Excellent hint (green). Requires depth ≥ 14.
+Two modes (can both be active):
+1. **Classification hints** — when `showClassifications` is enabled and engine finds a clearly best move (score spread ≥ 80cp between line 1 and 2), shows a badged arrow. ≥200cp → Brilliant hint (teal), ≥80cp → Excellent hint (green). Requires depth ≥ 14.
+2. **Best move arrow** — when `showBestMove` is enabled, always shows PV[0] as a team-colored arrow (blue for white, orange for black). No badge.
 
 ### Move revert / navigation detection
 
-**Board diff alone cannot distinguish a new move from reverting (navigating backward).** When a user clicks "revert" or navigates to an earlier move, the board changes just like a forward move — the diff sees pieces "moving" and would misclassify the revert as a played move (e.g., queen returns to a threatened square → classified as blunder).
-
-**Fix:** `detectPly()` in each adapter returns the half-move index (1-based) from the active/selected move in the DOM move list. The classifier tracks `_prevPly` and only treats a board diff as a played move when `ply > _prevPly`. Backward navigation (ply decreased or unchanged) skips new classification but restores the cached result for that ply.
-
-**Classification cache:** When a classification locks (depth 16), it's stored in `_cache` (Map keyed by ply). On revert/navigation, the cached classification for the target ply is restored — both the panel badge and the board icon reappear instantly without re-running the engine.
-
-- chess.com: index of active `.node` within `wc-simple-move-list .node` elements
-- lichess: index of active `kwdb.a1t` / `.tview2 move.active` within all move elements
-- New adapters must implement `detectPly()` alongside `detectMoveCount()`
+`detectPly()` in each adapter returns the half-move index from the active move in the DOM move list. The classifier only treats a board diff as a played move when `ply > _prevPly`. Backward navigation restores the cached classification for that ply (panel badge + board icon + insight arrow).
 
 ## Theme System
 

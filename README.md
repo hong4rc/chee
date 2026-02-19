@@ -36,13 +36,19 @@ localStorage.debug = 'chee:*'
 
 ## Features
 
-- Multi-line analysis (configurable 3-5 lines)
+- Multi-line analysis (configurable 3-5 lines) with per-line eval scores
 - Configurable search depth (19-22)
 - Arrow overlays showing suggested moves
-- Move classification (Best, Excellent, Good, Inaccuracy, Mistake, Blunder) with colored arrows and badge
-- Eval bar and score with white/black advantage indicator
-- Hide/show and minimize panel controls
+- Move classification (Brilliant, Best, Excellent, Good, Inaccuracy, Mistake, Blunder) with board icons and panel badges
+- Insight arrows showing the best move on Mistake/Blunder
+- Pre-move hint arrows for clearly best moves
+- Best move arrow toggle (always-on option)
+- W/D/L bar with win/draw/loss percentages
+- Eval score chart showing game progress over time
+- Opening name display (193-entry ECO database)
+- Running accuracy percentage
 - Copy FEN to clipboard
+- Hide/show and minimize panel controls
 - Catppuccin theme system (Latte, Frappe, Macchiato, Mocha) + site-matching mode
 
 ## License
