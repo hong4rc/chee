@@ -110,6 +110,8 @@ export class Panel extends Emitter {
     this._attachListeners();
   }
 
+  get el() { return this._el; }
+
   destroy() {
     if (!this._el) return;
     this._el.remove();

@@ -9,20 +9,20 @@
       font-size: 13px;
       padding: 12px;
       margin: 0;
-      color: #e0e0e0;
-      background: #1e1e1e;
+      color: var(--chee-text);
+      background: var(--chee-base);
     }
     h3 {
       margin: 0 0 10px;
       font-size: 14px;
-      color: #fff;
+      color: var(--chee-text);
     }
     label {
       display: block;
       margin-bottom: 6px;
       font-weight: 500;
       font-size: 12px;
-      color: #aaa;
+      color: var(--chee-subtext0);
     }
     .btn-group {
       display: flex;
@@ -32,24 +32,48 @@
     .btn-group button {
       flex: 1;
       padding: 6px 0;
-      background: #2a2a2a;
-      color: #999;
-      border: 1px solid #444;
+      background: var(--chee-surface0);
+      color: var(--chee-overlay0);
+      border: 1px solid var(--chee-surface1);
       border-radius: 4px;
       cursor: pointer;
       font-size: 13px;
       font-weight: 500;
+      transition: background 0.15s, color 0.15s;
     }
-    .btn-group button:hover { background: #333; color: #e0e0e0; }
+    .btn-group button:hover { background: var(--chee-surface1); color: var(--chee-text); }
     .btn-group button.active {
-      background: #5d9948;
-      color: #fff;
-      border-color: #5d9948;
+      background: var(--chee-green);
+      color: var(--chee-base);
+      border-color: var(--chee-green);
     }
+    select {
+      width: 100%;
+      padding: 6px 8px;
+      margin-bottom: 12px;
+      background: var(--chee-surface0);
+      color: var(--chee-text);
+      border: 1px solid var(--chee-surface1);
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      appearance: auto;
+    }
+    select:focus { outline: 1px solid var(--chee-green); }
   </style>
 </head>
 <body>
   <h3>Chee</h3>
+
+  <label>Theme</label>
+  <select id="theme-select">
+    <option value="site">Match Site</option>
+    <option value="latte">Latte</option>
+    <option value="frappe">Frappé</option>
+    <option value="macchiato">Macchiato</option>
+    <option value="mocha">Mocha</option>
+  </select>
 
   <label>Lines</label>
   <div class="btn-group" data-key="numLines">

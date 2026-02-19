@@ -5,6 +5,7 @@ import { times, constant, forEach } from 'lodash-es';
 import createDebug from './lib/debug.js';
 import pollUntil from './lib/poll.js';
 import { loadSettings } from './lib/settings.js';
+import { applyTheme } from './lib/themes.js';
 import { createAdapter } from './adapters/factory.js';
 import { Engine } from './core/engine.js';
 import { Panel } from './core/panel.js';
@@ -123,6 +124,7 @@ const log = createDebug('chee:content');
     log('Board found:', el.tagName, el.id, el.className);
 
     panel.mount(adapter.getPanelAnchor(el));
+    applyTheme(panel.el, settings.theme);
     arrow.mount(el);
     setupListeners(el);
 
@@ -145,6 +147,11 @@ const log = createDebug('chee:content');
     Object.assign(settings, newSettings);
     log('settings changed:', settings);
 
+    if (newSettings.theme && panel.el) applyTheme(panel.el, settings.theme);
+
+    const engineChanged = 'numLines' in newSettings || 'searchDepth' in newSettings;
+    if (!engineChanged) return;
+
     panel.reconfigure(settings.numLines);
 
     engine.destroy();
@@ -165,6 +172,7 @@ const log = createDebug('chee:content');
     const update = {};
     if (changes.numLines) update.numLines = changes.numLines.newValue;
     if (changes.searchDepth) update.searchDepth = changes.searchDepth.newValue;
+    if (changes.theme) update.theme = changes.theme.newValue;
     if (Object.keys(update).length) applySettings(update);
   });
 

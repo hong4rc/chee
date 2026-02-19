@@ -58,7 +58,7 @@ export const MIN_SEARCH_DEPTH = 19;
 export const MAX_SEARCH_DEPTH = 22;
 export const MIN_NUM_LINES = 3;
 export const MAX_NUM_LINES = 5;
-export const SETTINGS_DEFAULTS = { numLines: 3, searchDepth: SEARCH_DEPTH };
+export const SETTINGS_DEFAULTS = { numLines: 3, searchDepth: SEARCH_DEPTH, theme: 'site' };
 
 // ─── Panel / eval display ────────────────────────────────────
 export const PANEL_ID = 'chee-analysis-panel';

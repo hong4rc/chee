@@ -3,10 +3,10 @@
   top: 0;
   right: -240px;
   width: 220px;
-  background: #302e2b;
-  border: 1px solid #3d3b38;
+  background: var(--chee-base);
+  border: 1px solid var(--chee-surface0);
   border-radius: 4px;
-  color: #c8c5c0;
+  color: var(--chee-text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 13px;
   z-index: 1000;
@@ -24,13 +24,13 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 10px;
-  background: #262421;
-  border-bottom: 1px solid #3d3b38;
+  background: var(--chee-mantle);
+  border-bottom: 1px solid var(--chee-surface0);
   font-weight: 600;
   font-size: 12px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  color: #989795;
+  color: var(--chee-subtext1);
 }
 
 #chee-analysis-panel .chee-header .chee-title {
@@ -42,7 +42,7 @@
 #chee-analysis-panel .chee-header .chee-depth {
   font-weight: 400;
   font-size: 11px;
-  color: #6b6966;
+  color: var(--chee-overlay0);
   text-transform: none;
   letter-spacing: normal;
 }
@@ -51,13 +51,13 @@
 #chee-analysis-panel .chee-eval-section {
   display: flex;
   align-items: stretch;
-  border-bottom: 1px solid #3d3b38;
+  border-bottom: 1px solid var(--chee-surface0);
   height: 40px;
 }
 
 #chee-analysis-panel .chee-eval-bar {
   width: 24px;
-  background: #1a1917;
+  background: var(--chee-crust);
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
@@ -68,7 +68,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: #f0f0f0;
+  background: var(--chee-text);
   transition: height 0.3s ease;
 }
 
@@ -83,15 +83,15 @@
 }
 
 #chee-analysis-panel .chee-eval-score.white-advantage {
-  color: #f0f0f0;
+  color: var(--chee-text);
 }
 
 #chee-analysis-panel .chee-eval-score.black-advantage {
-  color: #7b7977;
+  color: var(--chee-overlay1);
 }
 
 #chee-analysis-panel .chee-eval-score.mate-score {
-  color: #e8833a;
+  color: var(--chee-peach);
 }
 
 /* Lines */
@@ -104,11 +104,11 @@
   align-items: baseline;
   padding: 5px 10px;
   gap: 8px;
-  border-bottom: 1px solid #2a2826;
+  border-bottom: 1px solid var(--chee-mantle);
 }
 
 #chee-analysis-panel .chee-line:hover {
-  background: #3d3b38;
+  background: var(--chee-surface1);
   cursor: pointer;
 }
 
@@ -117,7 +117,7 @@
 }
 
 #chee-analysis-panel .chee-line-rank {
-  color: #6b6966;
+  color: var(--chee-overlay0);
   font-size: 11px;
   flex-shrink: 0;
   width: 12px;
@@ -132,21 +132,21 @@
 }
 
 #chee-analysis-panel .chee-line-eval.positive {
-  color: #f0f0f0;
+  color: var(--chee-text);
 }
 
 #chee-analysis-panel .chee-line-eval.negative {
-  color: #7b7977;
+  color: var(--chee-overlay1);
 }
 
 #chee-analysis-panel .chee-line-eval.mate {
-  color: #e8833a;
+  color: var(--chee-peach);
 }
 
 #chee-analysis-panel .chee-line-moves {
   font-family: 'Lucida Console', 'Menlo', monospace;
   font-size: 11px;
-  color: #a09d99;
+  color: var(--chee-subtext0);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -157,20 +157,20 @@
 #chee-analysis-panel .chee-status {
   padding: 5px 10px;
   font-size: 10px;
-  color: #6b6966;
-  border-top: 1px solid #3d3b38;
-  background: #262421;
+  color: var(--chee-overlay0);
+  border-top: 1px solid var(--chee-surface0);
+  background: var(--chee-mantle);
   text-align: center;
 }
 
 #chee-analysis-panel .chee-status.chee-loading {
-  color: #e8833a;
+  color: var(--chee-peach);
 }
 
 /* Toggle button */
 #chee-analysis-panel .chee-toggle {
   cursor: pointer;
-  color: #6b6966;
+  color: var(--chee-overlay0);
   font-size: 14px;
   line-height: 1;
   padding: 2px;
@@ -179,7 +179,7 @@
 }
 
 #chee-analysis-panel .chee-toggle:hover {
-  color: #c8c5c0;
+  color: var(--chee-text);
 }
 
 #chee-analysis-panel.chee-minimized .chee-eval-section,
