@@ -1,7 +1,9 @@
 // ECO opening names — compact lookup by position + turn
+export const STARTING_POSITION = 'Starting Position';
+
 const OPENINGS = new Map([
   // ─── Starting Position ──────────────────────────────────────
-  ['rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w', 'Starting Position'],
+  ['rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w', STARTING_POSITION],
 
   // ─── 1.e4 ───────────────────────────────────────────────────
   ['rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b', 'King\'s Pawn Opening'],

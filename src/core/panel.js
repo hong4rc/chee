@@ -6,7 +6,7 @@ import {
 import createDebug from '../lib/debug.js';
 import { Emitter } from '../lib/emitter.js';
 import { pvToSan } from './san.js';
-import { lookupOpening } from './openings.js';
+import { lookupOpening, STARTING_POSITION } from './openings.js';
 import {
   PANEL_ID, NUM_LINES as DEFAULT_NUM_LINES, MAX_PV_MOVES, CENTIPAWN_DIVISOR,
   TURN_WHITE, TURN_BLACK,
@@ -141,6 +141,14 @@ function createStatus() {
 }
 
 // ─── Score formatting ────────────────────────────────────────
+const CLS_WHITE_ADV = 'white-advantage';
+const CLS_BLACK_ADV = 'black-advantage';
+const CLS_MATE = 'mate-score';
+
+function advantageCls(isWhite) {
+  return isWhite ? CLS_WHITE_ADV : CLS_BLACK_ADV;
+}
+
 function formatMate(wMate) {
   return (wMate > 0 ? 'M' : '-M') + Math.abs(wMate);
 }
@@ -224,7 +232,7 @@ export class Panel extends Emitter {
     const slot = this._el.querySelector('.chee-opening-slot');
     if (!slot) return;
     const name = lookupOpening(fen);
-    if (name && name !== 'Starting Position') {
+    if (name && name !== STARTING_POSITION) {
       slot.textContent = name;
     } else {
       slot.textContent = '';
@@ -417,14 +425,14 @@ export class Panel extends Emitter {
     if (bestLine.mate !== null) {
       const wMate = this._whiteMate(bestLine.mate);
       scoreEl.textContent = formatMate(wMate);
-      scoreEl.className = `chee-eval-score mate-score ${wMate > 0 ? 'white-advantage' : 'black-advantage'}`;
+      scoreEl.className = `chee-eval-score ${CLS_MATE} ${advantageCls(wMate > 0)}`;
       this._updateWdlBar(wMate > 0 ? 100 : 0, 0, wMate > 0 ? 0 : 100);
       return;
     }
 
     const cp = this._whiteScore(bestLine.score) / CENTIPAWN_DIVISOR;
     scoreEl.textContent = formatCp(cp);
-    scoreEl.className = `chee-eval-score ${cp >= 0 ? 'white-advantage' : 'black-advantage'}`;
+    scoreEl.className = `chee-eval-score ${advantageCls(cp >= 0)}`;
     const cpRaw = this._whiteScore(bestLine.score);
     const { w, d, l } = cpToWdl(cpRaw);
     this._updateWdlBar(w, d, l);
@@ -471,11 +479,11 @@ export class Panel extends Emitter {
     if (line.mate !== null) {
       const wMate = this._whiteMate(line.mate);
       scoreEl.textContent = formatMate(wMate);
-      scoreEl.className = `chee-line-score ${wMate > 0 ? 'white-advantage' : 'black-advantage'}`;
+      scoreEl.className = `chee-line-score ${advantageCls(wMate > 0)}`;
     } else {
       const cp = this._whiteScore(line.score) / CENTIPAWN_DIVISOR;
       scoreEl.textContent = formatCp(cp);
-      scoreEl.className = `chee-line-score ${cp >= 0 ? 'white-advantage' : 'black-advantage'}`;
+      scoreEl.className = `chee-line-score ${advantageCls(cp >= 0)}`;
     }
 
     const sanMoves = this._formatLineMoves(line);

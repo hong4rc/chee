@@ -18,15 +18,21 @@ const PIECE_MAP = {
 
 const TRANSFORM_RE = /translate\(\s*([\d.]+)px\s*,\s*([\d.]+)px\s*\)/;
 
+const ORIENT_WHITE = 'white';
+const ORIENT_BLACK = 'black';
+const CLS_ORIENT_WHITE = 'orientation-white';
+const CLS_ORIENT_BLACK = 'orientation-black';
+const CLS_PIECE_WHITE = 'white';
+
 // ─── Helpers ─────────────────────────────────────────────────
 
 function getOrientation(boardEl) {
   const wrap = boardEl.closest('cg-wrap') || boardEl.closest('.cg-wrap');
   if (wrap) {
-    if (wrap.classList.contains('orientation-black')) return 'black';
-    if (wrap.classList.contains('orientation-white')) return 'white';
+    if (wrap.classList.contains(CLS_ORIENT_BLACK)) return ORIENT_BLACK;
+    if (wrap.classList.contains(CLS_ORIENT_WHITE)) return ORIENT_WHITE;
   }
-  return 'white';
+  return ORIENT_WHITE;
 }
 
 function getSquareSize(boardEl) {
@@ -37,7 +43,7 @@ function getSquareSize(boardEl) {
 function pxToSquare(xPx, yPx, squareSize, orientation) {
   const rawFile = Math.round(xPx / squareSize);
   const rawRank = Math.round(yPx / squareSize);
-  if (orientation === 'black') {
+  if (orientation === ORIENT_BLACK) {
     return { file: BOARD_SIZE - 1 - rawFile, rank: rawRank };
   }
   return { file: rawFile, rank: BOARD_SIZE - 1 - rawRank };
@@ -73,7 +79,7 @@ export class LichessAdapter extends BoardAdapter {
       if (!pos) return;
 
       const classes = el.className.split(/\s+/);
-      const isWhite = classes.includes('white');
+      const isWhite = classes.includes(CLS_PIECE_WHITE);
       const type = classes.find((c) => PIECE_MAP[c]);
       if (!type) return;
 
@@ -176,7 +182,7 @@ export class LichessAdapter extends BoardAdapter {
   }
 
   isFlipped(boardEl) {
-    return getOrientation(boardEl) === 'black';
+    return getOrientation(boardEl) === ORIENT_BLACK;
   }
 
   observe(boardEl, onChange) {
