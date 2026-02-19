@@ -51,7 +51,9 @@ What `npm run release` does:
 **Core modules:**
 - `core/engine.js` — Stockfish worker lifecycle (state machine: IDLE→INITIALIZING→READY→ANALYZING), UCI protocol
 - `core/panel.js` — panel DOM creation and updates, extends `lib/emitter.js` for events
-- `core/arrow.js` — SVG arrow overlay for suggested moves
+- `core/arrow.js` — SVG arrow overlay (analysis arrows, classification badges, hint arrows, insight arrows)
+- `core/classify.js` — pure classification logic: `computeCpLoss()` and `classify()`
+- `core/insight.js` — tactical insight detection for Mistake/Blunder (right piece, right square, delayed move)
 - `core/fen.js` / `core/san.js` — FEN generation and PV-to-SAN conversion
 
 **Flow:** MutationObserver detects board change → 100ms debounce → adapter reads pieces + turn → FEN built → engine analyzes → panel + arrows update.
@@ -114,6 +116,23 @@ Chess sites update DOM elements (clocks, move lists, highlights) at unpredictabl
 - Tiers with symbols: Brilliant (`!!`, teal, cpLoss ≤ −50 and not engine's #1), Best (`★`, green, engine's PV[0]), Excellent (`✓`, green, ≤10cp), Good (muted green, ≤30), Inaccuracy (`?!`, yellow, ≤80), Mistake (`?`, orange, ≤200), Blunder (`??`, red, >200)
 - Board icon: colored circle with symbol drawn on destination square (SVG in arrow overlay), only shown at lock depth
 - Panel badge: `"!! Brilliant"`, `"★ Best"`, `"?? Blunder"` etc.
+- Brilliant requires `prevEval.depth >= CLASSIFICATION_MIN_DEPTH` — shallow evals produce false positives in fast play
+
+### Insight arrows
+
+For Mistake/Blunder moves, a **dashed arrow** shows the engine's best move on the board (what the player should have played). Uses `chee-insight-el` class so it persists during line hover. Drawn at lock depth alongside the classification badge. Cached and restored on revert navigation.
+
+- `INSIGHT_ARROW_OPACITY = 0.55`, `INSIGHT_ARROW_DASH = '6,4'`
+- Stroke width 0.6×, origin radius 0.7× standard arrows
+- `arrow.drawInsight(uciMove, isFlipped, color)` / `arrow.clearInsight()`
+
+### Per-line scores
+
+Each analysis line shows its own eval score badge (cp or mate) next to the rank number. Lines are bordered cards with hover highlight. Score uses same white/black advantage styling as the header score.
+
+### Pre-move hints
+
+When classifications are enabled and the engine finds a clearly best move (score spread ≥ 80cp between line 1 and 2), a semi-transparent arrow shows the best move before the player moves. Thresholds: ≥200cp spread → Brilliant hint (teal), ≥80cp → Excellent hint (green). Requires depth ≥ 14.
 
 ### Move revert / navigation detection
 
