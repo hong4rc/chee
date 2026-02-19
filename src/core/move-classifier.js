@@ -110,6 +110,8 @@ export class MoveClassifier {
     this._locked = false;
     this._playedMoveUci = null;
     this._cache = new LruCache(CLASSIFICATION_CACHE_SIZE);
+    this._totalCpLoss = 0;
+    this._moveCount = 0;
   }
 
   initFen(fen, board, ply) {
@@ -183,9 +185,19 @@ export class MoveClassifier {
       this._cache.set(this._prevPly, {
         result, moveUci: this._playedMoveUci, insight, bestUci,
       });
+      this._totalCpLoss += Math.max(0, result.cpLoss);
+      this._moveCount += 1;
+      this._panel.showAccuracy(this.getAccuracy());
       log.info('locked at depth', data.depth, 'cached ply:', this._prevPly);
       this._locked = true;
     }
+  }
+
+  getAccuracy() {
+    if (this._moveCount === 0) return null;
+    const acpl = this._totalCpLoss / this._moveCount;
+    const raw = 103.1668 * Math.exp(-0.04354 * acpl) - 3.1668;
+    return Math.round(Math.min(100, Math.max(0, raw)));
   }
 
   onBoardChange(fen, boardEl, board, ply) {
@@ -264,5 +276,7 @@ export class MoveClassifier {
     this._locked = false;
     this._playedMoveUci = null;
     this._cache.clear();
+    this._totalCpLoss = 0;
+    this._moveCount = 0;
   }
 }

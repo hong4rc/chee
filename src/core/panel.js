@@ -85,11 +85,12 @@ function createLines(numLines) {
 
 function createStatus() {
   const status = el('div', 'chee-status chee-loading');
+  const accuracy = el('span', 'chee-accuracy');
   const text = el('span', 'chee-status-text', 'Initializing...');
   const copyFen = el('button', 'chee-copy-fen');
   copyFen.title = 'Copy FEN';
   copyFen.textContent = 'FEN';
-  status.append(text, copyFen);
+  status.append(accuracy, text, copyFen);
   return status;
 }
 
@@ -200,6 +201,13 @@ export class Panel extends Emitter {
         insightSlot.appendChild(insightEl);
       }
     }
+  }
+
+  showAccuracy(pct) {
+    if (!this._el) return;
+    const acc = this._el.querySelector('.chee-accuracy');
+    if (!acc) return;
+    acc.textContent = pct !== null ? `${pct}%` : '';
   }
 
   clearClassification() {

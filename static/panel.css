@@ -195,6 +195,16 @@
   background: var(--chee-mantle);
 }
 
+#chee-analysis-panel .chee-accuracy {
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--chee-green);
+}
+
+#chee-analysis-panel .chee-accuracy:empty {
+  display: none;
+}
+
 #chee-analysis-panel .chee-status-text {
   flex: 1;
   text-align: center;
