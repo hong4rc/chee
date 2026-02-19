@@ -174,6 +174,34 @@
   color: var(--chee-text);
 }
 
+/* Eval chart */
+#chee-analysis-panel .chee-chart {
+  height: 40px;
+  border-top: 1px solid var(--chee-surface0);
+  overflow: hidden;
+}
+
+#chee-analysis-panel .chee-chart svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+#chee-analysis-panel .chee-chart .chee-chart-white {
+  fill: #e8e8e8;
+}
+
+#chee-analysis-panel .chee-chart .chee-chart-zero {
+  stroke: #666;
+  stroke-width: 0.5;
+}
+
+#chee-analysis-panel .chee-chart .chee-chart-cursor {
+  stroke: var(--chee-peach, #fab387);
+  stroke-width: 1.5;
+  opacity: 0.8;
+}
+
 /* Status bar */
 #chee-analysis-panel .chee-status {
   display: flex;
@@ -191,19 +219,11 @@
   font-weight: 700;
   font-size: 11px;
   color: var(--chee-green);
+  flex: 1;
 }
 
 #chee-analysis-panel .chee-accuracy:empty {
   display: none;
-}
-
-#chee-analysis-panel .chee-status-text {
-  flex: 1;
-  text-align: center;
-}
-
-#chee-analysis-panel .chee-status.chee-loading .chee-status-text {
-  color: var(--chee-peach);
 }
 
 /* Copy FEN button */
@@ -244,8 +264,9 @@
   color: var(--chee-text);
 }
 
-/* Minimized state — hide lines + status, keep header + bar */
+/* Minimized state — hide lines + chart + status, keep header + bar */
 #chee-analysis-panel.chee-minimized .chee-lines,
+#chee-analysis-panel.chee-minimized .chee-chart,
 #chee-analysis-panel.chee-minimized .chee-status {
   display: none;
 }

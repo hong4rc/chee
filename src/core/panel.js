@@ -15,11 +15,24 @@ import {
 
 const log = createDebug('chee:panel');
 
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const CHART_VB_W = 200;
+const CHART_VB_H = 40;
+const CHART_MAX_CP = 500;
+
 // ─── DOM helpers ─────────────────────────────────────────────
 function el(tag, className, text) {
   const node = document.createElement(tag);
   if (className) node.className = className;
   if (text) node.textContent = text;
+  return node;
+}
+
+function svgEl(tag, attrs) {
+  const node = document.createElementNS(SVG_NS, tag);
+  if (attrs) {
+    Object.keys(attrs).forEach((k) => node.setAttribute(k, attrs[k]));
+  }
   return node;
 }
 
@@ -84,14 +97,46 @@ function createLines(numLines) {
   return container;
 }
 
+function createChart() {
+  const container = el('div', 'chee-chart');
+  const svg = svgEl('svg', {
+    viewBox: `0 0 ${CHART_VB_W} ${CHART_VB_H}`,
+    preserveAspectRatio: 'none',
+  });
+  // Background (black's territory)
+  svg.appendChild(svgEl('rect', {
+    width: CHART_VB_W, height: CHART_VB_H, fill: '#2a2a2a',
+  }));
+  // White area path (filled from bottom up to score line)
+  const whitePath = svgEl('path', { class: 'chee-chart-white', d: '' });
+  svg.appendChild(whitePath);
+  // Zero line
+  svg.appendChild(svgEl('line', {
+    class: 'chee-chart-zero',
+    x1: 0,
+    y1: CHART_VB_H / 2,
+    x2: CHART_VB_W,
+    y2: CHART_VB_H / 2,
+  }));
+  // Current ply cursor
+  svg.appendChild(svgEl('line', {
+    class: 'chee-chart-cursor',
+    x1: 0,
+    y1: 0,
+    x2: 0,
+    y2: CHART_VB_H,
+  }));
+  container.appendChild(svg);
+  return container;
+}
+
 function createStatus() {
-  const status = el('div', 'chee-status chee-loading');
+  const status = el('div', 'chee-status');
   const accuracy = el('span', 'chee-accuracy');
-  const text = el('span', 'chee-status-text', 'Initializing...');
   const copyFen = el('button', 'chee-copy-fen');
   copyFen.title = 'Copy FEN';
   copyFen.textContent = 'FEN';
-  status.append(accuracy, text, copyFen);
+  status.append(accuracy, copyFen);
   return status;
 }
 
@@ -124,6 +169,7 @@ export class Panel extends Emitter {
     this._fen = null;
     this._numLines = numLines;
     this._lines = Array(numLines).fill(null);
+    this._scores = new Map();
   }
 
   mount(anchor) {
@@ -137,6 +183,7 @@ export class Panel extends Emitter {
     this._el.append(
       createHeader(),
       createLines(this._numLines),
+      createChart(),
       createStatus(),
     );
 
@@ -162,6 +209,7 @@ export class Panel extends Emitter {
   destroy() {
     if (this._el) { this._el.remove(); this._el = null; }
     if (this._showBtn) { this._showBtn.remove(); this._showBtn = null; }
+    this._scores.clear();
   }
 
   setBoard(board, turn, fen) {
@@ -232,13 +280,23 @@ export class Panel extends Emitter {
     if (insightSlot) { insightSlot.innerHTML = ''; }
   }
 
-  updateStatus(text) {
-    if (!this._el) return;
-    const statusEl = this._el.querySelector('.chee-status');
-    const textEl = this._el.querySelector('.chee-status-text');
-    if (!statusEl || !textEl) return;
-    textEl.textContent = text;
-    statusEl.className = `chee-status${text.includes('Loading') || text.includes('Initializing') ? ' chee-loading' : ''}`;
+  recordScore(ply, data) {
+    if (!data.lines || data.lines.length === 0) return;
+    const line = data.lines[0];
+    let whiteScore;
+    if (line.mate !== null) {
+      const wMate = this._turn === TURN_BLACK ? -line.mate : line.mate;
+      whiteScore = wMate > 0 ? CHART_MAX_CP : -CHART_MAX_CP;
+    } else {
+      whiteScore = this._turn === TURN_BLACK ? -line.score : line.score;
+    }
+    this._scores.set(ply, whiteScore);
+    this._renderChart(ply);
+  }
+
+  clearScores() {
+    this._scores.clear();
+    this._renderChart(0);
   }
 
   // ─── Private ─────────────────────────────────────────────
@@ -306,6 +364,51 @@ export class Panel extends Emitter {
         this.emit(EVT_LINE_LEAVE);
       });
     });
+  }
+
+  _renderChart(currentPly) {
+    if (!this._el) return;
+    const svg = this._el.querySelector('.chee-chart svg');
+    if (!svg) return;
+
+    const whitePath = svg.querySelector('.chee-chart-white');
+    const cursor = svg.querySelector('.chee-chart-cursor');
+
+    const plies = [...this._scores.keys()].sort((a, b) => a - b);
+    if (plies.length === 0) {
+      if (whitePath) whitePath.setAttribute('d', '');
+      if (cursor) cursor.setAttribute('x1', 0);
+      if (cursor) cursor.setAttribute('x2', 0);
+      return;
+    }
+
+    const minPly = plies[0];
+    const maxPly = Math.max(plies[plies.length - 1], minPly + 1);
+    const plyRange = maxPly - minPly;
+    const centerY = CHART_VB_H / 2;
+
+    const xPos = (ply) => ((ply - minPly) / plyRange) * CHART_VB_W;
+    const yPos = (cp) => {
+      const clamped = Math.max(-CHART_MAX_CP, Math.min(CHART_MAX_CP, cp));
+      return centerY - (clamped / CHART_MAX_CP) * centerY;
+    };
+
+    // White area: bottom → score line → bottom
+    const first = this._scores.get(plies[0]);
+    let d = `M 0 ${CHART_VB_H} L 0 ${yPos(first)}`;
+    forEach(plies, (ply) => {
+      d += ` L ${xPos(ply)} ${yPos(this._scores.get(ply))}`;
+    });
+    const last = this._scores.get(plies[plies.length - 1]);
+    d += ` L ${CHART_VB_W} ${yPos(last)} L ${CHART_VB_W} ${CHART_VB_H} Z`;
+    if (whitePath) whitePath.setAttribute('d', d);
+
+    // Cursor at current ply
+    if (cursor && currentPly !== undefined) {
+      const cx = plies.length === 1 ? CHART_VB_W / 2 : xPos(currentPly);
+      cursor.setAttribute('x1', cx);
+      cursor.setAttribute('x2', cx);
+    }
   }
 
   _updateScoreDisplay(bestLine) {

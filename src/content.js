@@ -147,6 +147,7 @@ const log = createDebug('chee:content');
     panel.updateEval(data);
     classifier.onEval(data, boardEl);
     updateHint(data);
+    panel.recordScore(latestPly, data);
   }
 
   function onBoardChange() {
@@ -162,9 +163,9 @@ const log = createDebug('chee:content');
   }
 
   function bindEngineListeners() {
-    engine.on(EVT_READY, () => { panel.updateStatus('Ready'); });
+    engine.on(EVT_READY, () => { log.info('Engine ready'); });
     engine.on(EVT_EVAL, onEvalData);
-    engine.on(EVT_ERROR, (msg) => { panel.updateStatus(`Error: ${msg}`); });
+    engine.on(EVT_ERROR, (msg) => { log.error('Engine error:', msg); });
   }
 
   function setupListeners(el) {
@@ -210,7 +211,6 @@ const log = createDebug('chee:content');
       if (attempts > MAX_PIECE_ATTEMPTS) {
         clearInterval(pieceInterval);
         log.error('Gave up waiting for pieces');
-        panel.updateStatus('No pieces found — try reloading');
       }
     }, POLL_INTERVAL_MS);
   }
@@ -234,7 +234,6 @@ const log = createDebug('chee:content');
     arrow.mount(el);
     setupListeners(el);
 
-    panel.updateStatus('Loading Stockfish...');
     engine.init(settings);
     adapter.observe(el, onBoardChange);
 
@@ -269,6 +268,7 @@ const log = createDebug('chee:content');
     if (!engineChanged) return;
 
     panel.reconfigure(settings.numLines);
+    panel.clearScores();
     classifier.clearCache();
 
     engine.destroy();
