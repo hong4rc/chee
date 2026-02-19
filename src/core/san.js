@@ -5,7 +5,9 @@ import {
 } from 'lodash-es';
 import {
   FILES, CHAR_CODE_A, BOARD_SIZE, LAST_RANK,
-  WHITE_KING, WHITE_PAWN, TURN_WHITE, TURN_BLACK,
+  WHITE_KING, WHITE_QUEEN, WHITE_ROOK, WHITE_BISHOP, WHITE_KNIGHT, WHITE_PAWN,
+  TURN_WHITE, TURN_BLACK,
+  SAN_CASTLE_KING, SAN_CASTLE_QUEEN,
   CASTLING_DISTANCE, KINGSIDE_ROOK_FILE, QUEENSIDE_ROOK_FILE,
   KINGSIDE_ROOK_DEST, QUEENSIDE_ROOK_DEST,
   UCI_MIN_LEN, UCI_PROMO_LEN, MAX_PV_MOVES,
@@ -32,13 +34,13 @@ function canPieceReach(pt, ff, fr, tf, tr, board) {
   const adf = Math.abs(tf - ff);
   const adr = Math.abs(tr - fr);
   switch (pt) {
-    case 'N': return (adf === 1 && adr === 2) || (adf === 2 && adr === 1);
-    case 'B': return adf === adr && adf > 0 && isPathClear(ff, fr, tf, tr, board);
-    case 'R': return (tf === ff || tr === fr) && (adf + adr > 0) && isPathClear(ff, fr, tf, tr, board);
-    case 'Q':
+    case WHITE_KNIGHT: return (adf === 1 && adr === 2) || (adf === 2 && adr === 1);
+    case WHITE_BISHOP: return adf === adr && adf > 0 && isPathClear(ff, fr, tf, tr, board);
+    case WHITE_ROOK: return (tf === ff || tr === fr) && (adf + adr > 0) && isPathClear(ff, fr, tf, tr, board);
+    case WHITE_QUEEN:
       return ((adf === adr && adf > 0) || tf === ff || tr === fr)
         && (adf + adr > 0) && isPathClear(ff, fr, tf, tr, board);
-    case 'K': return adf <= 1 && adr <= 1 && (adf + adr > 0);
+    case WHITE_KING: return adf <= 1 && adr <= 1 && (adf + adr > 0);
     default: return false;
   }
 }
@@ -78,7 +80,7 @@ export function uciToSan(uciMove, board, turn) {
   const pieceUpper = piece.toUpperCase();
 
   if (pieceUpper === WHITE_KING && Math.abs(toFile - fromFile) === CASTLING_DISTANCE) {
-    return toFile > fromFile ? 'O-O' : 'O-O-O';
+    return toFile > fromFile ? SAN_CASTLE_KING : SAN_CASTLE_QUEEN;
   }
 
   let san = '';

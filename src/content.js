@@ -15,6 +15,7 @@ import {
   BOARD_SIZE, LAST_RANK,
   DEBOUNCE_MS, POLL_INTERVAL_MS, BOARD_TIMEOUT_MS,
   MAX_PIECE_ATTEMPTS,
+  EVT_READY, EVT_EVAL, EVT_ERROR, EVT_LINE_HOVER, EVT_LINE_LEAVE,
 } from './constants.js';
 
 const log = createDebug('chee:content');
@@ -72,14 +73,14 @@ const log = createDebug('chee:content');
   }
 
   function setupListeners(el) {
-    panel.on('line:hover', (lineIndex, uciMove) => {
+    panel.on(EVT_LINE_HOVER, (lineIndex, uciMove) => {
       arrow.draw(uciMove, lineIndex, adapter.isFlipped(el));
     });
-    panel.on('line:leave', () => { arrow.clear(); });
+    panel.on(EVT_LINE_LEAVE, () => { arrow.clear(); });
 
-    engine.on('ready', () => { panel.updateStatus('Ready'); });
-    engine.on('eval', (data) => { panel.updateEval(data); });
-    engine.on('error', (msg) => { panel.updateStatus(`Error: ${msg}`); });
+    engine.on(EVT_READY, () => { panel.updateStatus('Ready'); });
+    engine.on(EVT_EVAL, (data) => { panel.updateEval(data); });
+    engine.on(EVT_ERROR, (msg) => { panel.updateStatus(`Error: ${msg}`); });
   }
 
   function waitForPieces() {
@@ -156,9 +157,9 @@ const log = createDebug('chee:content');
 
     engine.destroy();
     engine = new Engine();
-    engine.on('ready', () => { panel.updateStatus('Ready'); });
-    engine.on('eval', (data) => { panel.updateEval(data); });
-    engine.on('error', (msg) => { panel.updateStatus(`Error: ${msg}`); });
+    engine.on(EVT_READY, () => { panel.updateStatus('Ready'); });
+    engine.on(EVT_EVAL, (data) => { panel.updateEval(data); });
+    engine.on(EVT_ERROR, (msg) => { panel.updateStatus(`Error: ${msg}`); });
 
     if (!boardEl) return;
     engine.init(settings);

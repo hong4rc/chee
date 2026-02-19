@@ -11,6 +11,12 @@ export const WHITE_ROOK = 'R';
 export const WHITE_BISHOP = 'B';
 export const WHITE_KNIGHT = 'N';
 export const WHITE_PAWN = 'P';
+export const BLACK_KING = 'k';
+export const BLACK_QUEEN = 'q';
+export const BLACK_ROOK = 'r';
+export const BLACK_BISHOP = 'b';
+export const BLACK_KNIGHT = 'n';
+export const BLACK_PAWN = 'p';
 
 // Turn
 export const TURN_WHITE = 'w';
@@ -41,11 +47,18 @@ export const WORKER_FILE = 'stockfish-worker.js';
 export const STOCKFISH_JS_FILE = 'stockfish.js';
 export const STOCKFISH_WASM_FILE = 'stockfish.wasm';
 
+// ─── Event / message names ───────────────────────────────────
+export const EVT_READY = 'ready';
+export const EVT_EVAL = 'eval';
+export const EVT_ERROR = 'error';
+export const EVT_LINE_HOVER = 'line:hover';
+export const EVT_LINE_LEAVE = 'line:leave';
+
 // ─── Worker message types ────────────────────────────────────
 export const MSG_SETUP = '__setup';
-export const MSG_READY = 'ready';
-export const MSG_EVAL = 'eval';
-export const MSG_ERROR = 'error';
+export const MSG_READY = EVT_READY;
+export const MSG_EVAL = EVT_EVAL;
+export const MSG_ERROR = EVT_ERROR;
 export const MSG_POSITION = 'position';
 export const MSG_STOP = 'stop';
 
@@ -77,6 +90,10 @@ export const MAX_LOG_SAMPLES = 3;
 export const MAX_ATTR_DISPLAY_LEN = 40;
 export const MAX_CLASS_DISPLAY_LEN = 80;
 export const MIN_PIECE_CONTAINER_COUNT = 2;
+
+// ─── SAN notation ───────────────────────────────────────────
+export const SAN_CASTLE_KING = 'O-O';
+export const SAN_CASTLE_QUEEN = 'O-O-O';
 
 // ─── UCI move parsing ────────────────────────────────────────
 export const UCI_MIN_LEN = 4;

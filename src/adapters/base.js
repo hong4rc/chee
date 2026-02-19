@@ -3,7 +3,8 @@
 
 import {
   FILES, LAST_RANK,
-  WHITE_KING, WHITE_ROOK,
+  WHITE_KING, WHITE_QUEEN, WHITE_ROOK, WHITE_PAWN,
+  BLACK_KING, BLACK_QUEEN, BLACK_ROOK, BLACK_PAWN,
   KING_START_FILE, KINGSIDE_ROOK_FILE, QUEENSIDE_ROOK_FILE,
   WHITE_BACK_ROW, BLACK_BACK_ROW,
 } from '../constants.js';
@@ -13,12 +14,12 @@ import {
 export function detectCastlingFromBoard(board) {
   let castling = '';
   if (board[WHITE_BACK_ROW][KING_START_FILE] === WHITE_KING) {
-    if (board[WHITE_BACK_ROW][KINGSIDE_ROOK_FILE] === WHITE_ROOK) castling += 'K';
-    if (board[WHITE_BACK_ROW][QUEENSIDE_ROOK_FILE] === WHITE_ROOK) castling += 'Q';
+    if (board[WHITE_BACK_ROW][KINGSIDE_ROOK_FILE] === WHITE_ROOK) castling += WHITE_KING;
+    if (board[WHITE_BACK_ROW][QUEENSIDE_ROOK_FILE] === WHITE_ROOK) castling += WHITE_QUEEN;
   }
-  if (board[BLACK_BACK_ROW][KING_START_FILE] === 'k') {
-    if (board[BLACK_BACK_ROW][KINGSIDE_ROOK_FILE] === 'r') castling += 'k';
-    if (board[BLACK_BACK_ROW][QUEENSIDE_ROOK_FILE] === 'r') castling += 'q';
+  if (board[BLACK_BACK_ROW][KING_START_FILE] === BLACK_KING) {
+    if (board[BLACK_BACK_ROW][KINGSIDE_ROOK_FILE] === BLACK_ROOK) castling += BLACK_KING;
+    if (board[BLACK_BACK_ROW][QUEENSIDE_ROOK_FILE] === BLACK_ROOK) castling += BLACK_QUEEN;
   }
   return castling || '-';
 }
@@ -33,10 +34,10 @@ export function detectEnPassantFromSquares(squares, board) {
   const p1 = board[LAST_RANK - s1.rank][s1.file];
   let toSq;
   let fromSq;
-  if (p0 === 'P' || p0 === 'p') {
+  if (p0 === WHITE_PAWN || p0 === BLACK_PAWN) {
     toSq = s0;
     fromSq = s1;
-  } else if (p1 === 'P' || p1 === 'p') {
+  } else if (p1 === WHITE_PAWN || p1 === BLACK_PAWN) {
     toSq = s1;
     fromSq = s0;
   } else {

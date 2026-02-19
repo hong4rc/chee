@@ -9,7 +9,8 @@ import { pvToSan } from './san.js';
 import {
   PANEL_ID, NUM_LINES as DEFAULT_NUM_LINES, MAX_PV_MOVES, CENTIPAWN_DIVISOR,
   EVAL_BAR_MIN_PCT, EVAL_BAR_MAX_PCT, EVAL_BAR_CENTER_PCT,
-  TURN_BLACK,
+  TURN_WHITE, TURN_BLACK,
+  EVT_LINE_HOVER, EVT_LINE_LEAVE,
 } from '../constants.js';
 
 const log = createDebug('chee:panel');
@@ -89,7 +90,7 @@ export class Panel extends Emitter {
     super();
     this._el = null;
     this._board = null;
-    this._turn = 'w';
+    this._turn = TURN_WHITE;
     this._numLines = numLines;
     this._lines = Array(numLines).fill(null);
   }
@@ -203,10 +204,10 @@ export class Panel extends Emitter {
     const lineEls = this._el.querySelectorAll('.chee-line');
     forEach(lineEls, (lineEl, i) => {
       lineEl.addEventListener('mouseenter', () => {
-        if (this._lines[i]) this.emit('line:hover', i, this._lines[i]);
+        if (this._lines[i]) this.emit(EVT_LINE_HOVER, i, this._lines[i]);
       });
       lineEl.addEventListener('mouseleave', () => {
-        this.emit('line:leave');
+        this.emit(EVT_LINE_LEAVE);
       });
     });
   }

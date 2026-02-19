@@ -7,6 +7,8 @@ import createDebug from '../lib/debug.js';
 import { BoardAdapter, detectEnPassantFromSquares } from './base.js';
 import {
   BOARD_SIZE, TURN_WHITE, TURN_BLACK,
+  WHITE_KING, WHITE_QUEEN, WHITE_ROOK, WHITE_BISHOP, WHITE_KNIGHT, WHITE_PAWN,
+  BLACK_KING, BLACK_QUEEN, BLACK_ROOK, BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN,
   SQUARE_PREFIX, SQUARE_CLASS_MIN_LEN,
   MAX_EXPLORE_CHILDREN, MAX_EXPLORE_DEPTH, MAX_EXPLORE_DEPTH_LAYOUT,
   MAX_LOG_SAMPLES, MAX_ATTR_DISPLAY_LEN, MAX_CLASS_DISPLAY_LEN,
@@ -16,18 +18,18 @@ import {
 const log = createDebug('chee:chesscom');
 
 const PIECE_MAP = {
-  wp: 'P',
-  wn: 'N',
-  wb: 'B',
-  wr: 'R',
-  wq: 'Q',
-  wk: 'K',
-  bp: 'p',
-  bn: 'n',
-  bb: 'b',
-  br: 'r',
-  bq: 'q',
-  bk: 'k',
+  wp: WHITE_PAWN,
+  wn: WHITE_KNIGHT,
+  wb: WHITE_BISHOP,
+  wr: WHITE_ROOK,
+  wq: WHITE_QUEEN,
+  wk: WHITE_KING,
+  bp: BLACK_PAWN,
+  bn: BLACK_KNIGHT,
+  bb: BLACK_BISHOP,
+  br: BLACK_ROOK,
+  bq: BLACK_QUEEN,
+  bk: BLACK_KING,
 };
 
 const BOARD_SELECTORS = [

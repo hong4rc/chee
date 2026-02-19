@@ -3,11 +3,17 @@
 import { BoardAdapter, detectEnPassantFromSquares } from './base.js';
 import {
   BOARD_SIZE, TURN_WHITE, TURN_BLACK,
+  BLACK_KING, BLACK_QUEEN, BLACK_ROOK, BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN,
 } from '../constants.js';
 
 // Chessground piece class → FEN char
 const PIECE_MAP = {
-  king: 'k', queen: 'q', rook: 'r', bishop: 'b', knight: 'n', pawn: 'p',
+  king: BLACK_KING,
+  queen: BLACK_QUEEN,
+  rook: BLACK_ROOK,
+  bishop: BLACK_BISHOP,
+  knight: BLACK_KNIGHT,
+  pawn: BLACK_PAWN,
 };
 
 const TRANSFORM_RE = /translate\(\s*([\d.]+)px\s*,\s*([\d.]+)px\s*\)/;

@@ -4,6 +4,7 @@ import createDebug from '../lib/debug.js';
 import { Emitter } from '../lib/emitter.js';
 import {
   WORKER_FILE, STOCKFISH_JS_FILE, STOCKFISH_WASM_FILE,
+  EVT_READY, EVT_EVAL, EVT_ERROR,
   MSG_SETUP, MSG_READY, MSG_EVAL, MSG_ERROR, MSG_POSITION, MSG_STOP,
 } from '../constants.js';
 
@@ -73,7 +74,7 @@ export class Engine extends Emitter {
       this._worker.onerror = (err) => {
         log.error('worker onerror:', err.message, err);
         this._state = State.ERROR;
-        this.emit('error', 'Worker crashed');
+        this.emit(EVT_ERROR, 'Worker crashed');
       };
 
       this._worker.postMessage({
@@ -89,7 +90,7 @@ export class Engine extends Emitter {
     } catch (err) {
       log.error('init failed:', err);
       this._state = State.ERROR;
-      this.emit('error', `Init failed: ${err.message}`);
+      this.emit(EVT_ERROR, `Init failed: ${err.message}`);
     }
   }
 
@@ -128,7 +129,7 @@ export class Engine extends Emitter {
     if (msg.type === MSG_READY) {
       this._state = State.READY;
       log('Stockfish ready!');
-      this.emit('ready');
+      this.emit(EVT_READY);
       if (this._pendingFen) {
         const fen = this._pendingFen;
         this._pendingFen = null;
@@ -136,11 +137,11 @@ export class Engine extends Emitter {
       }
     } else if (msg.type === MSG_EVAL) {
       if (msg.complete) this._state = State.READY;
-      this.emit('eval', msg);
+      this.emit(EVT_EVAL, msg);
     } else if (msg.type === MSG_ERROR) {
       log.error('worker error:', msg.message);
       this._state = State.ERROR;
-      this.emit('error', msg.message);
+      this.emit(EVT_ERROR, msg.message);
     }
   }
 }
