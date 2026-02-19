@@ -5,7 +5,7 @@ import {
 } from 'lodash-es';
 import createDebug from '../lib/debug.js';
 import { Emitter } from '../lib/emitter.js';
-import { pvToSan, uciToSan, applyUciMove } from './san.js';
+import { pvToSan, uciToSan } from './san.js';
 import { lookupOpening } from './openings.js';
 import {
   PANEL_ID, NUM_LINES as DEFAULT_NUM_LINES, MAX_PV_MOVES, CENTIPAWN_DIVISOR,
@@ -206,18 +206,15 @@ export class Panel extends Emitter {
     const threatEl = this._el.querySelector('.chee-threat');
     if (!threatEl) return;
 
-    if (!this._board || !bestLine.pv || bestLine.pv.length < 2) {
+    if (!this._board || !bestLine.pv || bestLine.pv.length === 0) {
       threatEl.textContent = '';
       this._threatUci = null;
       return;
     }
 
-    const opponentTurn = this._turn === TURN_WHITE ? TURN_BLACK : TURN_WHITE;
-    const boardAfter = applyUciMove(this._board, bestLine.pv[0]);
-    if (!boardAfter) { threatEl.textContent = ''; this._threatUci = null; return; }
-
-    const [, threatMove] = bestLine.pv;
-    const san = uciToSan(threatMove, boardAfter, opponentTurn);
+    // PV[0] is the best move for the side to move — that's the immediate threat
+    const [threatMove] = bestLine.pv;
+    const san = uciToSan(threatMove, this._board, this._turn);
     if (san) {
       threatEl.textContent = `Threat: ${san}`;
       this._threatUci = threatMove;

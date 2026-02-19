@@ -186,8 +186,7 @@ const log = createDebug('chee:content');
     });
     panel.on(EVT_THREAT_HOVER, (uci, turn) => {
       arrow.clearHint();
-      const opponentTurn = turn === TURN_WHITE ? TURN_BLACK : TURN_WHITE;
-      arrow.draw([uci], opponentTurn, adapter.isFlipped(el));
+      arrow.draw([uci], turn, adapter.isFlipped(el));
     });
     panel.on(EVT_THREAT_LEAVE, () => {
       arrow.clear();
