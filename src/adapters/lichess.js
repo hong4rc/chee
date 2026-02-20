@@ -1,5 +1,6 @@
 // Lichess adapter: chessground DOM, piece parsing, turn/EP detection
 
+import { forEach, includes, find } from 'lodash-es';
 import createDebug from '../lib/debug.js';
 import { BoardAdapter, detectEnPassantFromSquares } from './base.js';
 import { indexOfNode } from '../lib/dom.js';
@@ -82,13 +83,13 @@ export class LichessAdapter extends BoardAdapter {
     const orientation = getOrientation(boardEl);
     const result = [];
 
-    pieces.forEach((el) => {
+    forEach(pieces, (el) => {
       const pos = parseTransform(el);
       if (!pos) { log.warn('skipping piece: no transform', el.getAttribute('style')); return; }
 
       const classes = el.className.split(/\s+/);
-      const isWhite = classes.includes(CLS_PIECE_WHITE);
-      const type = classes.find((c) => PIECE_MAP[c]);
+      const isWhite = includes(classes, CLS_PIECE_WHITE);
+      const type = find(classes, (c) => PIECE_MAP[c]);
       if (!type) { log.warn('skipping piece: unknown type', el.className); return; }
 
       const { file, rank } = pxToSquare(pos.x, pos.y, sqSize, orientation);
@@ -137,7 +138,7 @@ export class LichessAdapter extends BoardAdapter {
     if (lastMoves.length < 2 || sqSize <= 0) return null;
 
     const squares = [];
-    lastMoves.forEach((sq) => {
+    forEach(lastMoves, (sq) => {
       const pos = parseTransform(sq);
       if (pos) squares.push(pxToSquare(pos.x, pos.y, sqSize, orientation));
     });

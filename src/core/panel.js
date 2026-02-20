@@ -1,7 +1,7 @@
 // Analysis panel UI component
 
 import {
-  forEach, times, take,
+  forEach, times, take, sortedIndex,
 } from 'lodash-es';
 import createDebug from '../lib/debug.js';
 import { Emitter } from '../lib/emitter.js';
@@ -321,14 +321,8 @@ export class Panel extends Emitter {
   }
 
   _insertSortedPly(ply) {
-    const arr = this._sortedPlies;
-    let lo = 0;
-    let hi = arr.length;
-    while (lo < hi) {
-      const mid = Math.floor((lo + hi) / 2);
-      if (arr[mid] < ply) lo = mid + 1; else hi = mid;
-    }
-    arr.splice(lo, 0, ply);
+    const idx = sortedIndex(this._sortedPlies, ply);
+    this._sortedPlies.splice(idx, 0, ply);
   }
 
   // ─── Private ─────────────────────────────────────────────
@@ -529,24 +523,25 @@ export class Panel extends Emitter {
     const pv = line.pv ? take(line.pv, MAX_PV_MOVES) : [];
 
     const existing = movesEl.querySelectorAll('.chee-move');
-    for (let m = 0; m < sanMoves.length; m++) {
+    forEach(sanMoves, (san, m) => {
       if (m < existing.length) {
-        if (existing[m].textContent !== sanMoves[m]) existing[m].textContent = sanMoves[m];
+        if (existing[m].textContent !== san) existing[m].textContent = san;
       } else {
         if (movesEl.childNodes.length > 0) movesEl.appendChild(document.createTextNode(' '));
-        const span = el('span', 'chee-move', sanMoves[m]);
+        const span = el('span', 'chee-move', san);
         span.dataset.idx = m;
         movesEl.appendChild(span);
       }
-    }
+    });
     // Remove excess spans (+ preceding text node separators)
-    for (let m = existing.length - 1; m >= sanMoves.length; m--) {
-      const span = existing[m];
-      if (span.previousSibling && span.previousSibling.nodeType === Node.TEXT_NODE) {
-        movesEl.removeChild(span.previousSibling);
+    const excess = existing.length - sanMoves.length;
+    times(excess, () => {
+      const last = movesEl.lastElementChild;
+      if (last && last.previousSibling && last.previousSibling.nodeType === Node.TEXT_NODE) {
+        movesEl.removeChild(last.previousSibling);
       }
-      movesEl.removeChild(span);
-    }
+      if (last) movesEl.removeChild(last);
+    });
 
     return pv.length > 0 ? pv : null;
   }

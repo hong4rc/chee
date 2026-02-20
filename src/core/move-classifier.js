@@ -1,6 +1,7 @@
 // Encapsulates move classification state and logic.
 // Compares eval before/after each board change to label the played move.
 
+import { find } from 'lodash-es';
 import createDebug from '../lib/debug.js';
 import { LruCache } from '../lib/lru.js';
 import { parseUci } from '../lib/uci.js';
@@ -11,6 +12,9 @@ import {
   CLASSIFICATION_MIN_DEPTH, CLASSIFICATION_LOCK_DEPTH,
   LABEL_MISTAKE, LABEL_BLUNDER,
   TURN_WHITE, TURN_BLACK, BLACK_PAWN,
+  WHITE_KING, BLACK_KING,
+  WHITE_QUEEN, BLACK_QUEEN, WHITE_ROOK, BLACK_ROOK,
+  WHITE_BISHOP, BLACK_BISHOP, WHITE_KNIGHT, BLACK_KNIGHT,
 } from '../constants.js';
 
 const CLASSIFICATION_CACHE_SIZE = 512;
@@ -19,7 +23,14 @@ const log = createDebug('chee:classify');
 
 // ─── Promotion piece map (FEN char → UCI suffix) ────────────
 const PROMO_SUFFIX = {
-  Q: 'q', q: 'q', R: 'r', r: 'r', B: 'b', b: 'b', N: 'n', n: 'n',
+  [WHITE_QUEEN]: 'q',
+  [BLACK_QUEEN]: 'q',
+  [WHITE_ROOK]: 'r',
+  [BLACK_ROOK]: 'r',
+  [WHITE_BISHOP]: 'b',
+  [BLACK_BISHOP]: 'b',
+  [WHITE_KNIGHT]: 'n',
+  [BLACK_KNIGHT]: 'n',
 };
 
 // ─── Board diff → UCI move detection ────────────────────────
@@ -58,9 +69,9 @@ function detectMoveFromBoards(prevBoard, currBoard) {
 
   // Castling: king + rook both move (2 disappear, 2 appear)
   if (disappeared.length === 2 && appeared.length === 2) {
-    const king = disappeared.find((d) => d.piece === 'K' || d.piece === 'k');
+    const king = find(disappeared, (d) => d.piece === WHITE_KING || d.piece === BLACK_KING);
     if (king) {
-      const kingDest = appeared.find((a) => a.piece === king.piece);
+      const kingDest = find(appeared, (a) => a.piece === king.piece);
       if (kingDest) return { from: king, to: kingDest };
     }
   }
@@ -68,7 +79,7 @@ function detectMoveFromBoards(prevBoard, currBoard) {
   // En passant: pawn moves diagonally, captured pawn disappears (2 disappear, 1 appears)
   if (disappeared.length === 2 && appeared.length === 1) {
     const dest = appeared[0];
-    const mover = disappeared.find((d) => (
+    const mover = find(disappeared, (d) => (
       d.piece.toLowerCase() === BLACK_PAWN && Math.abs(d.file - dest.file) === 1
     ));
     if (mover) return { from: mover, to: { file: dest.file, rank: dest.rank, piece: dest.piece } };

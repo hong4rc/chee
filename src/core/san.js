@@ -137,14 +137,12 @@ export function applyUciMove(board, uciMove) {
 }
 
 export function pvToSan(pvMoves, board, startTurn) {
-  const moves = take(pvMoves, MAX_PV_MOVES);
   const b = cloneBoard(board);
-  const sanMoves = [];
   let turn = startTurn;
-  for (let i = 0; i < moves.length; i++) {
-    sanMoves.push(uciToSan(moves[i], b, turn));
-    applyMoveInPlace(b, moves[i]);
+  return map(take(pvMoves, MAX_PV_MOVES), (uciMove) => {
+    const san = uciToSan(uciMove, b, turn);
+    applyMoveInPlace(b, uciMove);
     turn = toggleTurn(turn);
-  }
-  return sanMoves;
+    return san;
+  });
 }
