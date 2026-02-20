@@ -8,7 +8,7 @@ import { ChartRenderer } from './renderers/chart-renderer.js';
 import { LineRenderer } from './renderers/line-renderer.js';
 import {
   PANEL_ID, NUM_LINES as DEFAULT_NUM_LINES,
-  EVT_LINE_HOVER, EVT_LINE_LEAVE,
+  EVT_LINE_HOVER, EVT_LINE_LEAVE, EVT_PGN_COPY,
 } from '../constants.js';
 
 const log = createDebug('chee:panel');
@@ -23,10 +23,13 @@ function createShowButton() {
 function createStatus() {
   const status = el('div', 'chee-status');
   const accuracy = el('span', 'chee-accuracy');
+  const copyPgn = el('button', 'chee-copy-pgn');
+  copyPgn.title = 'Copy PGN';
+  copyPgn.textContent = 'PGN';
   const copyFen = el('button', 'chee-copy-fen');
   copyFen.title = 'Copy FEN';
   copyFen.textContent = 'FEN';
-  status.append(accuracy, copyFen);
+  status.append(accuracy, copyPgn, copyFen);
   return status;
 }
 
@@ -89,6 +92,7 @@ export class Panel extends Emitter {
     this._lineRenderer.destroy();
     this._toggleEl = null;
     this._copyFenEl = null;
+    this._copyPgnEl = null;
     this._hideEl = null;
     this.removeAllListeners();
   }
@@ -141,6 +145,7 @@ export class Panel extends Emitter {
   _attachListeners() {
     this._toggleEl = this._el.querySelector('.chee-toggle');
     this._copyFenEl = this._el.querySelector('.chee-copy-fen');
+    this._copyPgnEl = this._el.querySelector('.chee-copy-pgn');
     this._hideEl = this._el.querySelector('.chee-hide');
 
     this._toggleEl.addEventListener('click', () => {
@@ -155,6 +160,9 @@ export class Panel extends Emitter {
         this._copyFenEl.textContent = '\u2713';
         setTimeout(() => { this._copyFenEl.textContent = 'FEN'; }, 1000);
       });
+    });
+    this._copyPgnEl.addEventListener('click', () => {
+      this.emit(EVT_PGN_COPY);
     });
     this._hideEl.addEventListener('click', () => {
       this._el.classList.add('chee-hidden');

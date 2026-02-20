@@ -226,7 +226,8 @@
   display: none;
 }
 
-/* Copy FEN button */
+/* Copy PGN / FEN buttons */
+#chee-analysis-panel .chee-copy-pgn,
 #chee-analysis-panel .chee-copy-fen {
   cursor: pointer;
   color: var(--chee-overlay0);
@@ -242,6 +243,7 @@
   letter-spacing: 0.5px;
 }
 
+#chee-analysis-panel .chee-copy-pgn:hover,
 #chee-analysis-panel .chee-copy-fen:hover {
   color: var(--chee-text);
   border-color: var(--chee-overlay0);

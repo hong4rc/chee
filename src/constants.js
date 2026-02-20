@@ -61,6 +61,9 @@ export const EVT_ACCURACY_UPDATE = 'accuracy:update';
 // ─── Plugin names ───────────────────────────────────────────
 export const PLUGIN_CLASSIFICATION = 'classification';
 export const PLUGIN_HINT = 'hint';
+export const PLUGIN_PGN = 'pgn';
+
+export const EVT_PGN_COPY = 'pgn:copy';
 
 // ─── Worker message types ────────────────────────────────────
 export const MSG_SETUP = '__setup';
@@ -113,6 +116,16 @@ export const CLASSIFICATION_THRESHOLDS = [
     max: 200, label: LABEL_MISTAKE, symbol: '\u2715', color: '#e04040',
   },
 ];
+
+// ─── PGN NAG codes (Numeric Annotation Glyphs) ─────────────
+export const PGN_NAGS = {
+  [LABEL_BRILLIANT]: '$3',
+  [LABEL_BEST]: '$1',
+  [LABEL_EXCELLENT]: '$1',
+  [LABEL_INACCURACY]: '$6',
+  [LABEL_MISTAKE]: '$2',
+  [LABEL_BLUNDER]: '$4',
+};
 
 // ─── Pre-move hints (spread = score gap between line 1 and 2) ─
 export const HINT_MIN_DEPTH = 14;

@@ -12,6 +12,7 @@ import { BoardState } from './core/board-state.js';
 import { AnalysisCoordinator } from './core/coordinator.js';
 import { ClassificationPlugin } from './core/plugins/classification-plugin.js';
 import { HintPlugin } from './core/plugins/hint-plugin.js';
+import { PgnPlugin } from './core/plugins/pgn-plugin.js';
 import { POLL_INTERVAL_MS, BOARD_TIMEOUT_MS } from './constants.js';
 
 const log = createDebug('chee:content');
@@ -35,6 +36,7 @@ const log = createDebug('chee:content');
 
   coordinator.registerPlugin(new ClassificationPlugin({ adapter, settings }));
   coordinator.registerPlugin(new HintPlugin({ settings }));
+  coordinator.registerPlugin(new PgnPlugin());
 
   window.addEventListener('unload', () => coordinator.destroy());
 

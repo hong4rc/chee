@@ -13,10 +13,10 @@ import {
   BOARD_SIZE, LAST_RANK,
   DEBOUNCE_MS, POLL_INTERVAL_MS,
   MAX_PIECE_ATTEMPTS,
-  EVT_READY, EVT_EVAL, EVT_ERROR, EVT_LINE_HOVER, EVT_LINE_LEAVE,
+  EVT_READY, EVT_EVAL, EVT_ERROR, EVT_LINE_HOVER, EVT_LINE_LEAVE, EVT_PGN_COPY,
   EVT_CLASSIFY_SHOW, EVT_CLASSIFY_CLEAR, EVT_CLASSIFY_LOCK, EVT_ACCURACY_UPDATE,
   HINT_ARROW_OPACITY,
-  PLUGIN_CLASSIFICATION, PLUGIN_HINT,
+  PLUGIN_CLASSIFICATION, PLUGIN_HINT, PLUGIN_PGN,
 } from '../constants.js';
 
 const log = createDebug('chee:coordinator');
@@ -132,6 +132,10 @@ export class AnalysisCoordinator {
     return this._plugins.find((p) => p.name === PLUGIN_HINT);
   }
 
+  _getPgnPlugin() {
+    return this._plugins.find((p) => p.name === PLUGIN_PGN);
+  }
+
   _readFen() {
     if (!this._boardState.boardEl) return null;
 
@@ -220,6 +224,8 @@ export class AnalysisCoordinator {
       if (bestUci) {
         this._arrow.drawInsight(bestUci, isFlipped, result.color);
       }
+      const pgnPlugin = this._getPgnPlugin();
+      if (pgnPlugin) pgnPlugin.receiveClassification(this._boardState.ply, result);
     });
 
     classifier.on(EVT_ACCURACY_UPDATE, (pct) => {
@@ -245,6 +251,18 @@ export class AnalysisCoordinator {
           HINT_ARROW_OPACITY,
         );
       }
+    });
+    this._panel.on(EVT_PGN_COPY, () => {
+      const pgnPlugin = this._getPgnPlugin();
+      if (!pgnPlugin) return;
+      const pgn = pgnPlugin.exportPgn();
+      const btn = this._panel.el && this._panel.el.querySelector('.chee-copy-pgn');
+      navigator.clipboard.writeText(pgn).then(() => {
+        if (btn) {
+          btn.textContent = '\u2713';
+          setTimeout(() => { btn.textContent = 'PGN'; }, 1000);
+        }
+      });
     });
     this._bindEngineListeners();
   }
