@@ -3,6 +3,7 @@ export const BOARD_SIZE = 8;
 export const LAST_RANK = 7; // BOARD_SIZE - 1, used for rank flipping
 export const FILES = 'abcdefgh';
 export const CHAR_CODE_A = 97; // 'a'.charCodeAt(0)
+export const FEN_NONE = '-'; // FEN placeholder for empty castling/en passant
 
 // Piece characters
 export const WHITE_KING = 'K';

@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 
 import {
-  FILES, LAST_RANK,
+  FILES, LAST_RANK, FEN_NONE,
   WHITE_KING, WHITE_QUEEN, WHITE_ROOK, WHITE_PAWN,
   BLACK_KING, BLACK_QUEEN, BLACK_ROOK, BLACK_PAWN,
   KING_START_FILE, KINGSIDE_ROOK_FILE, QUEENSIDE_ROOK_FILE,
@@ -21,14 +21,14 @@ export function detectCastlingFromBoard(board) {
     if (board[BLACK_BACK_ROW][KINGSIDE_ROOK_FILE] === BLACK_ROOK) castling += BLACK_KING;
     if (board[BLACK_BACK_ROW][QUEENSIDE_ROOK_FILE] === BLACK_ROOK) castling += BLACK_QUEEN;
   }
-  return castling || '-';
+  return castling || FEN_NONE;
 }
 
 export function detectEnPassantFromSquares(squares, board) {
-  if (squares.length < 2) return '-';
+  if (squares.length < 2) return FEN_NONE;
   const s0 = squares[0];
   const s1 = squares[1];
-  if (s0.file !== s1.file || Math.abs(s0.rank - s1.rank) !== 2) return '-';
+  if (s0.file !== s1.file || Math.abs(s0.rank - s1.rank) !== 2) return FEN_NONE;
 
   const p0 = board[LAST_RANK - s0.rank][s0.file];
   const p1 = board[LAST_RANK - s1.rank][s1.file];
@@ -41,7 +41,7 @@ export function detectEnPassantFromSquares(squares, board) {
     toSq = s1;
     fromSq = s0;
   } else {
-    return '-';
+    return FEN_NONE;
   }
 
   const epRank = (fromSq.rank + toSq.rank) / 2;
