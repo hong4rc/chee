@@ -1,7 +1,7 @@
 // UCI → SAN converter + board simulation (pure functions)
 
 import {
-  map, some, reduce, take,
+  map, some, take,
 } from 'lodash-es';
 import { parseUci } from '../lib/uci.js';
 import {
@@ -99,48 +99,52 @@ export function uciToSan(uciMove, board, turn) {
   return san;
 }
 
-export function applyUciMove(board, uciMove) {
-  const nb = cloneBoard(board);
+function applyMoveInPlace(board, uciMove) {
   const {
     fromFile: ff, fromRank: fr, toFile: tf, toRank: tr, promotion: promo,
   } = parseUci(uciMove);
 
-  const piece = nb[LAST_RANK - fr][ff];
-  if (!piece) return nb;
+  const piece = board[LAST_RANK - fr][ff];
+  if (!piece) return;
   const pu = piece.toUpperCase();
 
-  if (pu === WHITE_PAWN && ff !== tf && nb[LAST_RANK - tr][tf] === null) {
-    nb[LAST_RANK - fr][tf] = null; // en passant
+  if (pu === WHITE_PAWN && ff !== tf && board[LAST_RANK - tr][tf] === null) {
+    board[LAST_RANK - fr][tf] = null; // en passant
   }
 
-  nb[LAST_RANK - fr][ff] = null;
+  board[LAST_RANK - fr][ff] = null;
   if (promo) {
-    nb[LAST_RANK - tr][tf] = piece === piece.toUpperCase() ? promo.toUpperCase() : promo.toLowerCase();
+    board[LAST_RANK - tr][tf] = piece === piece.toUpperCase() ? promo.toUpperCase() : promo.toLowerCase();
   } else {
-    nb[LAST_RANK - tr][tf] = piece;
+    board[LAST_RANK - tr][tf] = piece;
   }
 
   if (pu === WHITE_KING && Math.abs(tf - ff) === CASTLING_DISTANCE) {
     if (tf > ff) {
-      nb[LAST_RANK - fr][KINGSIDE_ROOK_DEST] = nb[LAST_RANK - fr][KINGSIDE_ROOK_FILE];
-      nb[LAST_RANK - fr][KINGSIDE_ROOK_FILE] = null;
+      board[LAST_RANK - fr][KINGSIDE_ROOK_DEST] = board[LAST_RANK - fr][KINGSIDE_ROOK_FILE];
+      board[LAST_RANK - fr][KINGSIDE_ROOK_FILE] = null;
     } else {
-      nb[LAST_RANK - fr][QUEENSIDE_ROOK_DEST] = nb[LAST_RANK - fr][QUEENSIDE_ROOK_FILE];
-      nb[LAST_RANK - fr][QUEENSIDE_ROOK_FILE] = null;
+      board[LAST_RANK - fr][QUEENSIDE_ROOK_DEST] = board[LAST_RANK - fr][QUEENSIDE_ROOK_FILE];
+      board[LAST_RANK - fr][QUEENSIDE_ROOK_FILE] = null;
     }
   }
+}
+
+export function applyUciMove(board, uciMove) {
+  const nb = cloneBoard(board);
+  applyMoveInPlace(nb, uciMove);
   return nb;
 }
 
 export function pvToSan(pvMoves, board, startTurn) {
   const moves = take(pvMoves, MAX_PV_MOVES);
-  const { sanMoves } = reduce(moves, (acc, uciMove) => {
-    acc.sanMoves.push(uciToSan(uciMove, acc.board, acc.turn));
-    return {
-      sanMoves: acc.sanMoves,
-      board: applyUciMove(acc.board, uciMove),
-      turn: toggleTurn(acc.turn),
-    };
-  }, { sanMoves: [], board: cloneBoard(board), turn: startTurn });
+  const b = cloneBoard(board);
+  const sanMoves = [];
+  let turn = startTurn;
+  for (let i = 0; i < moves.length; i++) {
+    sanMoves.push(uciToSan(moves[i], b, turn));
+    applyMoveInPlace(b, moves[i]);
+    turn = toggleTurn(turn);
+  }
   return sanMoves;
 }

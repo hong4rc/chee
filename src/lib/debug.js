@@ -7,18 +7,24 @@ import { includes, some } from 'lodash-es';
 
 const PREFIX = 'chee';
 
-function isEnabled(namespace) {
+let enabledNamespaces = null;
+
+function parseDebugFlag() {
   try {
     const flag = localStorage.getItem('debug') || '';
-    if (!flag) return false;
-    const patterns = flag.split(',').map((p) => p.trim());
-    return some(patterns, (p) => {
-      if (p === '*' || p === `${PREFIX}:*`) return true;
-      return includes(namespace, p) || p === namespace;
-    });
-  } catch {
-    return false;
-  }
+    enabledNamespaces = flag ? flag.split(',').map((p) => p.trim()) : [];
+  } catch { enabledNamespaces = []; }
+}
+
+parseDebugFlag();
+try { window.addEventListener('storage', parseDebugFlag); } catch { /* no window */ }
+
+function isEnabled(namespace) {
+  if (!enabledNamespaces || enabledNamespaces.length === 0) return false;
+  return some(enabledNamespaces, (p) => {
+    if (p === '*' || p === `${PREFIX}:*`) return true;
+    return includes(namespace, p) || p === namespace;
+  });
 }
 
 const cache = new Map();

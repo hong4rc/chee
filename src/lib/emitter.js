@@ -31,4 +31,8 @@ export class Emitter {
     if (!fns) return;
     forEach(fns, (fn) => fn(...args));
   }
+
+  removeAllListeners() {
+    this._listeners.clear();
+  }
 }

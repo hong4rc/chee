@@ -178,6 +178,7 @@ export class Panel extends Emitter {
     this._numLines = numLines;
     this._lines = Array(numLines).fill(null);
     this._scores = new Map();
+    this._sortedPlies = [];
   }
 
   mount(anchor) {
@@ -219,6 +220,7 @@ export class Panel extends Emitter {
     if (this._el) { this._el.remove(); this._el = null; }
     if (this._showBtn) { this._showBtn.remove(); this._showBtn = null; }
     this._scores.clear();
+    this._sortedPlies = [];
     this._scoreEl = null;
     this._depthEl = null;
     this._openingSlot = null;
@@ -234,6 +236,9 @@ export class Panel extends Emitter {
     this._chartWhite = null;
     this._chartCursor = null;
     this._lineEls = null;
+    this._lineScoreEls = null;
+    this._lineMovesEls = null;
+    this.removeAllListeners();
   }
 
   setBoard(board, turn, fen) {
@@ -303,13 +308,27 @@ export class Panel extends Emitter {
     } else {
       whiteScore = this._turn === TURN_BLACK ? -line.score : line.score;
     }
+    const isNew = !this._scores.has(ply);
     this._scores.set(ply, whiteScore);
+    if (isNew) this._insertSortedPly(ply);
     this._renderChart(ply);
   }
 
   clearScores() {
     this._scores.clear();
+    this._sortedPlies = [];
     this._renderChart(0);
+  }
+
+  _insertSortedPly(ply) {
+    const arr = this._sortedPlies;
+    let lo = 0;
+    let hi = arr.length;
+    while (lo < hi) {
+      const mid = Math.floor((lo + hi) / 2);
+      if (arr[mid] < ply) lo = mid + 1; else hi = mid;
+    }
+    arr.splice(lo, 0, ply);
   }
 
   // ─── Private ─────────────────────────────────────────────
@@ -383,8 +402,12 @@ export class Panel extends Emitter {
 
   _bindLineListeners() {
     this._lineEls = this._el.querySelectorAll('.chee-line');
+    this._lineScoreEls = [];
+    this._lineMovesEls = [];
     const lineEls = this._lineEls;
     forEach(lineEls, (lineEl, i) => {
+      this._lineScoreEls[i] = lineEl.querySelector('.chee-line-score');
+      this._lineMovesEls[i] = lineEl.querySelector('.chee-line-moves');
       lineEl.addEventListener('mouseover', (e) => {
         const moveSpan = e.target.closest('.chee-move');
         const pv = this._lines[i];
@@ -405,7 +428,7 @@ export class Panel extends Emitter {
   _renderChart(currentPly) {
     if (!this._chartSvg) return;
 
-    const plies = [...this._scores.keys()].sort((a, b) => a - b);
+    const plies = this._sortedPlies;
     if (plies.length === 0) {
       if (this._chartWhite) this._chartWhite.setAttribute('d', '');
       if (this._chartCursor) {
@@ -480,9 +503,9 @@ export class Panel extends Emitter {
     return [];
   }
 
-  _updateLineRow(lineEl, line) {
-    const scoreEl = lineEl.querySelector('.chee-line-score');
-    const movesEl = lineEl.querySelector('.chee-line-moves');
+  _updateLineRow(lineEl, line, lineIdx) {
+    const scoreEl = this._lineScoreEls[lineIdx];
+    const movesEl = this._lineMovesEls[lineIdx];
 
     if (!line) {
       scoreEl.textContent = '';
@@ -505,13 +528,25 @@ export class Panel extends Emitter {
     const sanMoves = this._formatLineMoves(line);
     const pv = line.pv ? take(line.pv, MAX_PV_MOVES) : [];
 
-    movesEl.innerHTML = '';
-    forEach(sanMoves, (san, m) => {
-      if (m > 0) movesEl.appendChild(document.createTextNode(' '));
-      const span = el('span', 'chee-move', san);
-      span.dataset.idx = m;
-      movesEl.appendChild(span);
-    });
+    const existing = movesEl.querySelectorAll('.chee-move');
+    for (let m = 0; m < sanMoves.length; m++) {
+      if (m < existing.length) {
+        if (existing[m].textContent !== sanMoves[m]) existing[m].textContent = sanMoves[m];
+      } else {
+        if (movesEl.childNodes.length > 0) movesEl.appendChild(document.createTextNode(' '));
+        const span = el('span', 'chee-move', sanMoves[m]);
+        span.dataset.idx = m;
+        movesEl.appendChild(span);
+      }
+    }
+    // Remove excess spans (+ preceding text node separators)
+    for (let m = existing.length - 1; m >= sanMoves.length; m--) {
+      const span = existing[m];
+      if (span.previousSibling && span.previousSibling.nodeType === Node.TEXT_NODE) {
+        movesEl.removeChild(span.previousSibling);
+      }
+      movesEl.removeChild(span);
+    }
 
     return pv.length > 0 ? pv : null;
   }
@@ -521,7 +556,7 @@ export class Panel extends Emitter {
     times(this._numLines, (i) => {
       if (!lineEls[i]) return;
       const line = i < lines.length ? lines[i] : null;
-      this._lines[i] = this._updateLineRow(lineEls[i], line);
+      this._lines[i] = this._updateLineRow(lineEls[i], line, i);
     });
   }
 }

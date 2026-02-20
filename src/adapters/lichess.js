@@ -2,6 +2,7 @@
 
 import createDebug from '../lib/debug.js';
 import { BoardAdapter, detectEnPassantFromSquares } from './base.js';
+import { indexOfNode } from '../lib/dom.js';
 import {
   BOARD_SIZE, TURN_WHITE, TURN_BLACK,
   BLACK_KING, BLACK_QUEEN, BLACK_ROOK, BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN,
@@ -111,7 +112,7 @@ export class LichessAdapter extends BoardAdapter {
     if (total === 0) return { index: -1, total: 0 };
 
     const activeMove = document.querySelector(SEL_ACTIVE_MOVE);
-    const index = activeMove ? Array.from(allMoves).indexOf(activeMove) : -1;
+    const index = indexOfNode(allMoves, activeMove);
     return { index, total };
   }
 

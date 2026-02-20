@@ -26,6 +26,7 @@ export class Engine extends Emitter {
     this._state = State.IDLE;
     this._currentFen = null;
     this._pendingFen = null;
+    this._recoverTimer = null;
   }
 
   get state() { return this._state; }
@@ -120,11 +121,15 @@ export class Engine extends Emitter {
 
   destroy() {
     this._recovering = false;
+    if (this._recoverTimer) { clearTimeout(this._recoverTimer); this._recoverTimer = null; }
     if (this._worker) {
       this._worker.terminate();
       this._worker = null;
     }
     this._state = State.IDLE;
+    this._currentFen = null;
+    this._pendingFen = null;
+    this.removeAllListeners();
   }
 
   _autoRecover(settings) {
@@ -139,7 +144,8 @@ export class Engine extends Emitter {
     this._state = State.IDLE;
     this._currentFen = null;
     this._pendingFen = fen;
-    setTimeout(() => {
+    this._recoverTimer = setTimeout(() => {
+      this._recoverTimer = null;
       this._recovering = false;
       this.init(settings);
     }, 1000);

@@ -5,15 +5,17 @@ export default function pollUntil(predicate, interval, timeout) {
     const result = predicate();
     if (result) { resolve(result); return; }
 
+    let timeoutId;
     const timer = setInterval(() => {
       const value = predicate();
       if (value) {
         clearInterval(timer);
+        clearTimeout(timeoutId);
         resolve(value);
       }
     }, interval);
 
-    setTimeout(() => {
+    timeoutId = setTimeout(() => {
       clearInterval(timer);
       reject(new Error(`Poll timed out after ${timeout / 1000}s`));
     }, timeout);

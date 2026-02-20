@@ -5,6 +5,7 @@ import {
 } from 'lodash-es';
 import createDebug from '../lib/debug.js';
 import { BoardAdapter, detectEnPassantFromSquares } from './base.js';
+import { indexOfNode } from '../lib/dom.js';
 import {
   BOARD_SIZE, TURN_WHITE, TURN_BLACK,
   WHITE_KING, WHITE_QUEEN, WHITE_ROOK, WHITE_BISHOP, WHITE_KNIGHT, WHITE_PAWN,
@@ -233,7 +234,7 @@ export class ChesscomAdapter extends BoardAdapter {
     const total = moveNodes.length;
     const selectedContent = document.querySelector(SEL_SELECTED_MOVE);
     const activeNode = selectedContent ? selectedContent.closest('.node') : null;
-    const index = activeNode ? Array.from(moveNodes).indexOf(activeNode) : -1;
+    const index = indexOfNode(moveNodes, activeNode);
     return { index, total };
   }
 
