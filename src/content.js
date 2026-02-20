@@ -139,7 +139,7 @@ const log = createDebug('chee:content');
 
     // Always-on best move arrow (no badge, team color)
     if (settings.showBestMove) {
-      const turn = panel._turn; // eslint-disable-line no-underscore-dangle
+      const { turn } = panel;
       const color = turn === TURN_WHITE ? ARROW_COLOR_WHITE : ARROW_COLOR_BLACK;
       currentHint = { uci: bestUci, color, symbol: null };
       arrow.drawHint(bestUci, adapter.isFlipped(boardEl), color, null, HINT_ARROW_OPACITY);

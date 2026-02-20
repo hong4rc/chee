@@ -82,6 +82,7 @@ function appendArrow(svg, from, to, opts) {
     originRadius,
     elClass = 'chee-arrow-el',
     markerEnd,
+    dashArray,
   } = opts;
   svg.appendChild(createSvgEl('circle', {
     cx: from.x,
@@ -91,7 +92,7 @@ function appendArrow(svg, from, to, opts) {
     opacity,
     class: elClass,
   }));
-  svg.appendChild(createSvgEl('line', {
+  const lineAttrs = {
     x1: from.x,
     y1: from.y,
     x2: to.x,
@@ -102,7 +103,9 @@ function appendArrow(svg, from, to, opts) {
     opacity,
     'marker-end': markerEnd || `url(#chee-arrowhead-${colorIdx})`,
     class: elClass,
-  }));
+  };
+  if (dashArray) lineAttrs['stroke-dasharray'] = dashArray;
+  svg.appendChild(createSvgEl('line', lineAttrs));
 }
 
 export class ArrowOverlay {
@@ -192,28 +195,32 @@ export class ArrowOverlay {
     forEach(els, (el) => el.remove());
   }
 
-  drawClassification(uciMove, isFlipped, color, symbol) {
-    if (!this._svg || !this._boardEl) return;
-    this.clearClassification();
+  _createMarker(markerId, color, elClass) {
+    const defs = this._svg.querySelector('defs');
+    const marker = createSvgEl('marker', {
+      id: markerId,
+      markerWidth: ARROW_MARKER_WIDTH,
+      markerHeight: ARROW_MARKER_HEIGHT,
+      refX: ARROW_MARKER_REF_X,
+      refY: ARROW_MARKER_REF_Y,
+      orient: 'auto',
+      class: elClass,
+    });
+    marker.appendChild(createSvgEl('path', {
+      d: `M0,0 L${ARROW_MARKER_WIDTH},${ARROW_MARKER_REF_Y} L0,${ARROW_MARKER_HEIGHT} Z`,
+      fill: color,
+    }));
+    defs.appendChild(marker);
+  }
 
-    if (!uciMove || uciMove.length < UCI_MIN_LEN) return;
-
-    const { sqW, sqH } = this._getBoardMetrics();
-
-    const { toFile, toRank } = parseUci(uciMove);
+  _drawBadge(toFile, toRank, sqW, sqH, isFlipped, color, symbol, elClass) {
     const center = squareCenter(toFile, toRank, sqW, sqH, isFlipped);
-
-    // Badge at top-right corner of destination square
     const badgeR = sqW * 0.22;
     const bx = center.x + sqW * 0.28;
     const by = center.y - sqH * 0.28;
 
     this._svg.appendChild(createSvgEl('circle', {
-      cx: bx,
-      cy: by,
-      r: badgeR,
-      fill: color,
-      class: 'chee-classify-el',
+      cx: bx, cy: by, r: badgeR, fill: color, class: elClass,
     }));
 
     if (symbol) {
@@ -226,11 +233,21 @@ export class ArrowOverlay {
         'font-family': '-apple-system, BlinkMacSystemFont, sans-serif',
         'text-anchor': 'middle',
         'dominant-baseline': 'central',
-        class: 'chee-classify-el',
+        class: elClass,
       });
       text.textContent = symbol;
       this._svg.appendChild(text);
     }
+  }
+
+  drawClassification(uciMove, isFlipped, color, symbol) {
+    if (!this._svg || !this._boardEl) return;
+    this.clearClassification();
+    if (!uciMove || uciMove.length < UCI_MIN_LEN) return;
+
+    const { sqW, sqH } = this._getBoardMetrics();
+    const { toFile, toRank } = parseUci(uciMove);
+    this._drawBadge(toFile, toRank, sqW, sqH, isFlipped, color, symbol, 'chee-classify-el');
   }
 
   clearClassification() {
@@ -241,7 +258,6 @@ export class ArrowOverlay {
   drawHint(uciMove, isFlipped, color, symbol, opacity) {
     if (!this._svg || !this._boardEl) return;
     this.clearHint();
-
     if (!uciMove || uciMove.length < UCI_MIN_LEN) return;
 
     const {
@@ -252,28 +268,11 @@ export class ArrowOverlay {
       fromFile, fromRank, toFile, toRank,
     } = parseUci(uciMove);
     const from = squareCenter(fromFile, fromRank, sqW, sqH, isFlipped);
-    const toRaw = squareCenter(toFile, toRank, sqW, sqH, isFlipped);
-    const to = shortenEnd(from, toRaw, headSize);
+    const to = shortenEnd(from, squareCenter(toFile, toRank, sqW, sqH, isFlipped), headSize);
 
-    // Arrow marker
     const markerId = 'chee-hint-arrowhead';
-    const defs = this._svg.querySelector('defs');
-    const marker = createSvgEl('marker', {
-      id: markerId,
-      markerWidth: ARROW_MARKER_WIDTH,
-      markerHeight: ARROW_MARKER_HEIGHT,
-      refX: ARROW_MARKER_REF_X,
-      refY: ARROW_MARKER_REF_Y,
-      orient: 'auto',
-      class: 'chee-hint-el',
-    });
-    marker.appendChild(createSvgEl('path', {
-      d: `M0,0 L${ARROW_MARKER_WIDTH},${ARROW_MARKER_REF_Y} L0,${ARROW_MARKER_HEIGHT} Z`,
-      fill: color,
-    }));
-    defs.appendChild(marker);
+    this._createMarker(markerId, color, 'chee-hint-el');
 
-    // Arrow line
     appendArrow(this._svg, from, to, {
       color,
       opacity,
@@ -283,34 +282,8 @@ export class ArrowOverlay {
       markerEnd: `url(#${markerId})`,
     });
 
-    // Icon badge on destination square
     if (symbol) {
-      const center = squareCenter(toFile, toRank, sqW, sqH, isFlipped);
-      const badgeR = sqW * 0.22;
-      const bx = center.x + sqW * 0.28;
-      const by = center.y - sqH * 0.28;
-
-      this._svg.appendChild(createSvgEl('circle', {
-        cx: bx,
-        cy: by,
-        r: badgeR,
-        fill: color,
-        class: 'chee-hint-el',
-      }));
-
-      const text = createSvgEl('text', {
-        x: bx,
-        y: by,
-        fill: '#fff',
-        'font-size': sqW * 0.18,
-        'font-weight': '700',
-        'font-family': '-apple-system, BlinkMacSystemFont, sans-serif',
-        'text-anchor': 'middle',
-        'dominant-baseline': 'central',
-        class: 'chee-hint-el',
-      });
-      text.textContent = symbol;
-      this._svg.appendChild(text);
+      this._drawBadge(toFile, toRank, sqW, sqH, isFlipped, color, symbol, 'chee-hint-el');
     }
   }
 
@@ -322,7 +295,6 @@ export class ArrowOverlay {
   drawInsight(uciMove, isFlipped, color) {
     if (!this._svg || !this._boardEl) return;
     this.clearInsight();
-
     if (!uciMove || uciMove.length < UCI_MIN_LEN) return;
 
     const {
@@ -333,51 +305,20 @@ export class ArrowOverlay {
       fromFile, fromRank, toFile, toRank,
     } = parseUci(uciMove);
     const from = squareCenter(fromFile, fromRank, sqW, sqH, isFlipped);
-    const toRaw = squareCenter(toFile, toRank, sqW, sqH, isFlipped);
-    const to = shortenEnd(from, toRaw, headSize);
+    const to = shortenEnd(from, squareCenter(toFile, toRank, sqW, sqH, isFlipped), headSize);
 
-    // Dedicated arrowhead marker
     const markerId = 'chee-insight-arrowhead';
-    const defs = this._svg.querySelector('defs');
-    const marker = createSvgEl('marker', {
-      id: markerId,
-      markerWidth: ARROW_MARKER_WIDTH,
-      markerHeight: ARROW_MARKER_HEIGHT,
-      refX: ARROW_MARKER_REF_X,
-      refY: ARROW_MARKER_REF_Y,
-      orient: 'auto',
-      class: 'chee-insight-el',
+    this._createMarker(markerId, color, 'chee-insight-el');
+
+    appendArrow(this._svg, from, to, {
+      color,
+      opacity: INSIGHT_ARROW_OPACITY,
+      strokeWidth: strokeWidth * 0.6,
+      originRadius: originRadius * 0.7,
+      elClass: 'chee-insight-el',
+      markerEnd: `url(#${markerId})`,
+      dashArray: INSIGHT_ARROW_DASH,
     });
-    marker.appendChild(createSvgEl('path', {
-      d: `M0,0 L${ARROW_MARKER_WIDTH},${ARROW_MARKER_REF_Y} L0,${ARROW_MARKER_HEIGHT} Z`,
-      fill: color,
-    }));
-    defs.appendChild(marker);
-
-    // Origin circle
-    this._svg.appendChild(createSvgEl('circle', {
-      cx: from.x,
-      cy: from.y,
-      r: originRadius * 0.7,
-      fill: color,
-      opacity: INSIGHT_ARROW_OPACITY,
-      class: 'chee-insight-el',
-    }));
-
-    // Dashed line with arrowhead
-    this._svg.appendChild(createSvgEl('line', {
-      x1: from.x,
-      y1: from.y,
-      x2: to.x,
-      y2: to.y,
-      stroke: color,
-      'stroke-width': strokeWidth * 0.6,
-      'stroke-linecap': 'round',
-      'stroke-dasharray': INSIGHT_ARROW_DASH,
-      opacity: INSIGHT_ARROW_OPACITY,
-      'marker-end': `url(#${markerId})`,
-      class: 'chee-insight-el',
-    }));
   }
 
   clearInsight() {

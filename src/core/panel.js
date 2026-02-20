@@ -213,11 +213,26 @@ export class Panel extends Emitter {
   }
 
   get el() { return this._el; }
+  get turn() { return this._turn; }
 
   destroy() {
     if (this._el) { this._el.remove(); this._el = null; }
     if (this._showBtn) { this._showBtn.remove(); this._showBtn = null; }
     this._scores.clear();
+    this._scoreEl = null;
+    this._depthEl = null;
+    this._openingSlot = null;
+    this._classSlot = null;
+    this._insightSlot = null;
+    this._accuracyEl = null;
+    this._toggleEl = null;
+    this._copyFenEl = null;
+    this._hideEl = null;
+    this._wdl = null;
+    this._wdlPct = null;
+    this._chartSvg = null;
+    this._chartWhite = null;
+    this._chartCursor = null;
   }
 
   setBoard(board, turn, fen) {
@@ -228,14 +243,12 @@ export class Panel extends Emitter {
   }
 
   _updateOpening(fen) {
-    if (!this._el) return;
-    const slot = this._el.querySelector('.chee-opening-slot');
-    if (!slot) return;
+    if (!this._openingSlot) return;
     const name = lookupOpening(fen);
     if (name && name !== STARTING_POSITION) {
-      slot.textContent = name;
+      this._openingSlot.textContent = name;
     } else {
-      slot.textContent = '';
+      this._openingSlot.textContent = '';
     }
   }
 
@@ -244,8 +257,7 @@ export class Panel extends Emitter {
     const { lines } = data;
     if (!lines || lines.length === 0) return;
 
-    const depthEl = this._el.querySelector('.chee-depth');
-    if (depthEl) depthEl.textContent = `d${data.depth}`;
+    if (this._depthEl) this._depthEl.textContent = `d${data.depth}`;
 
     const bestLine = lines[0];
     if (!bestLine) return;
@@ -257,35 +269,27 @@ export class Panel extends Emitter {
   showClassification({ label, symbol, color }, insight) {
     if (!this._el) return;
     this.clearClassification();
-    const slot = this._el.querySelector('.chee-classification-slot');
-    if (!slot) return;
+    if (!this._classSlot) return;
     const text = symbol ? `${symbol} ${label}` : label;
     const badge = el('span', 'chee-classification-badge', text);
     badge.style.background = color;
-    slot.appendChild(badge);
+    this._classSlot.appendChild(badge);
 
-    if (insight) {
-      const insightSlot = this._el.querySelector('.chee-insight-slot');
-      if (insightSlot) {
-        const insightEl = el('div', 'chee-insight', `\u21B3 ${insight}`);
-        insightSlot.appendChild(insightEl);
-      }
+    if (insight && this._insightSlot) {
+      const insightEl = el('div', 'chee-insight', `\u21B3 ${insight}`);
+      this._insightSlot.appendChild(insightEl);
     }
   }
 
   showAccuracy(pct) {
-    if (!this._el) return;
-    const acc = this._el.querySelector('.chee-accuracy');
-    if (!acc) return;
-    acc.textContent = pct !== null ? `Acc: ${pct}%` : '';
+    if (!this._accuracyEl) return;
+    this._accuracyEl.textContent = pct !== null ? `Acc: ${pct}%` : '';
   }
 
   clearClassification() {
     if (!this._el) return;
-    const slot = this._el.querySelector('.chee-classification-slot');
-    if (slot) { slot.innerHTML = ''; }
-    const insightSlot = this._el.querySelector('.chee-insight-slot');
-    if (insightSlot) { insightSlot.innerHTML = ''; }
+    if (this._classSlot) { this._classSlot.innerHTML = ''; }
+    if (this._insightSlot) { this._insightSlot.innerHTML = ''; }
   }
 
   recordScore(ply, data) {
@@ -329,21 +333,43 @@ export class Panel extends Emitter {
   }
 
   _attachListeners() {
-    this._el.querySelector('.chee-toggle').addEventListener('click', () => {
+    this._scoreEl = this._el.querySelector('.chee-eval-score');
+    this._depthEl = this._el.querySelector('.chee-depth');
+    this._openingSlot = this._el.querySelector('.chee-opening-slot');
+    this._classSlot = this._el.querySelector('.chee-classification-slot');
+    this._insightSlot = this._el.querySelector('.chee-insight-slot');
+    this._accuracyEl = this._el.querySelector('.chee-accuracy');
+    this._toggleEl = this._el.querySelector('.chee-toggle');
+    this._copyFenEl = this._el.querySelector('.chee-copy-fen');
+    this._hideEl = this._el.querySelector('.chee-hide');
+    this._wdl = {
+      w: this._el.querySelector('.chee-wdl-w'),
+      d: this._el.querySelector('.chee-wdl-d'),
+      l: this._el.querySelector('.chee-wdl-l'),
+    };
+    this._wdlPct = {
+      w: this._el.querySelector('.chee-wdl-w-pct'),
+      d: this._el.querySelector('.chee-wdl-d-pct'),
+      l: this._el.querySelector('.chee-wdl-l-pct'),
+    };
+    this._chartSvg = this._el.querySelector('.chee-chart svg');
+    this._chartWhite = this._chartSvg?.querySelector('.chee-chart-white');
+    this._chartCursor = this._chartSvg?.querySelector('.chee-chart-cursor');
+
+    this._toggleEl.addEventListener('click', () => {
       this._el.classList.toggle('chee-minimized');
-      this._el.querySelector('.chee-toggle').innerHTML = this._el.classList.contains('chee-minimized')
+      this._toggleEl.innerHTML = this._el.classList.contains('chee-minimized')
         ? '&#x2b;'
         : '&#x2212;';
     });
-    this._el.querySelector('.chee-copy-fen').addEventListener('click', () => {
+    this._copyFenEl.addEventListener('click', () => {
       if (!this._fen) return;
       navigator.clipboard.writeText(this._fen).then(() => {
-        const btn = this._el.querySelector('.chee-copy-fen');
-        btn.textContent = '\u2713';
-        setTimeout(() => { btn.textContent = 'FEN'; }, 1000);
+        this._copyFenEl.textContent = '\u2713';
+        setTimeout(() => { this._copyFenEl.textContent = 'FEN'; }, 1000);
       });
     });
-    this._el.querySelector('.chee-hide').addEventListener('click', () => {
+    this._hideEl.addEventListener('click', () => {
       this._el.classList.add('chee-hidden');
       this._showBtn.classList.add('chee-visible');
     });
@@ -375,18 +401,15 @@ export class Panel extends Emitter {
   }
 
   _renderChart(currentPly) {
-    if (!this._el) return;
-    const svg = this._el.querySelector('.chee-chart svg');
-    if (!svg) return;
-
-    const whitePath = svg.querySelector('.chee-chart-white');
-    const cursor = svg.querySelector('.chee-chart-cursor');
+    if (!this._chartSvg) return;
 
     const plies = [...this._scores.keys()].sort((a, b) => a - b);
     if (plies.length === 0) {
-      if (whitePath) whitePath.setAttribute('d', '');
-      if (cursor) cursor.setAttribute('x1', 0);
-      if (cursor) cursor.setAttribute('x2', 0);
+      if (this._chartWhite) this._chartWhite.setAttribute('d', '');
+      if (this._chartCursor) {
+        this._chartCursor.setAttribute('x1', 0);
+        this._chartCursor.setAttribute('x2', 0);
+      }
       return;
     }
 
@@ -409,49 +432,40 @@ export class Panel extends Emitter {
     });
     const last = this._scores.get(plies[plies.length - 1]);
     d += ` L ${CHART_VB_W} ${yPos(last)} L ${CHART_VB_W} ${CHART_VB_H} Z`;
-    if (whitePath) whitePath.setAttribute('d', d);
+    if (this._chartWhite) this._chartWhite.setAttribute('d', d);
 
     // Cursor at current ply
-    if (cursor && currentPly !== undefined) {
+    if (this._chartCursor && currentPly !== undefined) {
       const cx = plies.length === 1 ? CHART_VB_W / 2 : xPos(currentPly);
-      cursor.setAttribute('x1', cx);
-      cursor.setAttribute('x2', cx);
+      this._chartCursor.setAttribute('x1', cx);
+      this._chartCursor.setAttribute('x2', cx);
     }
   }
 
   _updateScoreDisplay(bestLine) {
-    const scoreEl = this._el.querySelector('.chee-eval-score');
-
     if (bestLine.mate !== null) {
       const wMate = this._whiteMate(bestLine.mate);
-      scoreEl.textContent = formatMate(wMate);
-      scoreEl.className = `chee-eval-score ${CLS_MATE} ${advantageCls(wMate > 0)}`;
+      this._scoreEl.textContent = formatMate(wMate);
+      this._scoreEl.className = `chee-eval-score ${CLS_MATE} ${advantageCls(wMate > 0)}`;
       this._updateWdlBar(wMate > 0 ? 100 : 0, 0, wMate > 0 ? 0 : 100);
       return;
     }
 
     const cp = this._whiteScore(bestLine.score) / CENTIPAWN_DIVISOR;
-    scoreEl.textContent = formatCp(cp);
-    scoreEl.className = `chee-eval-score ${advantageCls(cp >= 0)}`;
+    this._scoreEl.textContent = formatCp(cp);
+    this._scoreEl.className = `chee-eval-score ${advantageCls(cp >= 0)}`;
     const cpRaw = this._whiteScore(bestLine.score);
     const { w, d, l } = cpToWdl(cpRaw);
     this._updateWdlBar(w, d, l);
   }
 
   _updateWdlBar(w, d, l) {
-    const wEl = this._el.querySelector('.chee-wdl-w');
-    const dEl = this._el.querySelector('.chee-wdl-d');
-    const lEl = this._el.querySelector('.chee-wdl-l');
-    if (wEl) wEl.style.width = `${w}%`;
-    if (dEl) dEl.style.width = `${d}%`;
-    if (lEl) lEl.style.width = `${l}%`;
-
-    const wPct = this._el.querySelector('.chee-wdl-w-pct');
-    const dPct = this._el.querySelector('.chee-wdl-d-pct');
-    const lPct = this._el.querySelector('.chee-wdl-l-pct');
-    if (wPct) wPct.textContent = `${w}%`;
-    if (dPct) dPct.textContent = `${d}%`;
-    if (lPct) lPct.textContent = `${l}%`;
+    if (this._wdl.w) this._wdl.w.style.width = `${w}%`;
+    if (this._wdl.d) this._wdl.d.style.width = `${d}%`;
+    if (this._wdl.l) this._wdl.l.style.width = `${l}%`;
+    if (this._wdlPct.w) this._wdlPct.w.textContent = `${w}%`;
+    if (this._wdlPct.d) this._wdlPct.d.textContent = `${d}%`;
+    if (this._wdlPct.l) this._wdlPct.l.textContent = `${l}%`;
   }
 
   _formatLineMoves(line) {
