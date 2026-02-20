@@ -47,6 +47,7 @@ localStorage.debug = 'chee:*'
 - Eval score chart showing game progress over time
 - Opening name display (193-entry ECO database)
 - Running accuracy percentage
+- Copy annotated PGN to clipboard
 - Copy FEN to clipboard
 - Hide/show and minimize panel controls
 - Catppuccin theme system (Latte, Frappe, Macchiato, Mocha) + site-matching mode

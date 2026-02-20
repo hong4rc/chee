@@ -67,6 +67,7 @@ GitHub Secrets required: `EXTENSION_ID`, `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET`, `
 - `core/engine.js` — Stockfish worker lifecycle (state machine: IDLE→INITIALIZING→READY→ANALYZING), UCI protocol
 - `core/panel.js` — panel DOM creation and updates (eval display, W/D/L bar, opening name, analysis lines, score chart, accuracy), extends `lib/emitter.js` for events
 - `core/arrow.js` — SVG arrow overlay (analysis arrows, classification badges, hint arrows, insight arrows)
+- `core/board-diff.js` — board diff → UCI move detection (`detectMoveFromBoards()`, `boardDiffToUci()`), shared by classifier and PGN plugin
 - `core/classify.js` — pure classification logic: `computeCpLoss()` and `classify()`
 - `core/insight.js` — tactical insight detection for Mistake/Blunder (right piece, right square, delayed move)
 - `core/move-classifier.js` — classification state machine, accuracy tracking, ply cache
@@ -98,10 +99,10 @@ GitHub Secrets required: `EXTENSION_ID`, `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET`, `
 Chess sites update DOM elements (clocks, move lists, highlights) at unpredictable times relative to piece positions. This causes:
 
 - **Turn detection wrong**: `detectTurn()` reads clock/move-list DOM, but these may not have updated when the MutationObserver fires on piece movement. Fix: `detectTurnFromDiff()` in `content.js` compares previous board array to current — if a white piece arrived, it's black's turn. Falls back to adapter only for initial position or large jumps (>4 squares changed).
-- **Move detection wrong**: Highlight squares (`square-XY` on chess.com, `square.last-move` on lichess) can flicker, producing ghost moves like `e2f7`. Fix: `boardDiffToUci()` in `move-classifier.js` diffs previous/current board arrays — handles normal moves, captures, castling, en passant, and promotion.
+- **Move detection wrong**: Highlight squares (`square-XY` on chess.com, `square.last-move` on lichess) can flicker, producing ghost moves like `e2f7`. Fix: `boardDiffToUci()` in `core/board-diff.js` diffs previous/current board arrays — handles normal moves, captures, castling, en passant, and promotion.
 - **Move count wrong**: Adapter counts all moves in the DOM move list, but during game review the user may be at an earlier position. Fix: find the selected/active move node first, count up to that index. Selector varies by site (chess.com: `.node-highlight-content.selected`; lichess: `kwdb.a1t` / `.tview2 move.active`).
 
-**Rule of thumb for new adapters**: implement `readPieces()`, `isFlipped()`, and `detectPly()` accurately. Turn detection and move detection are handled by the board-diff layer in `content.js` and `move-classifier.js` — adapter-level `detectTurn()` is only a fallback. `detectPly()` is critical for distinguishing new moves from backward navigation (revert).
+**Rule of thumb for new adapters**: implement `readPieces()`, `isFlipped()`, and `detectPly()` accurately. Turn detection and move detection are handled by the board-diff layer in `core/board-diff.js` and `move-classifier.js` — adapter-level `detectTurn()` is only a fallback. `detectPly()` is critical for distinguishing new moves from backward navigation (revert).
 
 ### chess.com DOM structure (as of 2025)
 
@@ -125,7 +126,7 @@ Chess sites update DOM elements (clocks, move lists, highlights) at unpredictabl
 
 ## Panel Features
 
-The analysis panel displays (top to bottom): header (classification badge, eval score, depth), opening name, insight text, W/D/L bar with percentages, analysis lines, eval chart, status bar (accuracy, FEN button).
+The analysis panel displays (top to bottom): header (classification badge, eval score, depth), opening name, insight text, W/D/L bar with percentages, analysis lines, eval chart, status bar (accuracy, PGN button, FEN button).
 
 ### W/D/L bar
 
@@ -146,6 +147,16 @@ Running accuracy percentage in the status bar. Formula: `103.1668 * exp(-0.04354
 ### Per-line scores
 
 Each analysis line shows its own eval score badge (cp or mate) next to the rank number. Lines are bordered cards with hover highlight.
+
+### PGN export
+
+`core/plugins/pgn-plugin.js` — accumulates moves, evals, and classifications during analysis. Click PGN button in status bar → copies annotated PGN to clipboard.
+
+- Uses `boardDiffToUci()` from `core/board-diff.js` + `uciToSan()` from `core/san.js` to record SAN moves
+- Only records forward moves (`ply > prevPly`), backward navigation is ignored
+- Stores best eval (highest depth) per ply, and locked classifications via `receiveClassification()`
+- Output includes: PGN headers (Event, Site, Date, White, Black, Result), eval comments (`{+0.3/22}`), inline classification symbols (`e5?!`, `Nc6??`), and NAG codes (`$1` Best/Excellent, `$2` Mistake, `$3` Brilliant, `$4` Blunder, `$6` Inaccuracy; none for Good)
+- Mid-game loads include `[SetUp "1"]` and `[FEN "..."]` headers when the starting position differs from standard
 
 ## Move Classification
 
