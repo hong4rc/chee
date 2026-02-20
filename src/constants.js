@@ -21,6 +21,7 @@ export const BLACK_PAWN = 'p';
 // Turn
 export const TURN_WHITE = 'w';
 export const TURN_BLACK = 'b';
+export function toggleTurn(t) { return t === TURN_WHITE ? TURN_BLACK : TURN_WHITE; }
 
 // Castling positions (file indices)
 export const KING_START_FILE = 4;

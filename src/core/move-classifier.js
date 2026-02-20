@@ -121,6 +121,12 @@ export class MoveClassifier {
     return this._lockedLabel === LABEL_MISTAKE || this._lockedLabel === LABEL_BLUNDER;
   }
 
+  _clearVisuals() {
+    this._panel.clearClassification();
+    this._arrow.clearClassification();
+    this._arrow.clearInsight();
+  }
+
   initFen(fen, board, ply) {
     this._prevFen = fen;
     this._prevBoard = board || null;
@@ -222,9 +228,7 @@ export class MoveClassifier {
       ? boardDiffToUci(this._prevBoard, board)
       : null;
     this._locked = false;
-    this._panel.clearClassification();
-    this._arrow.clearClassification();
-    this._arrow.clearInsight();
+    this._clearVisuals();
     this._prevFen = fen;
     this._prevBoard = board || null;
     this._prevPly = ply || 0;
@@ -263,11 +267,7 @@ export class MoveClassifier {
   }
 
   setEnabled(enabled) {
-    if (!enabled) {
-      this._panel.clearClassification();
-      this._arrow.clearClassification();
-      this._arrow.clearInsight();
-    }
+    if (!enabled) this._clearVisuals();
   }
 
   clearCache() {
@@ -275,8 +275,7 @@ export class MoveClassifier {
   }
 
   destroy() {
-    this._arrow.clearClassification();
-    this._arrow.clearInsight();
+    this._clearVisuals();
     this._latestEval = null;
     this._prevEval = null;
     this._prevFen = null;

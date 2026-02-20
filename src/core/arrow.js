@@ -9,7 +9,7 @@ import {
   ARROW_OVERLAY_ID, ARROW_OVERLAY_Z, ARROW_ORIGIN_RADIUS,
   ARROW_SHORTEN_FACTOR,
   ARROW_MARKER_WIDTH, ARROW_MARKER_HEIGHT, ARROW_MARKER_REF_X, ARROW_MARKER_REF_Y,
-  UCI_MIN_LEN, TURN_WHITE, TURN_BLACK,
+  UCI_MIN_LEN, TURN_WHITE, toggleTurn,
   INSIGHT_ARROW_OPACITY, INSIGHT_ARROW_DASH,
 } from '../constants.js';
 
@@ -185,7 +185,7 @@ export class ArrowOverlay {
         originRadius,
       });
 
-      turn = turn === TURN_WHITE ? TURN_BLACK : TURN_WHITE;
+      turn = toggleTurn(turn);
     });
   }
 

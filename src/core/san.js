@@ -7,7 +7,7 @@ import { parseUci } from '../lib/uci.js';
 import {
   FILES, BOARD_SIZE, LAST_RANK,
   WHITE_KING, WHITE_QUEEN, WHITE_ROOK, WHITE_BISHOP, WHITE_KNIGHT, WHITE_PAWN,
-  TURN_WHITE, TURN_BLACK,
+  TURN_WHITE, toggleTurn,
   SAN_CASTLE_KING, SAN_CASTLE_QUEEN,
   CASTLING_DISTANCE, KINGSIDE_ROOK_FILE, QUEENSIDE_ROOK_FILE,
   KINGSIDE_ROOK_DEST, QUEENSIDE_ROOK_DEST,
@@ -139,7 +139,7 @@ export function pvToSan(pvMoves, board, startTurn) {
     return {
       sanMoves: acc.sanMoves,
       board: applyUciMove(acc.board, uciMove),
-      turn: acc.turn === TURN_WHITE ? TURN_BLACK : TURN_WHITE,
+      turn: toggleTurn(acc.turn),
     };
   }, { sanMoves: [], board: cloneBoard(board), turn: startTurn });
   return sanMoves;

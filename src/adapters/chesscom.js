@@ -221,15 +221,8 @@ export class ChesscomAdapter extends BoardAdapter {
   }
 
   detectEnPassant(board) {
-    const highlights = document.querySelectorAll(SEL_HIGHLIGHT);
-    if (highlights.length < 2) return '-';
-
-    const squares = reduce(
-      Array.from(highlights),
-      (acc, el) => acc.concat(extractSquares(el)),
-      [],
-    );
-
+    const squares = this._getHighlightedSquares();
+    if (!squares) return '-';
     return detectEnPassantFromSquares(squares, board);
   }
 

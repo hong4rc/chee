@@ -18,6 +18,10 @@ const PIECE_MAP = {
 
 const TRANSFORM_RE = /translate\(\s*([\d.]+)px\s*,\s*([\d.]+)px\s*\)/;
 
+const SEL_MOVES = 'l4x kwdb, .tview2 move';
+const SEL_ACTIVE_MOVE = 'kwdb.a1t, .tview2 move.active';
+const SEL_MOVE_LIST_ROOT = 'l4x, .tview2';
+
 const ORIENT_WHITE = 'white';
 const ORIENT_BLACK = 'black';
 const CLS_ORIENT_WHITE = 'orientation-white';
@@ -93,24 +97,27 @@ export class LichessAdapter extends BoardAdapter {
     return result;
   }
 
-  detectTurn() {
-    // Primary: move list — count half-moves up to the active move
-    const allMoves = document.querySelectorAll('l4x kwdb, .tview2 move');
-    if (allMoves.length > 0) {
-      const activeMove = document.querySelector('kwdb.a1t, .tview2 move.active');
-      if (activeMove) {
-        const index = Array.from(allMoves).indexOf(activeMove);
-        if (index >= 0) {
-          // Even index = white's half-move → black's turn; odd = black's → white's
-          return index % 2 === 0 ? TURN_BLACK : TURN_WHITE;
-        }
-      }
-      // No active marker — use total count (live game at latest move)
-      return allMoves.length % 2 === 0 ? TURN_WHITE : TURN_BLACK;
-    }
+  // Returns { index, total } where index is the 0-based active move index
+  // (-1 if no active marker), total is the move count.
+  _getActiveMoveIndex() {
+    const allMoves = document.querySelectorAll(SEL_MOVES);
+    const total = allMoves.length;
+    if (total === 0) return { index: -1, total: 0 };
 
-    // Fallback: no move list yet (game just started, no moves played)
-    return TURN_WHITE;
+    const activeMove = document.querySelector(SEL_ACTIVE_MOVE);
+    const index = activeMove ? Array.from(allMoves).indexOf(activeMove) : -1;
+    return { index, total };
+  }
+
+  detectTurn() {
+    const { index, total } = this._getActiveMoveIndex();
+    if (total === 0) return TURN_WHITE;
+
+    // Even index = white's half-move → black's turn; odd = black's → white's
+    if (index >= 0) return index % 2 === 0 ? TURN_BLACK : TURN_WHITE;
+
+    // No active marker — use total count (live game at latest move)
+    return total % 2 === 0 ? TURN_WHITE : TURN_BLACK;
   }
 
   _getHighlightedSquares(boardEl) {
@@ -131,47 +138,21 @@ export class LichessAdapter extends BoardAdapter {
   }
 
   detectEnPassant(board) {
-    const boardEl = this.findBoard();
-    if (!boardEl) return '-';
-
-    const sqSize = getSquareSize(boardEl);
-    const orientation = getOrientation(boardEl);
-    const lastMoves = boardEl.querySelectorAll('square.last-move');
-    if (lastMoves.length < 2 || sqSize <= 0) return '-';
-
-    const squares = [];
-    lastMoves.forEach((sq) => {
-      const pos = parseTransform(sq);
-      if (pos) squares.push(pxToSquare(pos.x, pos.y, sqSize, orientation));
-    });
-
+    const squares = this._getHighlightedSquares();
+    if (!squares) return '-';
     return detectEnPassantFromSquares(squares, board);
   }
 
   detectMoveCount() {
-    const moves = document.querySelectorAll('l4x kwdb, .tview2 move');
-    if (moves.length === 0) return 1;
-
-    const activeMove = document.querySelector('kwdb.a1t, .tview2 move.active');
-    if (activeMove) {
-      const idx = Array.from(moves).indexOf(activeMove);
-      if (idx >= 0) return Math.floor(idx / 2) + 1;
-    }
-
-    return Math.floor(moves.length / 2) + 1;
+    const { index, total } = this._getActiveMoveIndex();
+    if (total === 0) return 1;
+    const halfMoves = index >= 0 ? index : total - 1;
+    return Math.floor(halfMoves / 2) + 1;
   }
 
   detectPly() {
-    const moves = document.querySelectorAll('l4x kwdb, .tview2 move');
-    if (moves.length === 0) return 0;
-
-    const activeMove = document.querySelector('kwdb.a1t, .tview2 move.active');
-    if (activeMove) {
-      const idx = Array.from(moves).indexOf(activeMove);
-      if (idx >= 0) return idx + 1;
-    }
-
-    return moves.length;
+    const { index, total } = this._getActiveMoveIndex();
+    return index >= 0 ? index + 1 : total;
   }
 
   getPanelAnchor(boardEl) {
@@ -197,7 +178,7 @@ export class LichessAdapter extends BoardAdapter {
     });
 
     // Also observe the move list so turn detection updates when moves are added
-    const moveList = document.querySelector('l4x, .tview2');
+    const moveList = document.querySelector(SEL_MOVE_LIST_ROOT);
     if (moveList) {
       this._moveListObserver = new MutationObserver(onChange);
       this._moveListObserver.observe(moveList, { childList: true, subtree: true, attributes: true });
