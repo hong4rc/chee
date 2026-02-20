@@ -81,6 +81,15 @@ const log = createDebug('chee:content');
     return arrivedPiece === arrivedPiece.toUpperCase() ? TURN_BLACK : TURN_WHITE;
   }
 
+  function boardsEqual(a, b) {
+    for (let row = 0; row < BOARD_SIZE; row++) {
+      for (let col = 0; col < BOARD_SIZE; col++) {
+        if (a[row][col] !== b[row][col]) return false;
+      }
+    }
+    return true;
+  }
+
   let latestPly = 0;
 
   function readFen() {
@@ -93,6 +102,12 @@ const log = createDebug('chee:content');
     forEach(pieces, (p) => {
       board[LAST_RANK - p.rank][p.file] = p.piece;
     });
+
+    // If the board is unchanged (e.g. game-over UI, clock stop, or other
+    // non-piece DOM mutation triggered the observer), skip re-detection.
+    // Re-running turn detection on an unchanged board falls back to the
+    // adapter's DOM-based detectTurn(), which can read stale game-over state.
+    if (latestBoard && boardsEqual(latestBoard, board)) return null;
 
     // Prefer board-diff turn detection (reliable); fall back to adapter (DOM-based)
     const diffTurn = latestBoard ? detectTurnFromDiff(latestBoard, board) : null;
