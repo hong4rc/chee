@@ -16,6 +16,17 @@ import {
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const TEAM_COLORS = [ARROW_COLOR_WHITE, ARROW_COLOR_BLACK];
 
+// Badge layout (fraction of square size)
+const BADGE_RADIUS = 0.22;
+const BADGE_OFFSET_X = 0.28; // right of center
+const BADGE_OFFSET_Y = 0.28; // above center
+const BADGE_FONT_SIZE = 0.18;
+
+// Scale factors for hint/insight arrows relative to main arrows
+const HINT_SCALE = 0.8;
+const INSIGHT_STROKE_SCALE = 0.6;
+const INSIGHT_ORIGIN_SCALE = 0.7;
+
 function createSvgEl(tag, attrs) {
   const node = document.createElementNS(SVG_NS, tag);
   forEach(attrs, (val, key) => node.setAttribute(key, val));
@@ -215,9 +226,9 @@ export class ArrowOverlay {
 
   _drawBadge(toFile, toRank, sqW, sqH, isFlipped, color, symbol, elClass) {
     const center = squareCenter(toFile, toRank, sqW, sqH, isFlipped);
-    const badgeR = sqW * 0.22;
-    const bx = center.x + sqW * 0.28;
-    const by = center.y - sqH * 0.28;
+    const badgeR = sqW * BADGE_RADIUS;
+    const bx = center.x + sqW * BADGE_OFFSET_X;
+    const by = center.y - sqH * BADGE_OFFSET_Y;
 
     this._svg.appendChild(createSvgEl('circle', {
       cx: bx, cy: by, r: badgeR, fill: color, class: elClass,
@@ -228,7 +239,7 @@ export class ArrowOverlay {
         x: bx,
         y: by,
         fill: '#fff',
-        'font-size': sqW * 0.18,
+        'font-size': sqW * BADGE_FONT_SIZE,
         'font-weight': '700',
         'font-family': '-apple-system, BlinkMacSystemFont, sans-serif',
         'text-anchor': 'middle',
@@ -276,8 +287,8 @@ export class ArrowOverlay {
     appendArrow(this._svg, from, to, {
       color,
       opacity,
-      strokeWidth: strokeWidth * 0.8,
-      originRadius: originRadius * 0.8,
+      strokeWidth: strokeWidth * HINT_SCALE,
+      originRadius: originRadius * HINT_SCALE,
       elClass: 'chee-hint-el',
       markerEnd: `url(#${markerId})`,
     });
@@ -313,8 +324,8 @@ export class ArrowOverlay {
     appendArrow(this._svg, from, to, {
       color,
       opacity: INSIGHT_ARROW_OPACITY,
-      strokeWidth: strokeWidth * 0.6,
-      originRadius: originRadius * 0.7,
+      strokeWidth: strokeWidth * INSIGHT_STROKE_SCALE,
+      originRadius: originRadius * INSIGHT_ORIGIN_SCALE,
       elClass: 'chee-insight-el',
       markerEnd: `url(#${markerId})`,
       dashArray: INSIGHT_ARROW_DASH,

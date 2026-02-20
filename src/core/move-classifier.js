@@ -165,49 +165,67 @@ export class MoveClassifier {
       { cp: data.lines[0].score, m: data.lines[0].mate },
     );
 
-    let insight = null;
-    if ((result.label === LABEL_MISTAKE || result.label === LABEL_BLUNDER)
-      && this._boardBeforeMove && this._prevEval.pv && this._prevEval.pv.length > 0) {
-      const { fromFile, fromRank } = parseUci(this._playedMoveUci);
-      const piece = this._boardBeforeMove[LAST_RANK - fromRank][fromFile];
-      const turn = piece && piece === piece.toUpperCase() ? TURN_WHITE : TURN_BLACK;
-      insight = detectInsight(
-        this._playedMoveUci,
-        this._prevEval.pv[0],
-        this._prevEval.pv,
-        this._boardBeforeMove,
-        turn,
-      );
-    }
-
+    const insight = this._detectInsight(result);
     this._panel.showClassification(result, insight);
 
     if (data.depth >= CLASSIFICATION_LOCK_DEPTH) {
-      const isFlipped = this._adapter.isFlipped(boardEl);
-      this._arrow.drawClassification(
-        this._playedMoveUci,
-        isFlipped,
-        result.color,
-        result.symbol,
-      );
-      const bestUci = (result.label === LABEL_MISTAKE || result.label === LABEL_BLUNDER)
-        && this._prevEval.pv && this._prevEval.pv[0]
-        ? this._prevEval.pv[0] : null;
-      if (bestUci) {
-        this._arrow.drawInsight(bestUci, isFlipped, result.color);
-      }
-      this._cache.set(this._prevPly, {
-        result, moveUci: this._playedMoveUci, insight, bestUci,
-      });
-      this._totalCpLoss += Math.max(0, result.cpLoss);
-      this._moveCount += 1;
-      this._panel.showAccuracy(this.getAccuracy());
-      this._lockedLabel = result.label;
-      log.info('locked at depth', data.depth, 'cached ply:', this._prevPly);
-      this._locked = true;
+      this._lockClassification(result, insight, boardEl, data.depth);
     }
   }
 
+  _detectInsight(result) {
+    if (result.label !== LABEL_MISTAKE && result.label !== LABEL_BLUNDER) return null;
+    if (!this._boardBeforeMove || !this._prevEval.pv || this._prevEval.pv.length === 0) return null;
+
+    const { fromFile, fromRank } = parseUci(this._playedMoveUci);
+    const piece = this._boardBeforeMove[LAST_RANK - fromRank][fromFile];
+    const turn = piece && piece === piece.toUpperCase() ? TURN_WHITE : TURN_BLACK;
+    return detectInsight(
+      this._playedMoveUci,
+      this._prevEval.pv[0],
+      this._prevEval.pv,
+      this._boardBeforeMove,
+      turn,
+    );
+  }
+
+  _lockClassification(result, insight, boardEl, depth) {
+    const isFlipped = this._adapter.isFlipped(boardEl);
+    this._arrow.drawClassification(this._playedMoveUci, isFlipped, result.color, result.symbol);
+
+    const isBlunder = result.label === LABEL_MISTAKE || result.label === LABEL_BLUNDER;
+    const bestUci = isBlunder && this._prevEval.pv && this._prevEval.pv[0]
+      ? this._prevEval.pv[0] : null;
+    if (bestUci) {
+      this._arrow.drawInsight(bestUci, isFlipped, result.color);
+    }
+
+    this._cache.set(this._prevPly, {
+      result, moveUci: this._playedMoveUci, insight, bestUci,
+    });
+    this._totalCpLoss += Math.max(0, result.cpLoss);
+    this._moveCount += 1;
+    this._panel.showAccuracy(this.getAccuracy());
+    this._lockedLabel = result.label;
+    log.info('locked at depth', depth, 'cached ply:', this._prevPly);
+    this._locked = true;
+  }
+
+  _restoreCachedClassification(boardEl, ply) {
+    const cached = this._cache.get(ply);
+    if (!cached) return;
+
+    const isFlipped = this._adapter.isFlipped(boardEl);
+    this._panel.showClassification(cached.result, cached.insight);
+    this._arrow.drawClassification(cached.moveUci, isFlipped, cached.result.color, cached.result.symbol);
+    if (cached.bestUci) {
+      this._arrow.drawInsight(cached.bestUci, isFlipped, cached.result.color);
+    }
+    this._locked = true;
+    log.info('restored cached classification for ply:', ply, cached.result.label);
+  }
+
+  // Accuracy formula: chess.com ACPL model
   getAccuracy() {
     if (this._moveCount === 0) return null;
     const acpl = this._totalCpLoss / this._moveCount;
@@ -235,22 +253,7 @@ export class MoveClassifier {
 
     // Restore cached classification when navigating (revert/forward through history)
     if (!isForward && this._settings.showClassifications) {
-      const cached = this._cache.get(ply);
-      if (cached) {
-        const isFlipped = this._adapter.isFlipped(boardEl);
-        this._panel.showClassification(cached.result, cached.insight);
-        this._arrow.drawClassification(
-          cached.moveUci,
-          isFlipped,
-          cached.result.color,
-          cached.result.symbol,
-        );
-        if (cached.bestUci) {
-          this._arrow.drawInsight(cached.bestUci, isFlipped, cached.result.color);
-        }
-        this._locked = true;
-        log.info('restored cached classification for ply:', ply, cached.result.label);
-      }
+      this._restoreCachedClassification(boardEl, ply);
     }
 
     log(
