@@ -19,6 +19,12 @@ const State = Object.freeze({
   ERROR: 'error',
 });
 
+// Stale eval guard: when a new position is requested, Stockfish restarts from
+// depth 1. Any queued eval messages from the previous analysis have high depth.
+// Reject eval with depth above this threshold until a low-depth eval confirms
+// the fresh analysis has started.
+const STALE_DEPTH_THRESHOLD = 2;
+
 export class Engine extends Emitter {
   constructor() {
     super();
@@ -27,6 +33,7 @@ export class Engine extends Emitter {
     this._currentFen = null;
     this._pendingFen = null;
     this._recoverTimer = null;
+    this._depthGuard = false;
   }
 
   get state() { return this._state; }
@@ -107,6 +114,7 @@ export class Engine extends Emitter {
     log('analyzing:', fen);
     this._state = State.ANALYZING;
     this._currentFen = fen;
+    this._depthGuard = true;
     this._worker.postMessage({ type: MSG_POSITION, fen });
   }
 
@@ -162,6 +170,13 @@ export class Engine extends Emitter {
         this.analyze(fen);
       }
     } else if (msg.type === MSG_EVAL) {
+      if (this._depthGuard) {
+        if (msg.depth > STALE_DEPTH_THRESHOLD) {
+          log('dropping stale eval, depth:', msg.depth);
+          return;
+        }
+        this._depthGuard = false;
+      }
       if (msg.complete) this._state = State.READY;
       this.emit(EVT_EVAL, msg);
     } else if (msg.type === MSG_ERROR) {
