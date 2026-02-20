@@ -1,9 +1,11 @@
 // Encapsulates move classification state and logic.
 // Compares eval before/after each board change to label the played move.
+// Emits events instead of calling panel/arrow directly.
 
 import { find } from 'lodash-es';
 import createDebug from '../lib/debug.js';
 import { LruCache } from '../lib/lru.js';
+import { Emitter } from '../lib/emitter.js';
 import { parseUci } from '../lib/uci.js';
 import { classify } from './classify.js';
 import { detectInsight } from './insight.js';
@@ -15,6 +17,7 @@ import {
   WHITE_KING, BLACK_KING,
   WHITE_QUEEN, BLACK_QUEEN, WHITE_ROOK, BLACK_ROOK,
   WHITE_BISHOP, BLACK_BISHOP, WHITE_KNIGHT, BLACK_KNIGHT,
+  EVT_CLASSIFY_SHOW, EVT_CLASSIFY_CLEAR, EVT_CLASSIFY_LOCK, EVT_ACCURACY_UPDATE,
 } from '../constants.js';
 
 const CLASSIFICATION_CACHE_SIZE = 512;
@@ -35,9 +38,9 @@ const PROMO_SUFFIX = {
 
 // ─── Board diff → UCI move detection ────────────────────────
 function detectMoveFromBoards(prevBoard, currBoard) {
-  const disappeared = []; // had piece, now empty
-  const appeared = []; // was empty, now has piece
-  const changed = []; // had piece A, now has piece B (capture onto occupied square)
+  const disappeared = [];
+  const appeared = [];
+  const changed = [];
 
   for (let row = 0; row < BOARD_SIZE; row++) {
     for (let col = 0; col < BOARD_SIZE; col++) {
@@ -58,8 +61,7 @@ function detectMoveFromBoards(prevBoard, currBoard) {
     }
   }
 
-  // Normal move: piece leaves one square, arrives on empty square
-  // Normal capture via "changed": piece leaves, replaces opponent piece
+  // Normal move or capture
   if (disappeared.length === 1 && appeared.length + changed.length === 1) {
     const to = appeared[0]
       ? { file: appeared[0].file, rank: appeared[0].rank, piece: appeared[0].piece }
@@ -67,7 +69,7 @@ function detectMoveFromBoards(prevBoard, currBoard) {
     return { from: disappeared[0], to };
   }
 
-  // Castling: king + rook both move (2 disappear, 2 appear)
+  // Castling
   if (disappeared.length === 2 && appeared.length === 2) {
     const king = find(disappeared, (d) => d.piece === WHITE_KING || d.piece === BLACK_KING);
     if (king) {
@@ -76,7 +78,7 @@ function detectMoveFromBoards(prevBoard, currBoard) {
     }
   }
 
-  // En passant: pawn moves diagonally, captured pawn disappears (2 disappear, 1 appears)
+  // En passant
   if (disappeared.length === 2 && appeared.length === 1) {
     const dest = appeared[0];
     const mover = find(disappeared, (d) => (
@@ -95,7 +97,6 @@ function boardDiffToUci(prevBoard, currBoard) {
   let uci = FILES[move.from.file] + (move.from.rank + 1)
     + FILES[move.to.file] + (move.to.rank + 1);
 
-  // Promotion: pawn arrived but piece type changed
   if (move.from.piece.toLowerCase() === BLACK_PAWN && move.to.piece.toLowerCase() !== BLACK_PAWN) {
     uci += PROMO_SUFFIX[move.to.piece] || '';
   }
@@ -105,12 +106,9 @@ function boardDiffToUci(prevBoard, currBoard) {
 
 // ─── Classifier ─────────────────────────────────────────────
 
-export class MoveClassifier {
-  constructor({
-    panel, arrow, adapter, settings,
-  }) {
-    this._panel = panel;
-    this._arrow = arrow;
+export class MoveClassifier extends Emitter {
+  constructor({ adapter, settings }) {
+    super();
     this._adapter = adapter;
     this._settings = settings;
 
@@ -132,12 +130,6 @@ export class MoveClassifier {
     return this._lockedLabel === LABEL_MISTAKE || this._lockedLabel === LABEL_BLUNDER;
   }
 
-  _clearVisuals() {
-    this._panel.clearClassification();
-    this._arrow.clearClassification();
-    this._arrow.clearInsight();
-  }
-
   initFen(fen, board, ply) {
     this._prevFen = fen;
     this._prevBoard = board || null;
@@ -145,7 +137,7 @@ export class MoveClassifier {
     log('initFen:', fen, 'ply:', this._prevPly);
   }
 
-  onEval(data, boardEl) {
+  onEval(data) {
     if (!data.lines || data.lines.length === 0) return;
 
     this._latestEval = {
@@ -177,10 +169,10 @@ export class MoveClassifier {
     );
 
     const insight = this._detectInsight(result);
-    this._panel.showClassification(result, insight);
+    this.emit(EVT_CLASSIFY_SHOW, { result, insight });
 
     if (data.depth >= CLASSIFICATION_LOCK_DEPTH) {
-      this._lockClassification(result, insight, boardEl, data.depth);
+      this._lockClassification(result, insight, data.depth);
     }
   }
 
@@ -200,40 +192,28 @@ export class MoveClassifier {
     );
   }
 
-  _lockClassification(result, insight, boardEl, depth) {
-    const isFlipped = this._adapter.isFlipped(boardEl);
-    this._arrow.drawClassification(this._playedMoveUci, isFlipped, result.color, result.symbol);
-
+  _lockClassification(result, insight, depth) {
     const isBlunder = result.label === LABEL_MISTAKE || result.label === LABEL_BLUNDER;
     const bestUci = isBlunder && this._prevEval.pv && this._prevEval.pv[0]
       ? this._prevEval.pv[0] : null;
-    if (bestUci) {
-      this._arrow.drawInsight(bestUci, isFlipped, result.color);
-    }
 
     this._cache.set(this._prevPly, {
       result, moveUci: this._playedMoveUci, insight, bestUci,
     });
     this._totalCpLoss += Math.max(0, result.cpLoss);
     this._moveCount += 1;
-    this._panel.showAccuracy(this.getAccuracy());
     this._lockedLabel = result.label;
     log.info('locked at depth', depth, 'cached ply:', this._prevPly);
     this._locked = true;
+
+    this.emit(EVT_CLASSIFY_LOCK, {
+      result, moveUci: this._playedMoveUci, insight, bestUci,
+    });
+    this.emit(EVT_ACCURACY_UPDATE, this.getAccuracy());
   }
 
-  _restoreCachedClassification(boardEl, ply) {
-    const cached = this._cache.get(ply);
-    if (!cached) return;
-
-    const isFlipped = this._adapter.isFlipped(boardEl);
-    this._panel.showClassification(cached.result, cached.insight);
-    this._arrow.drawClassification(cached.moveUci, isFlipped, cached.result.color, cached.result.symbol);
-    if (cached.bestUci) {
-      this._arrow.drawInsight(cached.bestUci, isFlipped, cached.result.color);
-    }
-    this._locked = true;
-    log.info('restored cached classification for ply:', ply, cached.result.label);
+  _getCachedClassification(ply) {
+    return this._cache.get(ply);
   }
 
   // Accuracy formula: chess.com ACPL model
@@ -244,7 +224,7 @@ export class MoveClassifier {
     return Math.round(Math.min(100, Math.max(0, raw)));
   }
 
-  onBoardChange(fen, boardEl, board, ply) {
+  onBoardChange(fen, board, ply) {
     if (fen === this._prevFen) return;
 
     this._lockedLabel = null;
@@ -252,19 +232,23 @@ export class MoveClassifier {
 
     this._prevEval = this._latestEval ? { ...this._latestEval } : null;
     this._boardBeforeMove = this._prevBoard;
-    // Only detect a played move when ply advances (new move, not revert/navigation)
     this._playedMoveUci = isForward && this._prevBoard && board
       ? boardDiffToUci(this._prevBoard, board)
       : null;
     this._locked = false;
-    this._clearVisuals();
+    this.emit(EVT_CLASSIFY_CLEAR);
     this._prevFen = fen;
     this._prevBoard = board || null;
     this._prevPly = ply || 0;
 
     // Restore cached classification when navigating (revert/forward through history)
     if (!isForward && this._settings.showClassifications) {
-      this._restoreCachedClassification(boardEl, ply);
+      const cached = this._getCachedClassification(ply);
+      if (cached) {
+        this.emit(EVT_CLASSIFY_LOCK, cached);
+        this._locked = true;
+        log.info('restored cached classification for ply:', ply, cached.result.label);
+      }
     }
 
     log(
@@ -281,7 +265,7 @@ export class MoveClassifier {
   }
 
   setEnabled(enabled) {
-    if (!enabled) this._clearVisuals();
+    if (!enabled) this.emit(EVT_CLASSIFY_CLEAR);
   }
 
   clearCache() {
@@ -289,7 +273,7 @@ export class MoveClassifier {
   }
 
   destroy() {
-    this._clearVisuals();
+    this.emit(EVT_CLASSIFY_CLEAR);
     this._latestEval = null;
     this._prevEval = null;
     this._prevFen = null;
@@ -301,5 +285,6 @@ export class MoveClassifier {
     this._cache.clear();
     this._totalCpLoss = 0;
     this._moveCount = 0;
+    this.removeAllListeners();
   }
 }

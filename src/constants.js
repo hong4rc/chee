@@ -53,6 +53,14 @@ export const EVT_EVAL = 'eval';
 export const EVT_ERROR = 'error';
 export const EVT_LINE_HOVER = 'line:hover';
 export const EVT_LINE_LEAVE = 'line:leave';
+export const EVT_CLASSIFY_SHOW = 'classify:show';
+export const EVT_CLASSIFY_CLEAR = 'classify:clear';
+export const EVT_CLASSIFY_LOCK = 'classify:lock';
+export const EVT_ACCURACY_UPDATE = 'accuracy:update';
+
+// ─── Plugin names ───────────────────────────────────────────
+export const PLUGIN_CLASSIFICATION = 'classification';
+export const PLUGIN_HINT = 'hint';
 
 // ─── Worker message types ────────────────────────────────────
 export const MSG_SETUP = '__setup';
