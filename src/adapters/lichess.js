@@ -1,10 +1,13 @@
 // Lichess adapter: chessground DOM, piece parsing, turn/EP detection
 
+import createDebug from '../lib/debug.js';
 import { BoardAdapter, detectEnPassantFromSquares } from './base.js';
 import {
   BOARD_SIZE, TURN_WHITE, TURN_BLACK,
   BLACK_KING, BLACK_QUEEN, BLACK_ROOK, BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN,
 } from '../constants.js';
+
+const log = createDebug('chee:lichess');
 
 // Chessground piece class → FEN char
 const PIECE_MAP = {
@@ -80,15 +83,18 @@ export class LichessAdapter extends BoardAdapter {
 
     pieces.forEach((el) => {
       const pos = parseTransform(el);
-      if (!pos) return;
+      if (!pos) { log.warn('skipping piece: no transform', el.getAttribute('style')); return; }
 
       const classes = el.className.split(/\s+/);
       const isWhite = classes.includes(CLS_PIECE_WHITE);
       const type = classes.find((c) => PIECE_MAP[c]);
-      if (!type) return;
+      if (!type) { log.warn('skipping piece: unknown type', el.className); return; }
 
       const { file, rank } = pxToSquare(pos.x, pos.y, sqSize, orientation);
-      if (file < 0 || file >= BOARD_SIZE || rank < 0 || rank >= BOARD_SIZE) return;
+      if (file < 0 || file >= BOARD_SIZE || rank < 0 || rank >= BOARD_SIZE) {
+        log.warn('skipping piece: out of bounds', { file, rank });
+        return;
+      }
 
       const piece = isWhite ? PIECE_MAP[type].toUpperCase() : PIECE_MAP[type];
       result.push({ piece, file, rank });

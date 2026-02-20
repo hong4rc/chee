@@ -233,6 +233,7 @@ export class Panel extends Emitter {
     this._chartSvg = null;
     this._chartWhite = null;
     this._chartCursor = null;
+    this._lineEls = null;
   }
 
   setBoard(board, turn, fen) {
@@ -381,7 +382,8 @@ export class Panel extends Emitter {
   }
 
   _bindLineListeners() {
-    const lineEls = this._el.querySelectorAll('.chee-line');
+    this._lineEls = this._el.querySelectorAll('.chee-line');
+    const lineEls = this._lineEls;
     forEach(lineEls, (lineEl, i) => {
       lineEl.addEventListener('mouseover', (e) => {
         const moveSpan = e.target.closest('.chee-move');
@@ -515,7 +517,7 @@ export class Panel extends Emitter {
   }
 
   _updateLineRows(lines) {
-    const lineEls = this._el.querySelectorAll('.chee-line');
+    const lineEls = this._lineEls;
     times(this._numLines, (i) => {
       if (!lineEls[i]) return;
       const line = i < lines.length ? lines[i] : null;

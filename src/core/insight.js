@@ -2,11 +2,10 @@
 // Compares played UCI move with engine's best to explain what the player was trying to do.
 
 import { uciToSan } from './san.js';
-
-const UCI_MIN = 4;
+import { UCI_MIN_LEN } from '../constants.js';
 
 export function detectInsight(playedUci, bestUci, bestPv, board, turn) {
-  if (!playedUci || !bestUci || playedUci.length < UCI_MIN || bestUci.length < UCI_MIN) return null;
+  if (!playedUci || !bestUci || playedUci.length < UCI_MIN_LEN || bestUci.length < UCI_MIN_LEN) return null;
 
   const playedFrom = playedUci.slice(0, 2);
   const playedTo = playedUci.slice(2, 4);

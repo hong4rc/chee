@@ -11,24 +11,29 @@ import {
   CLASSIFICATION_MIN_DEPTH,
 } from '../constants.js';
 
+// Compute centipawn loss from the side-to-move's perspective.
+// Scores are from each side-to-move's POV: prevScore is before the move,
+// currScore is after (opponent's perspective, so positive = opponent happy).
+// cpLoss = prevScore + currScore; a perfect move gives ~0.
 export function computeCpLoss(prevScore, prevMate, currScore, currMate) {
-  // Had forced mate, check if we kept it
   if (prevMate !== null && prevMate > 0) {
-    // currMate < 0 = opponent being mated = still winning
-    if (currMate !== null && currMate < 0) return 0;
-    return CLASSIFICATION_MATE_LOSS;
+    // We had a forced mate. If opponent is still being mated, no loss;
+    // otherwise we lost the mate — maximum penalty.
+    return (currMate !== null && currMate < 0) ? 0 : CLASSIFICATION_MATE_LOSS;
   }
 
-  // Was being mated — any move is no additional loss
-  if (prevMate !== null && prevMate < 0) return 0;
+  if (prevMate !== null && prevMate < 0) {
+    // We were being mated — can't lose what we don't have.
+    return 0;
+  }
 
-  // Normal prev score → now mate
   if (currMate !== null) {
-    // currMate > 0 = opponent has forced mate = blunder
+    // Normal position → mate. currMate > 0 means opponent has forced mate
+    // against us (blunder); currMate < 0 means we found mate (gain).
     return currMate > 0 ? CLASSIFICATION_MATE_LOSS : 0;
   }
 
-  // Both normal centipawn: cpLoss = prevScore + currScore (both side-to-move)
+  // Both normal centipawn evaluations.
   return prevScore + currScore;
 }
 

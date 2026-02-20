@@ -10,7 +10,7 @@ import {
   BOARD_SIZE, LAST_RANK, FILES,
   CLASSIFICATION_MIN_DEPTH, CLASSIFICATION_LOCK_DEPTH,
   LABEL_MISTAKE, LABEL_BLUNDER,
-  TURN_WHITE, TURN_BLACK,
+  TURN_WHITE, TURN_BLACK, BLACK_PAWN,
 } from '../constants.js';
 
 const CLASSIFICATION_CACHE_SIZE = 512;
@@ -69,7 +69,7 @@ function detectMoveFromBoards(prevBoard, currBoard) {
   if (disappeared.length === 2 && appeared.length === 1) {
     const dest = appeared[0];
     const mover = disappeared.find((d) => (
-      d.piece.toLowerCase() === 'p' && Math.abs(d.file - dest.file) === 1
+      d.piece.toLowerCase() === BLACK_PAWN && Math.abs(d.file - dest.file) === 1
     ));
     if (mover) return { from: mover, to: { file: dest.file, rank: dest.rank, piece: dest.piece } };
   }
@@ -85,7 +85,7 @@ function boardDiffToUci(prevBoard, currBoard) {
     + FILES[move.to.file] + (move.to.rank + 1);
 
   // Promotion: pawn arrived but piece type changed
-  if (move.from.piece.toLowerCase() === 'p' && move.to.piece.toLowerCase() !== 'p') {
+  if (move.from.piece.toLowerCase() === BLACK_PAWN && move.to.piece.toLowerCase() !== BLACK_PAWN) {
     uci += PROMO_SUFFIX[move.to.piece] || '';
   }
 

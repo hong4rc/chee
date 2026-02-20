@@ -226,30 +226,27 @@ export class ChesscomAdapter extends BoardAdapter {
     return detectEnPassantFromSquares(squares, board);
   }
 
-  detectMoveCount() {
+  // Returns { index, total } where index is the 0-based active node index
+  // (-1 if no active node), total is the move node count.
+  _getActiveNodeIndex() {
     const moveNodes = document.querySelectorAll(SEL_MOVE_LIST);
+    const total = moveNodes.length;
     const selectedContent = document.querySelector(SEL_SELECTED_MOVE);
     const activeNode = selectedContent ? selectedContent.closest('.node') : null;
+    const index = activeNode ? Array.from(moveNodes).indexOf(activeNode) : -1;
+    return { index, total };
+  }
 
-    if (activeNode) {
-      const idx = Array.from(moveNodes).indexOf(activeNode);
-      if (idx >= 0) return Math.floor(idx / 2) + 1;
-    }
-
-    return Math.floor(moveNodes.length / 2) + 1;
+  detectMoveCount() {
+    const { index, total } = this._getActiveNodeIndex();
+    if (total === 0) return 1;
+    const halfMoves = index >= 0 ? index : total - 1;
+    return Math.floor(halfMoves / 2) + 1;
   }
 
   detectPly() {
-    const moveNodes = document.querySelectorAll(SEL_MOVE_LIST);
-    const selectedContent = document.querySelector(SEL_SELECTED_MOVE);
-    const activeNode = selectedContent ? selectedContent.closest('.node') : null;
-
-    if (activeNode) {
-      const idx = Array.from(moveNodes).indexOf(activeNode);
-      if (idx >= 0) return idx + 1;
-    }
-
-    return moveNodes.length;
+    const { index, total } = this._getActiveNodeIndex();
+    return index >= 0 ? index + 1 : total;
   }
 
   getPanelAnchor(boardEl) {
@@ -344,21 +341,19 @@ export class ChesscomAdapter extends BoardAdapter {
   }
 
   _detectTurnFromMoveList() {
-    // Prefer the currently selected move (important for game review / analysis)
-    const selectedContent = document.querySelector(SEL_SELECTED_MOVE);
-    const activeNode = selectedContent ? selectedContent.closest('.node') : null;
+    const { index, total } = this._getActiveNodeIndex();
+    if (total === 0) return TURN_WHITE;
 
-    // Fallback: last move in the list (live game at latest position)
+    // Find the active node (selected or last)
     const moveNodes = document.querySelectorAll(SEL_MOVE_LIST);
-    const node = activeNode || moveNodes[moveNodes.length - 1];
+    const node = index >= 0 ? moveNodes[index] : moveNodes[total - 1];
 
     if (node) {
       if (node.classList.contains(CLS_WHITE_MOVE)) return TURN_BLACK;
       if (node.classList.contains(CLS_BLACK_MOVE)) return TURN_WHITE;
     }
 
-    if (moveNodes.length === 0) return TURN_WHITE;
-    return moveNodes.length % 2 === 0 ? TURN_WHITE : TURN_BLACK;
+    return total % 2 === 0 ? TURN_WHITE : TURN_BLACK;
   }
 
   _exploreDOM(root, depth, maxDepth) {
