@@ -5,6 +5,7 @@ import {
   times, constant, forEach, find,
 } from 'lodash-es';
 import createDebug from './lib/debug.js';
+import { LruCache } from './lib/lru.js';
 import pollUntil from './lib/poll.js';
 import { loadSettings } from './lib/settings.js';
 import { applyTheme } from './lib/themes.js';
@@ -46,6 +47,8 @@ const log = createDebug('chee:content');
   let debounceTimer = null;
   let latestBoard = null;
   let currentHint = null; // { uci, color, symbol } — pre-move hint, one object only
+  const evalCache = new LruCache(256);
+  let activeFen = null;
 
   function cleanup() {
     clearTimeout(debounceTimer);
@@ -143,11 +146,17 @@ const log = createDebug('chee:content');
     }
   }
 
-  function onEvalData(data) {
+  function applyEval(data) {
     panel.updateEval(data);
     classifier.onEval(data, boardEl);
     updateHint(data);
     panel.recordScore(latestPly, data);
+  }
+
+  function onEvalData(data) {
+    if (engine.currentFen !== activeFen) return;
+    applyEval(data);
+    evalCache.set(activeFen, data);
   }
 
   function onBoardChange() {
@@ -158,7 +167,15 @@ const log = createDebug('chee:content');
       arrow.clearHint();
       currentHint = null;
       classifier.onBoardChange(fen, boardEl, latestBoard, latestPly);
-      engine.analyze(fen);
+      activeFen = fen;
+
+      const cached = evalCache.get(fen);
+      if (cached) {
+        engine.stop();
+        applyEval(cached);
+      } else {
+        engine.analyze(fen);
+      }
     }, DEBOUNCE_MS);
   }
 
@@ -204,6 +221,7 @@ const log = createDebug('chee:content');
         log.info('Pieces appeared! FEN:', fen);
         clearInterval(pieceInterval);
         classifier.initFen(fen, latestBoard, latestPly);
+        activeFen = fen;
         engine.analyze(fen);
         return;
       }
@@ -241,6 +259,7 @@ const log = createDebug('chee:content');
     log.info('Initial FEN:', fen);
     if (fen) {
       classifier.initFen(fen, latestBoard, latestPly);
+      activeFen = fen;
       engine.analyze(fen);
     } else {
       log.warn('No pieces yet, polling...');
@@ -270,6 +289,7 @@ const log = createDebug('chee:content');
     panel.reconfigure(settings.numLines);
     panel.clearScores();
     classifier.clearCache();
+    evalCache.clear();
 
     engine.destroy();
     engine = new Engine();
