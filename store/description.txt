@@ -1,0 +1,27 @@
+Chee adds a real-time analysis panel to your chess games on Chess.com and Lichess.org.
+
+It runs Stockfish (one of the strongest chess engines) entirely in your browser using WebAssembly — no server, no account, no data sent anywhere.
+
+Features:
+• Multi-line analysis — see the top 3-5 best moves and continuations
+• Adjustable search depth (19-22 ply)
+• Eval bar showing who's winning at a glance
+• Arrow overlays on the board for suggested moves
+• Move classifications — Brilliant, Crazy, Best, Excellent, Good, Inaccuracy, Mistake, Blunder
+• Crazy sacrifice detection — flags material sacrifices that maintain evaluation
+• Blunder guard — warns when you click a piece not in any top engine line
+• Eval score chart — SVG area chart plotting eval over the game
+• PGN export — copy annotated PGN with eval comments and classification symbols
+• Accuracy tracker — running accuracy percentage in the status bar
+• Tactical insights — dashed arrows show the best move after Mistakes and Blunders
+• Pre-move hints — see the engine's best move or classification-based hint arrows
+• Opening name display — ECO opening lookup for recognized positions
+• Copy FEN to clipboard with one click
+• Minimize or hide the panel when you don't need it
+• Catppuccin theme system — Latte, Frappé, Macchiato, Mocha, or auto-match the site theme
+
+Supported sites:
+• chess.com — live games (/game/*, /play/*)
+• lichess.org — all game pages
+
+All analysis runs locally in your browser. No data is collected or transmitted.
