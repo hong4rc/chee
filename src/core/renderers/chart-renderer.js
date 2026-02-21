@@ -51,9 +51,14 @@ export class ChartRenderer {
   }
 
   bind(panelEl) {
+    this._container = panelEl.querySelector('.chee-chart');
     this._chartSvg = panelEl.querySelector('.chee-chart svg');
     this._chartWhite = this._chartSvg?.querySelector('.chee-chart-white');
     this._chartCursor = this._chartSvg?.querySelector('.chee-chart-cursor');
+  }
+
+  setVisible(show) {
+    if (this._container) this._container.style.display = show ? '' : 'none';
   }
 
   recordScore(ply, data, turn) {

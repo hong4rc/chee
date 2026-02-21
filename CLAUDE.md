@@ -157,7 +157,7 @@ Three-segment bar showing Win/Draw/Loss percentages. Uses sigmoid model: `winRaw
 
 ### Eval score chart
 
-SVG area chart plotting white-perspective eval at each ply. White area fills from bottom up to the score line (more white = white winning). Dark background = black's territory. Orange cursor line marks current ply. Scores clamped to ±500cp, mate = ±500. Updates live as engine depth increases, persists through navigation.
+SVG area chart plotting white-perspective eval at each ply. Togglable via popup (`showChart`, default on). White area fills from bottom up to the score line (more white = white winning). Dark background = black's territory. Orange cursor line marks current ply. Scores clamped to ±500cp, mate = ±500. Updates live as engine depth increases, persists through navigation.
 
 ### Accuracy tracker
 

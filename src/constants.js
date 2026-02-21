@@ -83,6 +83,7 @@ export const SETTINGS_DEFAULTS = {
   showClassifications: false,
   showBestMove: false,
   showGuard: false,
+  showChart: true,
   debugMode: false,
 };
 

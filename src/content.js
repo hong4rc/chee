@@ -51,6 +51,7 @@ const log = createDebug('chee:content');
     if (changes.showClassifications) update.showClassifications = changes.showClassifications.newValue;
     if (changes.showBestMove) update.showBestMove = changes.showBestMove.newValue;
     if (changes.showGuard) update.showGuard = changes.showGuard.newValue;
+    if (changes.showChart) update.showChart = changes.showChart.newValue;
     if (changes.debugMode) update.debugMode = changes.debugMode.newValue;
     if (Object.keys(update).length) coordinator.applySettings(update);
   });

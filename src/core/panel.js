@@ -135,6 +135,10 @@ export class Panel extends Emitter {
     this._chart.clearScores();
   }
 
+  setShowChart(show) {
+    this._chart.setVisible(show);
+  }
+
   reconfigure(numLines) {
     if (numLines === this._numLines) return;
     this._numLines = numLines;

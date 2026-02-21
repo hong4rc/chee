@@ -41,6 +41,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     chrome.storage.sync.set({ showGuard: guardCheckbox.checked });
   });
 
+  // Chart toggle
+  const chartCheckbox = document.getElementById('show-chart');
+  chartCheckbox.checked = settings.showChart;
+  chartCheckbox.addEventListener('change', () => {
+    chrome.storage.sync.set({ showChart: chartCheckbox.checked });
+  });
+
   // Debug toggle
   const debugCheckbox = document.getElementById('debug-mode');
   debugCheckbox.checked = settings.debugMode;
