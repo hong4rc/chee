@@ -6,12 +6,13 @@ import createDebug from '../lib/debug.js';
 import { LruCache } from '../lib/lru.js';
 import { Emitter } from '../lib/emitter.js';
 import { parseUci } from '../lib/uci.js';
-import { classify } from './classify.js';
+import { classify, detectSacrifice } from './classify.js';
 import { detectInsight } from './insight.js';
 import { boardDiffToUci } from './board-diff.js';
 import {
   LAST_RANK,
   CLASSIFICATION_MIN_DEPTH, CLASSIFICATION_LOCK_DEPTH,
+  CLASSIFICATION_CRAZY, CRAZY_MIN_SACRIFICE, CRAZY_MAX_CP_LOSS,
   LABEL_MISTAKE, LABEL_BLUNDER,
   TURN_WHITE, TURN_BLACK,
   EVT_CLASSIFY_SHOW, EVT_CLASSIFY_CLEAR, EVT_CLASSIFY_LOCK, EVT_ACCURACY_UPDATE,
@@ -69,7 +70,16 @@ export class MoveClassifier extends Emitter {
     if (data.depth < CLASSIFICATION_MIN_DEPTH) return;
     if (this._prevEval.depth < CLASSIFICATION_MIN_DEPTH) return;
 
-    const result = classify(this._prevEval, data.lines[0], this._playedMoveUci);
+    let result = classify(this._prevEval, data.lines[0], this._playedMoveUci);
+
+    // Upgrade to Crazy if the move is a material sacrifice that's objectively good
+    if (this._settings.showCrazy && result.cpLoss <= CRAZY_MAX_CP_LOSS && this._boardBeforeMove && this._prevBoard) {
+      const sacrifice = detectSacrifice(this._boardBeforeMove, this._prevBoard, this._playedMoveUci, data.lines[0].pv);
+      if (sacrifice >= CRAZY_MIN_SACRIFICE) {
+        result = { ...CLASSIFICATION_CRAZY, cpLoss: result.cpLoss };
+      }
+    }
+
     log.info(
       'classify:',
       result.label,

@@ -81,6 +81,7 @@ export const SETTINGS_DEFAULTS = {
   searchDepth: SEARCH_DEPTH,
   theme: 'site',
   showClassifications: false,
+  showCrazy: false,
   showBestMove: false,
   showGuard: false,
   showChart: true,
@@ -94,6 +95,8 @@ export const CLASSIFICATION_MIN_DEPTH = 10;
 export const CLASSIFICATION_LOCK_DEPTH = 16;
 export const CLASSIFICATION_MATE_LOSS = 1000;
 export const CLASSIFICATION_BRILLIANT_THRESHOLD = -50;
+export const CRAZY_MIN_SACRIFICE = 3;
+export const CRAZY_MAX_CP_LOSS = 30;
 
 // Classification labels
 export const LABEL_BRILLIANT = 'Brilliant';
@@ -102,10 +105,12 @@ export const LABEL_EXCELLENT = 'Excellent';
 export const LABEL_GOOD = 'Good';
 export const LABEL_INACCURACY = 'Inaccuracy';
 export const LABEL_MISTAKE = 'Mistake';
+export const LABEL_CRAZY = 'Crazy';
 export const LABEL_BLUNDER = 'Blunder';
 
 export const CLASSIFICATION_BRILLIANT = { label: LABEL_BRILLIANT, symbol: '!!', color: '#1baca6' };
 export const CLASSIFICATION_BEST = { label: LABEL_BEST, symbol: '\u2605', color: '#96bc4b' };
+export const CLASSIFICATION_CRAZY = { label: LABEL_CRAZY, symbol: '!?', color: '#d946ef' };
 export const CLASSIFICATION_BLUNDER = { label: LABEL_BLUNDER, symbol: '??', color: '#ca3431' };
 export const CLASSIFICATION_THRESHOLDS = [
   {
@@ -127,6 +132,7 @@ export const PGN_NAGS = {
   [LABEL_BRILLIANT]: '$3',
   [LABEL_BEST]: '$1',
   [LABEL_EXCELLENT]: '$1',
+  [LABEL_CRAZY]: '$5',
   [LABEL_INACCURACY]: '$6',
   [LABEL_MISTAKE]: '$2',
   [LABEL_BLUNDER]: '$4',

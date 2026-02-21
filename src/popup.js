@@ -27,6 +27,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     chrome.storage.sync.set({ showClassifications: classifyCheckbox.checked });
   });
 
+  // Crazy toggle
+  const crazyCheckbox = document.getElementById('show-crazy');
+  crazyCheckbox.checked = settings.showCrazy;
+  crazyCheckbox.addEventListener('change', () => {
+    chrome.storage.sync.set({ showCrazy: crazyCheckbox.checked });
+  });
+
   // Best move toggle
   const bestMoveCheckbox = document.getElementById('show-best-move');
   bestMoveCheckbox.checked = settings.showBestMove;

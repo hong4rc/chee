@@ -186,7 +186,7 @@ Each analysis line shows its own eval score badge (cp or mate) next to the rank 
 - Board diff detects played move (no DOM highlight dependency)
 - Classification starts at depth 10 (panel badge only), locks at depth 16 (board icon appears)
 - Both `prevEval` and current eval must have `depth >= CLASSIFICATION_MIN_DEPTH` — shallow evals produce false classifications
-- Tiers: Brilliant (`!!`, teal, cpLoss ≤ −50 and not engine's #1), Best (`★`, green, engine's PV[0]), Excellent (`✓`, green, ≤10cp), Good (muted green, ≤30), Inaccuracy (`?!`, yellow, ≤80), Mistake (`✕`, orange, ≤200), Blunder (`??`, red, >200)
+- Tiers: Brilliant (`!!`, teal, cpLoss ≤ −50 and not engine's #1), Crazy (`!?`, purple, sacrifice ≥ 3 material and cpLoss ≤ 30), Best (`★`, green, engine's PV[0]), Excellent (`✓`, green, ≤10cp), Good (muted green, ≤30), Inaccuracy (`?!`, yellow, ≤80), Mistake (`✕`, orange, ≤200), Blunder (`??`, red, >200)
 
 ### Insight arrows
 
