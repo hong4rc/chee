@@ -13,7 +13,7 @@ import {
   LAST_RANK,
   CLASSIFICATION_MIN_DEPTH, CLASSIFICATION_LOCK_DEPTH,
   CLASSIFICATION_CRAZY, CRAZY_MIN_SACRIFICE, CRAZY_MAX_CP_LOSS,
-  LABEL_MISTAKE, LABEL_BLUNDER,
+  LABEL_CRAZY, LABEL_MISTAKE, LABEL_BLUNDER,
   TURN_WHITE, TURN_BLACK,
   EVT_CLASSIFY_SHOW, EVT_CLASSIFY_CLEAR, EVT_CLASSIFY_LOCK, EVT_ACCURACY_UPDATE,
 } from '../constants.js';
@@ -65,7 +65,7 @@ export class MoveClassifier extends Emitter {
       depth: data.depth,
     };
 
-    if (!this._settings.showClassifications) return;
+    if (!this._settings.showClassifications && !this._settings.showCrazy) return;
     if (!this._prevEval || !this._playedMoveUci || this._locked) return;
     if (data.depth < CLASSIFICATION_MIN_DEPTH) return;
     if (this._prevEval.depth < CLASSIFICATION_MIN_DEPTH) return;
@@ -79,6 +79,9 @@ export class MoveClassifier extends Emitter {
         result = { ...CLASSIFICATION_CRAZY, cpLoss: result.cpLoss };
       }
     }
+
+    // In Crazy-only mode, skip non-Crazy classifications
+    if (!this._settings.showClassifications && result.label !== LABEL_CRAZY) return;
 
     log.info(
       'classify:',
@@ -127,8 +130,10 @@ export class MoveClassifier extends Emitter {
     this._cache.set(this._prevPly, {
       result, moveUci: this._playedMoveUci, insight, bestUci,
     });
-    this._totalCpLoss += Math.max(0, result.cpLoss);
-    this._moveCount += 1;
+    if (this._settings.showClassifications) {
+      this._totalCpLoss += Math.max(0, result.cpLoss);
+      this._moveCount += 1;
+    }
     this._lockedLabel = result.label;
     log.info('locked at depth', depth, 'cached ply:', this._prevPly);
     this._locked = true;
@@ -136,7 +141,9 @@ export class MoveClassifier extends Emitter {
     this.emit(EVT_CLASSIFY_LOCK, {
       result, moveUci: this._playedMoveUci, insight, bestUci,
     });
-    this.emit(EVT_ACCURACY_UPDATE, this.getAccuracy());
+    if (this._settings.showClassifications) {
+      this.emit(EVT_ACCURACY_UPDATE, this.getAccuracy());
+    }
   }
 
   _getCachedClassification(ply) {
@@ -169,9 +176,9 @@ export class MoveClassifier extends Emitter {
     this._prevPly = ply || 0;
 
     // Restore cached classification when navigating (revert/forward through history)
-    if (!isForward && this._settings.showClassifications) {
+    if (!isForward && (this._settings.showClassifications || this._settings.showCrazy)) {
       const cached = this._getCachedClassification(ply);
-      if (cached) {
+      if (cached && (this._settings.showClassifications || cached.result.label === LABEL_CRAZY)) {
         this.emit(EVT_CLASSIFY_LOCK, cached);
         this._locked = true;
         log.info('restored cached classification for ply:', ply, cached.result.label);

@@ -30,7 +30,7 @@ export class ClassificationPlugin extends AnalysisPlugin {
   }
 
   onSettingsChange(settings) {
-    if ('showClassifications' in settings && !settings.showClassifications) {
+    if ('showClassifications' in settings && !settings.showClassifications && !settings.showCrazy) {
       this._classifier.setEnabled(false);
     }
   }
