@@ -66,13 +66,32 @@ GitHub Secrets required: `EXTENSION_ID`, `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET`, `
 **Core modules:**
 - `core/engine.js` — Stockfish worker lifecycle (state machine: IDLE→INITIALIZING→READY→ANALYZING), UCI protocol
 - `core/panel.js` — panel DOM creation and updates (eval display, W/D/L bar, opening name, analysis lines, score chart, accuracy), extends `lib/emitter.js` for events
-- `core/arrow.js` — SVG arrow overlay (analysis arrows, classification badges, hint arrows, insight arrows)
+- `core/arrow.js` — SVG arrow overlay (analysis arrows, classification badges, hint arrows, insight arrows, guard circles)
 - `core/board-diff.js` — board diff → UCI move detection (`detectMoveFromBoards()`, `boardDiffToUci()`), shared by classifier and PGN plugin
 - `core/classify.js` — pure classification logic: `computeCpLoss()` and `classify()`
 - `core/insight.js` — tactical insight detection for Mistake/Blunder (right piece, right square, delayed move)
 - `core/move-classifier.js` — classification state machine, accuracy tracking, ply cache
 - `core/openings.js` — 193-entry ECO opening lookup by FEN position
 - `core/fen.js` / `core/san.js` — FEN generation and PV-to-SAN conversion
+- `core/coordinator.js` — mediates between engine, panel, arrow, adapter, and plugins; owns orchestration state
+- `core/board-state.js` — value object: board array, ply, FEN, turn; diff-based turn detection
+- `core/plugin.js` — base `AnalysisPlugin` class (lifecycle hooks: `onBoardChange`, `onEval`, `onSettingsChange`, `onEngineReset`)
+
+**Plugins** (`core/plugins/`):
+- `classification-plugin.js` — move classification (Brilliant → Blunder), board badge + insight arrow
+- `hint-plugin.js` — pre-move hint arrows (classification-based spread or always-on best move)
+- `pgn-plugin.js` — PGN export with eval comments, classification symbols, NAG codes
+- `guard-plugin.js` — blunder guard: warns when clicked piece isn't in any engine top line
+
+**Shared utilities** (`lib/`):
+- `lib/dom.js` — DOM helpers: `el()`, `svgEl()`, `indexOfNode()`, `eventToSquare(e, boardEl, isFlipped)` (mouse event → `{ file, rank }`, works on both sites)
+- `lib/uci.js` — `parseUci(uciMove)` → `{ fromFile, fromRank, toFile, toRank, promotion }`
+- `lib/emitter.js` — simple event emitter mixin
+- `lib/debug.js` — `createDebug('chee:namespace')` wrapper
+- `lib/lru.js` — LRU cache for eval results
+- `lib/themes.js` — Catppuccin theme application
+- `lib/settings.js` — Chrome storage load/save
+- `lib/poll.js` — `pollUntil()` async polling helper
 
 **Flow:** MutationObserver detects board change → 100ms debounce → adapter reads pieces + turn → FEN built → engine analyzes → panel + arrows update.
 
@@ -178,6 +197,10 @@ For Mistake/Blunder moves, a **dashed arrow** always shows the engine's best mov
 Two modes (can both be active):
 1. **Classification hints** — when `showClassifications` is enabled and engine finds a clearly best move (score spread ≥ 80cp between line 1 and 2), shows a badged arrow. ≥200cp → Brilliant hint (teal), ≥80cp → Excellent hint (green). Requires depth ≥ 14.
 2. **Best move arrow** — when `showBestMove` is enabled, always shows PV[0] as a team-colored arrow (blue for white, orange for black). No badge.
+
+### Blunder guard (piece selection warning)
+
+`core/plugins/guard-plugin.js` — warns when a user clicks a piece that isn't in any of the engine's top analysis lines. Togglable via popup (`showGuard`, default off). Mousedown on the board → `eventToSquare()` from `lib/dom.js` converts coords to `{ file, rank }` → `checkSquare()` tests if any line's PV[0] starts from that square → if none match, `arrow.drawGuard()` renders a semi-transparent red circle (`.chee-guard-el`). Cleared on mouseup, board change, or next mousedown.
 
 ### Move revert / navigation detection
 

@@ -7,6 +7,7 @@ import {
 import createDebug from '../lib/debug.js';
 import { LruCache } from '../lib/lru.js';
 import { applyTheme } from '../lib/themes.js';
+import { eventToSquare } from '../lib/dom.js';
 import { boardToFen } from './fen.js';
 import { Engine } from './engine.js';
 import {
@@ -16,7 +17,7 @@ import {
   EVT_READY, EVT_EVAL, EVT_ERROR, EVT_LINE_HOVER, EVT_LINE_LEAVE, EVT_PGN_COPY,
   EVT_CLASSIFY_SHOW, EVT_CLASSIFY_CLEAR, EVT_CLASSIFY_LOCK, EVT_ACCURACY_UPDATE,
   HINT_ARROW_OPACITY,
-  PLUGIN_CLASSIFICATION, PLUGIN_HINT, PLUGIN_PGN,
+  PLUGIN_CLASSIFICATION, PLUGIN_HINT, PLUGIN_PGN, PLUGIN_GUARD,
 } from '../constants.js';
 
 const log = createDebug('chee:coordinator');
@@ -75,6 +76,12 @@ export class AnalysisCoordinator {
     forEach(this._plugins, (p) => p.destroy());
     this._arrow.clear();
     this._panel.destroy();
+    if (this._boardState.boardEl && this._onMouseDown) {
+      this._boardState.boardEl.removeEventListener('mousedown', this._onMouseDown);
+    }
+    if (this._onMouseUp) {
+      document.removeEventListener('mouseup', this._onMouseUp);
+    }
   }
 
   applySettings(newSettings) {
@@ -134,6 +141,10 @@ export class AnalysisCoordinator {
 
   _getPgnPlugin() {
     return this._plugins.find((p) => p.name === PLUGIN_PGN);
+  }
+
+  _getGuardPlugin() {
+    return this._plugins.find((p) => p.name === PLUGIN_GUARD);
   }
 
   _readFen() {
@@ -265,6 +276,24 @@ export class AnalysisCoordinator {
       });
     });
     this._bindEngineListeners();
+
+    this._onMouseDown = (e) => {
+      this._arrow.clearGuard();
+      const guard = this._getGuardPlugin();
+      if (!guard || !this._boardState.board || !this._boardState.turn) return;
+
+      const isFlipped = this._adapter.isFlipped(boardEl);
+      const sq = eventToSquare(e, boardEl, isFlipped);
+      if (!sq) return;
+
+      if (guard.checkSquare(sq.file, sq.rank, this._boardState.board, this._boardState.turn)) {
+        this._arrow.drawGuard(sq.file, sq.rank, isFlipped);
+      }
+    };
+    this._onMouseUp = () => { this._arrow.clearGuard(); };
+
+    boardEl.addEventListener('mousedown', this._onMouseDown);
+    document.addEventListener('mouseup', this._onMouseUp);
   }
 
   _waitForPieces() {

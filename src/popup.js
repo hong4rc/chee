@@ -34,6 +34,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     chrome.storage.sync.set({ showBestMove: bestMoveCheckbox.checked });
   });
 
+  // Guard toggle
+  const guardCheckbox = document.getElementById('show-guard');
+  guardCheckbox.checked = settings.showGuard;
+  guardCheckbox.addEventListener('change', () => {
+    chrome.storage.sync.set({ showGuard: guardCheckbox.checked });
+  });
+
   // Debug toggle
   const debugCheckbox = document.getElementById('debug-mode');
   debugCheckbox.checked = settings.debugMode;

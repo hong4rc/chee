@@ -11,6 +11,7 @@ import {
   ARROW_MARKER_WIDTH, ARROW_MARKER_HEIGHT, ARROW_MARKER_REF_X, ARROW_MARKER_REF_Y,
   UCI_MIN_LEN, TURN_WHITE, toggleTurn,
   INSIGHT_ARROW_OPACITY, INSIGHT_ARROW_DASH,
+  GUARD_CIRCLE_RADIUS, GUARD_OPACITY, GUARD_COLOR,
 } from '../constants.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -335,5 +336,25 @@ export class ArrowOverlay {
   clearInsight() {
     if (!this._svg) return;
     forEach(this._svg.querySelectorAll('.chee-insight-el'), (el) => el.remove());
+  }
+
+  drawGuard(file, rank, isFlipped) {
+    if (!this._svg || !this._boardEl) return;
+    this.clearGuard();
+    const { sqW, sqH } = this._getBoardMetrics();
+    const center = squareCenter(file, rank, sqW, sqH, isFlipped);
+    this._svg.appendChild(createSvgEl('circle', {
+      cx: center.x,
+      cy: center.y,
+      r: sqW * GUARD_CIRCLE_RADIUS,
+      fill: GUARD_COLOR,
+      opacity: GUARD_OPACITY,
+      class: 'chee-guard-el',
+    }));
+  }
+
+  clearGuard() {
+    if (!this._svg) return;
+    forEach(this._svg.querySelectorAll('.chee-guard-el'), (el) => el.remove());
   }
 }

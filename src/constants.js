@@ -62,6 +62,7 @@ export const EVT_ACCURACY_UPDATE = 'accuracy:update';
 export const PLUGIN_CLASSIFICATION = 'classification';
 export const PLUGIN_HINT = 'hint';
 export const PLUGIN_PGN = 'pgn';
+export const PLUGIN_GUARD = 'guard';
 
 export const EVT_PGN_COPY = 'pgn:copy';
 
@@ -81,6 +82,7 @@ export const SETTINGS_DEFAULTS = {
   theme: 'site',
   showClassifications: false,
   showBestMove: false,
+  showGuard: false,
   debugMode: false,
 };
 
@@ -161,6 +163,11 @@ export const SAN_CASTLE_QUEEN = 'O-O-O';
 // ─── UCI move parsing ────────────────────────────────────────
 export const UCI_MIN_LEN = 4;
 export const UCI_PROMO_LEN = 5;
+
+// ─── Blunder guard (piece selection warning) ────────────────
+export const GUARD_CIRCLE_RADIUS = 0.38;
+export const GUARD_OPACITY = 0.35;
+export const GUARD_COLOR = '#ca3431';
 
 // ─── Insight arrow (best move after mistake/blunder) ────────
 export const INSIGHT_ARROW_OPACITY = 0.55;

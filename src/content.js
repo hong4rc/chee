@@ -13,6 +13,7 @@ import { AnalysisCoordinator } from './core/coordinator.js';
 import { ClassificationPlugin } from './core/plugins/classification-plugin.js';
 import { HintPlugin } from './core/plugins/hint-plugin.js';
 import { PgnPlugin } from './core/plugins/pgn-plugin.js';
+import { GuardPlugin } from './core/plugins/guard-plugin.js';
 import { POLL_INTERVAL_MS, BOARD_TIMEOUT_MS } from './constants.js';
 
 const log = createDebug('chee:content');
@@ -37,6 +38,7 @@ const log = createDebug('chee:content');
   coordinator.registerPlugin(new ClassificationPlugin({ adapter, settings }));
   coordinator.registerPlugin(new HintPlugin({ settings }));
   coordinator.registerPlugin(new PgnPlugin());
+  coordinator.registerPlugin(new GuardPlugin({ settings }));
 
   window.addEventListener('unload', () => coordinator.destroy());
 
@@ -48,6 +50,7 @@ const log = createDebug('chee:content');
     if (changes.theme) update.theme = changes.theme.newValue;
     if (changes.showClassifications) update.showClassifications = changes.showClassifications.newValue;
     if (changes.showBestMove) update.showBestMove = changes.showBestMove.newValue;
+    if (changes.showGuard) update.showGuard = changes.showGuard.newValue;
     if (changes.debugMode) update.debugMode = changes.debugMode.newValue;
     if (Object.keys(update).length) coordinator.applySettings(update);
   });
