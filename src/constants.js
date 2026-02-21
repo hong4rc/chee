@@ -84,6 +84,8 @@ export const SETTINGS_DEFAULTS = {
   showBestMove: false,
   showGuard: false,
   showChart: true,
+  panelMinimized: false,
+  panelHidden: false,
   debugMode: false,
 };
 

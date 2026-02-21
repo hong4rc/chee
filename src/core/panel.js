@@ -145,7 +145,26 @@ export class Panel extends Emitter {
     this._lineRenderer.reconfigure(numLines, this._el);
   }
 
+  restoreState(minimized, hidden) {
+    this._setMinimized(minimized);
+    this._setHidden(hidden);
+  }
+
   // ─── Private ─────────────────────────────────────────────
+
+  _setMinimized(minimized) {
+    if (!this._el) return;
+    this._el.classList.toggle('chee-minimized', minimized);
+    const toggle = this._toggleEl || this._el.querySelector('.chee-toggle');
+    if (toggle) toggle.innerHTML = minimized ? '&#x2b;' : '&#x2212;';
+  }
+
+  _setHidden(hidden) {
+    if (!this._el) return;
+    this._el.classList.toggle('chee-hidden', hidden);
+    if (this._showBtn) this._showBtn.classList.toggle('chee-visible', hidden);
+  }
+
   _attachListeners() {
     this._toggleEl = this._el.querySelector('.chee-toggle');
     this._copyFenEl = this._el.querySelector('.chee-copy-fen');
@@ -153,10 +172,9 @@ export class Panel extends Emitter {
     this._hideEl = this._el.querySelector('.chee-hide');
 
     this._toggleEl.addEventListener('click', () => {
-      this._el.classList.toggle('chee-minimized');
-      this._toggleEl.innerHTML = this._el.classList.contains('chee-minimized')
-        ? '&#x2b;'
-        : '&#x2212;';
+      const minimized = !this._el.classList.contains('chee-minimized');
+      this._setMinimized(minimized);
+      chrome.storage.sync.set({ panelMinimized: minimized });
     });
     this._copyFenEl.addEventListener('click', () => {
       if (!this._fen) return;
@@ -169,12 +187,12 @@ export class Panel extends Emitter {
       this.emit(EVT_PGN_COPY);
     });
     this._hideEl.addEventListener('click', () => {
-      this._el.classList.add('chee-hidden');
-      this._showBtn.classList.add('chee-visible');
+      this._setHidden(true);
+      chrome.storage.sync.set({ panelHidden: true });
     });
     this._showBtn.addEventListener('click', () => {
-      this._el.classList.remove('chee-hidden');
-      this._showBtn.classList.remove('chee-visible');
+      this._setHidden(false);
+      chrome.storage.sync.set({ panelHidden: false });
     });
 
     // Forward line events
