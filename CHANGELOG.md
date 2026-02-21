@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.3.0](https://github.com/hong4rc/chee/compare/v1.2.0...v1.3.0) (2026-02-21)
+
+### Features
+
+* add blunder guard with togglable showGuard setting ([129c9c9](https://github.com/hong4rc/chee/commit/129c9c97da65f8789c6bf077705347e7c8293153))
+* add Crazy classification for material sacrifices ([e720100](https://github.com/hong4rc/chee/commit/e720100c0062399ec015fd1378f099bd523b04ab))
+* add LRU eval cache to skip redundant Stockfish analysis on navigation ([61def02](https://github.com/hong4rc/chee/commit/61def02b019bfaf1abe82ae17c3592f8db0da6a0))
+* add PGN export plugin with annotated move output ([b3e9902](https://github.com/hong4rc/chee/commit/b3e9902f46a73b93ecd71476dcf1151c0485ae6b))
+* add showChart setting toggle for eval chart (default on) ([adc3b37](https://github.com/hong4rc/chee/commit/adc3b375b2c634995ede115f8307a9b4c582a233))
+* persist panel minimized/hidden state across page loads ([dd8fb52](https://github.com/hong4rc/chee/commit/dd8fb523950dde9f1ec9d39f6b07c846ca11fd6e))
+
+### Bug Fixes
+
+* drop stale eval messages after position change ([36ae0c2](https://github.com/hong4rc/chee/commit/36ae0c2db08ce59d04c152f5a35de3c459ad1aca))
+* skip turn re-detection when board is unchanged ([2c5b802](https://github.com/hong4rc/chee/commit/2c5b8026de31e0af18a5937204e089b40f470d3c))
+
 ## [1.2.0](https://github.com/hong4rc/chee/compare/v1.1.0...v1.2.0) (2026-02-19)
 
 ### Features
