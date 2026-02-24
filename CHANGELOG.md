@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.4.0](https://github.com/hong4rc/chee/compare/v1.3.0...v1.4.0) (2026-02-24)
+
+### Features
+
+* add resizable panel via bottom-right grip handle ([bc619de](https://github.com/hong4rc/chee/commit/bc619de349413e25c53647de6806807ea960cbe2))
+* auto-show Crazy classification independent of showClassifications ([38eaee7](https://github.com/hong4rc/chee/commit/38eaee7ded3b0045907f7474c6b15e0a2d19f3d2))
+* expand opening database to 850 entries from chess.com ECO ([efcfd13](https://github.com/hong4rc/chee/commit/efcfd1369f7d4b26e1884c505673b3e8268b985b))
+* make analysis panel draggable with persistent position ([b55eedd](https://github.com/hong4rc/chee/commit/b55eeddb5fb0602066511fc981b4325d91010391))
+
+### Bug Fixes
+
+* clamp panel to viewport on window resize and panel resize ([ebe0404](https://github.com/hong4rc/chee/commit/ebe04045c70abc0fc3cca3b030f7d94834baa904))
+
 ## [1.3.0](https://github.com/hong4rc/chee/compare/v1.2.0...v1.3.0) (2026-02-21)
 
 ### Features
