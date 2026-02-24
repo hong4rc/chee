@@ -188,8 +188,17 @@ export class Panel extends Emitter {
     this._el.style.top = `${rect.top}px`;
   }
 
+  _clampCurrentPosition() {
+    if (!this._el) return;
+    const left = parseFloat(this._el.style.left) || 0;
+    const top = parseFloat(this._el.style.top) || 0;
+    const clamped = this._clampToViewport(left, top);
+    this._el.style.left = `${clamped.left}px`;
+    this._el.style.top = `${clamped.top}px`;
+  }
+
   _startPositionTracking() {
-    this._onScrollOrResize = () => {
+    this._onScroll = () => {
       if (this._dragged || !this._el) return;
       if (this._posRafId) return;
       this._posRafId = requestAnimationFrame(() => {
@@ -197,15 +206,30 @@ export class Panel extends Emitter {
         this._positionDefault();
       });
     };
-    window.addEventListener('scroll', this._onScrollOrResize, true);
-    window.addEventListener('resize', this._onScrollOrResize);
+    this._onWindowResize = () => {
+      if (!this._el) return;
+      if (this._posRafId) return;
+      this._posRafId = requestAnimationFrame(() => {
+        this._posRafId = null;
+        if (this._dragged) {
+          this._clampCurrentPosition();
+        } else {
+          this._positionDefault();
+        }
+      });
+    };
+    window.addEventListener('scroll', this._onScroll, true);
+    window.addEventListener('resize', this._onWindowResize);
   }
 
   _stopPositionTracking() {
-    if (this._onScrollOrResize) {
-      window.removeEventListener('scroll', this._onScrollOrResize, true);
-      window.removeEventListener('resize', this._onScrollOrResize);
-      this._onScrollOrResize = null;
+    if (this._onScroll) {
+      window.removeEventListener('scroll', this._onScroll, true);
+      this._onScroll = null;
+    }
+    if (this._onWindowResize) {
+      window.removeEventListener('resize', this._onWindowResize);
+      this._onWindowResize = null;
     }
     if (this._posRafId) {
       cancelAnimationFrame(this._posRafId);
@@ -305,6 +329,14 @@ export class Panel extends Emitter {
     this._onResizeMouseMove = (e) => {
       const w = Math.max(150, Math.min(315, this._resizeStartW + (e.clientX - this._resizeStartX)));
       this._el.style.width = `${w}px`;
+      // Keep panel within viewport
+      const rect = this._el.getBoundingClientRect();
+      if (rect.right > window.innerWidth) {
+        this._el.style.left = `${window.innerWidth - w}px`;
+      }
+      if (rect.bottom > window.innerHeight) {
+        this._el.style.top = `${window.innerHeight - rect.height}px`;
+      }
     };
 
     this._onResizeMouseUp = () => {
@@ -313,7 +345,10 @@ export class Panel extends Emitter {
       document.removeEventListener('mouseup', this._onResizeMouseUp);
 
       const panelWidth = parseFloat(this._el.style.width);
-      chrome.storage.sync.set({ panelWidth });
+      const panelLeft = parseFloat(this._el.style.left);
+      const panelTop = parseFloat(this._el.style.top);
+      this._dragged = true;
+      chrome.storage.sync.set({ panelWidth, panelLeft, panelTop });
     };
 
     this._onResizeDblClick = () => {
