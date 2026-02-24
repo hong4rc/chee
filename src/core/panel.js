@@ -1,6 +1,5 @@
 // Analysis panel UI component — delegates to sub-renderers
 
-import createDebug from '../lib/debug.js';
 import { el } from '../lib/dom.js';
 import { Emitter } from '../lib/emitter.js';
 import { HeaderRenderer } from './renderers/header-renderer.js';
@@ -11,11 +10,9 @@ import {
   EVT_LINE_HOVER, EVT_LINE_LEAVE, EVT_PGN_COPY,
 } from '../constants.js';
 
-const log = createDebug('chee:panel');
-
 function createShowButton() {
   const btn = el('button', 'chee-show');
-  btn.title = 'Show Chee';
+  btn.title = 'Show panel';
   btn.innerHTML = '&#x203a;';
   return btn;
 }
@@ -52,6 +49,9 @@ export class Panel extends Emitter {
     const existingBtn = document.getElementById('chee-show-btn');
     if (existingBtn) existingBtn.remove();
 
+    this._anchor = anchor;
+    this._dragged = false;
+
     this._el = el('div');
     this._el.id = PANEL_ID;
     this._el.append(
@@ -64,27 +64,23 @@ export class Panel extends Emitter {
     this._showBtn = createShowButton();
     this._showBtn.id = 'chee-show-btn';
 
-    const parent = anchor.parentElement;
-    log('parent:', parent?.tagName, parent?.className);
-    if (parent) {
-      parent.style.position = 'relative';
-      parent.appendChild(this._el);
-      parent.appendChild(this._showBtn);
-    } else {
-      document.body.appendChild(this._el);
-      document.body.appendChild(this._showBtn);
-    }
+    document.body.appendChild(this._el);
+    document.body.appendChild(this._showBtn);
 
     this._header.bind(this._el);
     this._chart.bind(this._el);
     this._lineRenderer.bind(this._el);
     this._attachListeners();
+    this._positionDefault();
+    this._startPositionTracking();
   }
 
   get el() { return this._el; }
   get turn() { return this._header.turn; }
 
   destroy() {
+    this._stopPositionTracking();
+    this._teardownDrag();
     if (this._el) { this._el.remove(); this._el = null; }
     if (this._showBtn) { this._showBtn.remove(); this._showBtn = null; }
     this._header.destroy();
@@ -145,9 +141,15 @@ export class Panel extends Emitter {
     this._lineRenderer.reconfigure(numLines, this._el);
   }
 
-  restoreState(minimized, hidden) {
+  restoreState(minimized, hidden, left, top) {
     this._setMinimized(minimized);
     this._setHidden(hidden);
+    if (left !== null && top !== null) {
+      this._dragged = true;
+      const clamped = this._clampToViewport(left, top);
+      this._el.style.left = `${clamped.left}px`;
+      this._el.style.top = `${clamped.top}px`;
+    }
   }
 
   // ─── Private ─────────────────────────────────────────────
@@ -161,8 +163,122 @@ export class Panel extends Emitter {
 
   _setHidden(hidden) {
     if (!this._el) return;
+    if (hidden && this._hideEl && this._showBtn) {
+      // Capture hide button's screen position before hiding
+      const rect = this._hideEl.getBoundingClientRect();
+      this._showBtn.style.position = 'fixed';
+      this._showBtn.style.left = `${rect.left}px`;
+      this._showBtn.style.top = `${rect.top}px`;
+      this._showBtn.style.right = 'auto';
+    }
     this._el.classList.toggle('chee-hidden', hidden);
     if (this._showBtn) this._showBtn.classList.toggle('chee-visible', hidden);
+  }
+
+  _positionDefault() {
+    if (!this._anchor || !this._el || this._dragged) return;
+    const rect = this._anchor.getBoundingClientRect();
+    this._el.style.left = `${rect.right + 20}px`;
+    this._el.style.top = `${rect.top}px`;
+  }
+
+  _startPositionTracking() {
+    this._onScrollOrResize = () => {
+      if (this._dragged || !this._el) return;
+      if (this._posRafId) return;
+      this._posRafId = requestAnimationFrame(() => {
+        this._posRafId = null;
+        this._positionDefault();
+      });
+    };
+    window.addEventListener('scroll', this._onScrollOrResize, true);
+    window.addEventListener('resize', this._onScrollOrResize);
+  }
+
+  _stopPositionTracking() {
+    if (this._onScrollOrResize) {
+      window.removeEventListener('scroll', this._onScrollOrResize, true);
+      window.removeEventListener('resize', this._onScrollOrResize);
+      this._onScrollOrResize = null;
+    }
+    if (this._posRafId) {
+      cancelAnimationFrame(this._posRafId);
+      this._posRafId = null;
+    }
+  }
+
+  _clampToViewport(left, top) {
+    const rect = this._el.getBoundingClientRect();
+    const w = rect.width || 220;
+    const h = rect.height || 100;
+    return {
+      left: Math.max(0, Math.min(left, window.innerWidth - w)),
+      top: Math.max(0, Math.min(top, window.innerHeight - h)),
+    };
+  }
+
+  _initDrag() {
+    const header = this._el.querySelector('.chee-header');
+    if (!header) return;
+
+    this._onDragMouseDown = (e) => {
+      // Skip if clicking a button inside the header
+      if (e.target.closest('button')) return;
+      e.preventDefault();
+
+      const rect = this._el.getBoundingClientRect();
+      this._dragOffsetX = e.clientX - rect.left;
+      this._dragOffsetY = e.clientY - rect.top;
+
+      this._el.classList.add('chee-dragging');
+      document.body.classList.add('chee-dragging');
+
+      document.addEventListener('mousemove', this._onDragMouseMove);
+      document.addEventListener('mouseup', this._onDragMouseUp);
+    };
+
+    this._onDragMouseMove = (e) => {
+      const left = e.clientX - this._dragOffsetX;
+      const top = e.clientY - this._dragOffsetY;
+      const clamped = this._clampToViewport(left, top);
+      this._el.style.left = `${clamped.left}px`;
+      this._el.style.top = `${clamped.top}px`;
+    };
+
+    this._onDragMouseUp = () => {
+      this._el.classList.remove('chee-dragging');
+      document.body.classList.remove('chee-dragging');
+
+      document.removeEventListener('mousemove', this._onDragMouseMove);
+      document.removeEventListener('mouseup', this._onDragMouseUp);
+
+      this._dragged = true;
+      const panelLeft = parseFloat(this._el.style.left);
+      const panelTop = parseFloat(this._el.style.top);
+      chrome.storage.sync.set({ panelLeft, panelTop });
+    };
+
+    this._onDragDblClick = (e) => {
+      if (e.target.closest('button')) return;
+      this._dragged = false;
+      this._positionDefault();
+      chrome.storage.sync.set({ panelLeft: null, panelTop: null });
+    };
+
+    header.addEventListener('mousedown', this._onDragMouseDown);
+    header.addEventListener('dblclick', this._onDragDblClick);
+    this._dragHeader = header;
+  }
+
+  _teardownDrag() {
+    if (this._dragHeader) {
+      this._dragHeader.removeEventListener('mousedown', this._onDragMouseDown);
+      this._dragHeader.removeEventListener('dblclick', this._onDragDblClick);
+      this._dragHeader = null;
+    }
+    document.removeEventListener('mousemove', this._onDragMouseMove);
+    document.removeEventListener('mouseup', this._onDragMouseUp);
+    document.body.classList.remove('chee-dragging');
   }
 
   _attachListeners() {
@@ -170,7 +286,6 @@ export class Panel extends Emitter {
     this._copyFenEl = this._el.querySelector('.chee-copy-fen');
     this._copyPgnEl = this._el.querySelector('.chee-copy-pgn');
     this._hideEl = this._el.querySelector('.chee-hide');
-
     this._toggleEl.addEventListener('click', () => {
       const minimized = !this._el.classList.contains('chee-minimized');
       this._setMinimized(minimized);
@@ -198,5 +313,7 @@ export class Panel extends Emitter {
     // Forward line events
     this._lineRenderer.on(EVT_LINE_HOVER, (...args) => this.emit(EVT_LINE_HOVER, ...args));
     this._lineRenderer.on(EVT_LINE_LEAVE, () => this.emit(EVT_LINE_LEAVE));
+
+    this._initDrag();
   }
 }

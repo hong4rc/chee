@@ -1,7 +1,5 @@
 #chee-analysis-panel {
-  position: absolute;
-  top: 0;
-  right: -240px;
+  position: fixed;
   width: 220px;
   background: var(--chee-base);
   border: 1px solid var(--chee-surface0);
@@ -9,7 +7,7 @@
   color: var(--chee-text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 13px;
-  z-index: 1000;
+  z-index: 100000;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
@@ -23,6 +21,16 @@
   background: var(--chee-mantle);
   border-bottom: 1px solid var(--chee-surface0);
   padding: 6px 10px 0;
+  cursor: grab;
+}
+
+#chee-analysis-panel.chee-dragging .chee-header {
+  cursor: grabbing;
+}
+
+body.chee-dragging {
+  user-select: none;
+  cursor: grabbing !important;
 }
 
 #chee-analysis-panel .chee-header-top {
@@ -252,12 +260,15 @@
 /* Hide / Toggle buttons */
 #chee-analysis-panel .chee-hide,
 #chee-analysis-panel .chee-toggle {
-  cursor: pointer;
+  cursor: default;
   color: var(--chee-overlay0);
   font-size: 14px;
   line-height: 1;
-  padding: 2px;
-  border: none;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--chee-surface0);
+  border-radius: 3px;
   background: none;
 }
 
@@ -278,37 +289,31 @@
   display: none;
 }
 
-/* Show button (>) — appears at panel's left edge when hidden */
+/* Show button — hidden by default, appears at hide button's position */
 #chee-show-btn {
   display: none;
-  position: absolute;
-  top: 0;
-  right: -52px;
-  width: 32px;
-  height: 36px;
-  border-radius: 4px;
-  border: 2px solid var(--chee-surface0, #404040);
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  border: 1px solid var(--chee-surface0, #404040);
   background: var(--chee-mantle, #1a1714);
   color: var(--chee-subtext1, #b9b9b9);
-  font-weight: 700;
-  font-size: 20px;
+  font-size: 14px;
   line-height: 1;
   cursor: pointer;
-  z-index: 1000;
+  z-index: 100001;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   padding: 0;
-  display: none;
   align-items: center;
   justify-content: center;
 }
 
 #chee-show-btn:hover {
   color: var(--chee-text, #ccc);
-  background: var(--chee-surface0, #404040);
 }
 
 #chee-show-btn.chee-visible {
-  display: flex;
+  display: inline-flex;
 }
 
 /* Classification slot + badge */
@@ -351,9 +356,4 @@
   line-height: 1.4;
   white-space: nowrap;
   letter-spacing: 0.3px;
-}
-
-/* Lichess: ensure panel parent doesn't clip the absolutely-positioned panel */
-.main-board:has(> #chee-analysis-panel) {
-  overflow: visible !important;
 }

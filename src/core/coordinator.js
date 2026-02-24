@@ -50,7 +50,12 @@ export class AnalysisCoordinator {
     this._panel.mount(this._adapter.getPanelAnchor(boardEl));
     applyTheme(this._panel.el, this._settings.theme);
     this._panel.setShowChart(this._settings.showChart);
-    this._panel.restoreState(this._settings.panelMinimized, this._settings.panelHidden);
+    this._panel.restoreState(
+      this._settings.panelMinimized,
+      this._settings.panelHidden,
+      this._settings.panelLeft,
+      this._settings.panelTop,
+    );
     this._arrow.mount(boardEl);
     this._setupListeners(boardEl);
     this._bindPluginClassifierListeners();

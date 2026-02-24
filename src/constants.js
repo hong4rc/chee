@@ -87,6 +87,8 @@ export const SETTINGS_DEFAULTS = {
   showChart: true,
   panelMinimized: false,
   panelHidden: false,
+  panelLeft: null,
+  panelTop: null,
   debugMode: false,
 };
 
