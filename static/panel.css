@@ -357,3 +357,40 @@ body.chee-dragging {
   white-space: nowrap;
   letter-spacing: 0.3px;
 }
+
+/* Resize handle — bottom-right grip */
+#chee-analysis-panel .chee-resize {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 14px;
+  height: 14px;
+  cursor: nwse-resize;
+  background:
+    linear-gradient(
+      135deg,
+      transparent 30%,
+      var(--chee-overlay0, #6c7086) 30%,
+      var(--chee-overlay0, #6c7086) 35%,
+      transparent 35%,
+      transparent 55%,
+      var(--chee-overlay0, #6c7086) 55%,
+      var(--chee-overlay0, #6c7086) 60%,
+      transparent 60%,
+      transparent 80%,
+      var(--chee-overlay0, #6c7086) 80%,
+      var(--chee-overlay0, #6c7086) 85%,
+      transparent 85%
+    );
+  opacity: 0.6;
+  border-radius: 0 0 4px 0;
+}
+
+#chee-analysis-panel .chee-resize:hover {
+  opacity: 1;
+}
+
+body.chee-resizing {
+  user-select: none;
+  cursor: nwse-resize !important;
+}

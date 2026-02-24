@@ -54,11 +54,13 @@ export class Panel extends Emitter {
 
     this._el = el('div');
     this._el.id = PANEL_ID;
+    const resizeHandle = el('div', 'chee-resize');
     this._el.append(
       this._header.createDOM(),
       this._lineRenderer.createDOM(),
       this._chart.createDOM(),
       createStatus(),
+      resizeHandle,
     );
 
     this._showBtn = createShowButton();
@@ -81,6 +83,7 @@ export class Panel extends Emitter {
   destroy() {
     this._stopPositionTracking();
     this._teardownDrag();
+    this._teardownResize();
     if (this._el) { this._el.remove(); this._el = null; }
     if (this._showBtn) { this._showBtn.remove(); this._showBtn = null; }
     this._header.destroy();
@@ -141,7 +144,7 @@ export class Panel extends Emitter {
     this._lineRenderer.reconfigure(numLines, this._el);
   }
 
-  restoreState(minimized, hidden, left, top) {
+  restoreState(minimized, hidden, left, top, width) {
     this._setMinimized(minimized);
     this._setHidden(hidden);
     if (left !== null && top !== null) {
@@ -149,6 +152,9 @@ export class Panel extends Emitter {
       const clamped = this._clampToViewport(left, top);
       this._el.style.left = `${clamped.left}px`;
       this._el.style.top = `${clamped.top}px`;
+    }
+    if (width !== null) {
+      this._el.style.width = `${width}px`;
     }
   }
 
@@ -281,6 +287,56 @@ export class Panel extends Emitter {
     document.body.classList.remove('chee-dragging');
   }
 
+  _initResize() {
+    const handle = this._el.querySelector('.chee-resize');
+    if (!handle) return;
+
+    this._onResizeMouseDown = (e) => {
+      e.preventDefault();
+      const rect = this._el.getBoundingClientRect();
+      this._resizeStartX = e.clientX;
+      this._resizeStartW = rect.width;
+
+      document.body.classList.add('chee-resizing');
+      document.addEventListener('mousemove', this._onResizeMouseMove);
+      document.addEventListener('mouseup', this._onResizeMouseUp);
+    };
+
+    this._onResizeMouseMove = (e) => {
+      const w = Math.max(150, Math.min(315, this._resizeStartW + (e.clientX - this._resizeStartX)));
+      this._el.style.width = `${w}px`;
+    };
+
+    this._onResizeMouseUp = () => {
+      document.body.classList.remove('chee-resizing');
+      document.removeEventListener('mousemove', this._onResizeMouseMove);
+      document.removeEventListener('mouseup', this._onResizeMouseUp);
+
+      const panelWidth = parseFloat(this._el.style.width);
+      chrome.storage.sync.set({ panelWidth });
+    };
+
+    this._onResizeDblClick = () => {
+      this._el.style.width = '';
+      chrome.storage.sync.set({ panelWidth: null });
+    };
+
+    handle.addEventListener('mousedown', this._onResizeMouseDown);
+    handle.addEventListener('dblclick', this._onResizeDblClick);
+    this._resizeHandle = handle;
+  }
+
+  _teardownResize() {
+    if (this._resizeHandle) {
+      this._resizeHandle.removeEventListener('mousedown', this._onResizeMouseDown);
+      this._resizeHandle.removeEventListener('dblclick', this._onResizeDblClick);
+      this._resizeHandle = null;
+    }
+    document.removeEventListener('mousemove', this._onResizeMouseMove);
+    document.removeEventListener('mouseup', this._onResizeMouseUp);
+    document.body.classList.remove('chee-resizing');
+  }
+
   _attachListeners() {
     this._toggleEl = this._el.querySelector('.chee-toggle');
     this._copyFenEl = this._el.querySelector('.chee-copy-fen');
@@ -315,5 +371,6 @@ export class Panel extends Emitter {
     this._lineRenderer.on(EVT_LINE_LEAVE, () => this.emit(EVT_LINE_LEAVE));
 
     this._initDrag();
+    this._initResize();
   }
 }

@@ -89,6 +89,7 @@ export const SETTINGS_DEFAULTS = {
   panelHidden: false,
   panelLeft: null,
   panelTop: null,
+  panelWidth: null,
   debugMode: false,
 };
 

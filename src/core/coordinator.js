@@ -55,6 +55,7 @@ export class AnalysisCoordinator {
       this._settings.panelHidden,
       this._settings.panelLeft,
       this._settings.panelTop,
+      this._settings.panelWidth,
     );
     this._arrow.mount(boardEl);
     this._setupListeners(boardEl);
