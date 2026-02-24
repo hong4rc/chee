@@ -7,6 +7,17 @@ This directory contains assets for the Chrome Web Store (CWS) listing. These are
 - `description.txt` — Full store listing description
 - `screenshots/` — Store listing screenshots (1280x800 or 640x400)
 
+## Creating screenshots
+
+Screenshots must be 1280x800 for the Chrome Web Store. To convert a raw screenshot:
+
+```bash
+# Scale to height 800 (uniform), pad width to 1280 with black background
+magick input.png -resize x800 -gravity center -extent 1280x800 -background black store/screenshots/screenshot-N.png
+```
+
+Requires ImageMagick (`brew install imagemagick`).
+
 ## Updating the listing
 
 When `description.txt` or screenshots change, manually update the CWS dashboard:
