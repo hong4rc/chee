@@ -1,532 +1,859 @@
 // ECO opening names — compact lookup by position + turn
+// Auto-generated from chess.com ECO database
 export const STARTING_POSITION = 'Starting Position';
 
 const OPENINGS = new Map([
-  // ─── Starting Position ──────────────────────────────────────
   ['rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w', STARTING_POSITION],
-
-  // ─── 1.e4 ───────────────────────────────────────────────────
   ['rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b', 'King\'s Pawn Opening'],
-
-  // 1.e4 e5
-  ['rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w', 'Open Game'],
-  // 1.e4 e5 2.Nf3
-  ['rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b', 'King\'s Knight Opening'],
-  // 1.e4 e5 2.Nf3 Nc6
-  ['r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w', 'King\'s Knight Opening'],
-  // 1.e4 e5 2.Nf3 Nc6 3.Bb5
-  ['r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b', 'Ruy Lopez'],
-  // 1.e4 e5 2.Nf3 Nc6 3.Bb5 a6
-  ['r1bqkbnr/1ppp1ppp/p1n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w', 'Ruy Lopez: Morphy Defense'],
-  // 1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4
-  ['r1bqkbnr/1ppp1ppp/p1n5/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R b', 'Ruy Lopez: Morphy Defense'],
-  // 1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4 Nf6
-  ['r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R w', 'Ruy Lopez: Morphy Defense'],
-  // 1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4 Nf6 5.O-O
-  ['r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 b', 'Ruy Lopez: Closed'],
-  // 1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4 Nf6 5.O-O Be7
-  ['r1bqk2r/1pppbppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 w', 'Ruy Lopez: Closed'],
-  // 1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4 Nf6 5.O-O Be7 6.Re1 b5 7.Bb3 O-O 8.c3 d5
-  ['r1bq1rk1/2ppbppp/p1n2n2/1p1pp3/4P3/1BP2N2/PP1P1PPP/RNBQR1K1 w', 'Ruy Lopez: Marshall Attack'],
-  // 1.e4 e5 2.Nf3 Nc6 3.Bb5 Nf6
-  ['r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w', 'Ruy Lopez: Berlin Defense'],
-  // 1.e4 e5 2.Nf3 Nc6 3.Bb5 Nf6 4.O-O Nxe4
-  ['r1bqkb1r/pppp1ppp/2n5/1B2p3/4n3/5N2/PPPP1PPP/RNBQ1RK1 w', 'Ruy Lopez: Berlin Defense, Rio de Janeiro'],
-  // 1.e4 e5 2.Nf3 Nc6 3.Bb5 Nf6 4.O-O Nxe4 5.d4 Nd6 6.Bxc6 dxc6 7.dxe5 Nf5 8.Qxd8+ Kxd8
-  ['r1bk1b1r/ppp2ppp/2p5/4Pn2/8/5N2/PPP2PPP/RNB2RK1 w', 'Ruy Lopez: Berlin Endgame'],
-  // 1.e4 e5 2.Nf3 Nc6 3.Bb5 f5
-  ['r1bqkbnr/pppp2pp/2n5/1B2pp2/4P3/5N2/PPPP1PPP/RNBQK2R w', 'Ruy Lopez: Schliemann Defense'],
-
-  // ─── Italian Game ───────────────────────────────────────────
-  // 1.e4 e5 2.Nf3 Nc6 3.Bc4
-  ['r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b', 'Italian Game'],
-  // 1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5
-  ['r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w', 'Italian Game: Giuoco Piano'],
-  // 1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5 4.c3
-  ['r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/2P2N2/PP1P1PPP/RNBQK2R b', 'Italian Game: Giuoco Piano'],
-  // 1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5 4.b4
-  ['r1bqk1nr/pppp1ppp/2n5/2b1p3/1PB1P3/5N2/P1PP1PPP/RNBQK2R b', 'Italian Game: Evans Gambit'],
-  // 1.e4 e5 2.Nf3 Nc6 3.Bc4 Nf6
-  ['r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w', 'Italian Game: Two Knights Defense'],
-  // 1.e4 e5 2.Nf3 Nc6 3.Bc4 Nf6 4.Ng5
-  ['r1bqkb1r/pppp1ppp/2n2n2/4p1N1/2B1P3/8/PPPP1PPP/RNBQK2R b', 'Italian Game: Fried Liver Attack'],
-  // 1.e4 e5 2.Nf3 Nc6 3.Bc4 Nf6 4.d3
-  ['r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R b', 'Italian Game: Giuoco Pianissimo'],
-
-  // ─── Scotch ─────────────────────────────────────────────────
-  // 1.e4 e5 2.Nf3 Nc6 3.d4
-  ['r1bqkbnr/pppp1ppp/2n5/4p3/3PP3/5N2/PPP2PPP/RNBQKB1R b', 'Scotch Game'],
-  // 1.e4 e5 2.Nf3 Nc6 3.d4 exd4 4.Nxd4
-  ['r1bqkbnr/pppp1ppp/2n5/8/3NP3/8/PPP2PPP/RNBQKB1R b', 'Scotch Game'],
-
-  // ─── Petrov ─────────────────────────────────────────────────
-  // 1.e4 e5 2.Nf3 Nf6
-  ['rnbqkb1r/pppp1ppp/5n2/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w', 'Petrov\'s Defense'],
-  // 1.e4 e5 2.Nf3 Nf6 3.Nxe5
-  ['rnbqkb1r/pppp1ppp/5n2/4N3/4P3/8/PPPP1PPP/RNBQKB1R b', 'Petrov\'s Defense: Classical'],
-  // 1.e4 e5 2.Nf3 Nf6 3.Nxe5 d6 4.Nf3 Nxe4 5.d4
-  ['rnbqkb1r/ppp2ppp/3p4/8/3Pn3/5N2/PPP2PPP/RNBQKB1R b', 'Petrov\'s Defense: Steinitz Attack'],
-
-  // ─── Philidor ───────────────────────────────────────────────
-  // 1.e4 e5 2.Nf3 d6
-  ['rnbqkbnr/ppp2ppp/3p4/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w', 'Philidor Defense'],
-
-  // ─── King's Gambit ──────────────────────────────────────────
-  // 1.e4 e5 2.f4
-  ['rnbqkbnr/pppp1ppp/8/4p3/4PP2/8/PPPP2PP/RNBQKBNR b', 'King\'s Gambit'],
-  // 1.e4 e5 2.f4 exf4
-  ['rnbqkbnr/pppp1ppp/8/8/4Pp2/8/PPPP2PP/RNBQKBNR w', 'King\'s Gambit Accepted'],
-  // 1.e4 e5 2.f4 d5
-  ['rnbqkbnr/ppp2ppp/8/3pp3/4PP2/8/PPPP2PP/RNBQKBNR w', 'King\'s Gambit: Falkbeer Countergambit'],
-
-  // ─── Vienna ─────────────────────────────────────────────────
-  // 1.e4 e5 2.Nc3
-  ['rnbqkbnr/pppp1ppp/8/4p3/4P3/2N5/PPPP1PPP/R1BQKBNR b', 'Vienna Game'],
-
-  // ─── Bishop's Opening ──────────────────────────────────────
-  // 1.e4 e5 2.Bc4
-  ['rnbqkbnr/pppp1ppp/8/4p3/2B1P3/8/PPPP1PPP/RNBQK1NR b', 'Bishop\'s Opening'],
-
-  // ─── Sicilian Defense ───────────────────────────────────────
-  // 1.e4 c5
-  ['rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w', 'Sicilian Defense'],
-  // 1.e4 c5 2.Nf3
-  ['rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b', 'Sicilian Defense'],
-  // 1.e4 c5 2.Nf3 d6
-  ['rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w', 'Sicilian Defense'],
-  // 1.e4 c5 2.Nf3 d6 3.d4
-  ['rnbqkbnr/pp2pppp/3p4/2p5/3PP3/5N2/PPP2PPP/RNBQKB1R b', 'Sicilian Defense: Open'],
-  // 1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4
-  ['rnbqkbnr/pp2pppp/3p4/8/3NP3/8/PPP2PPP/RNBQKB1R b', 'Sicilian Defense: Open'],
-  // 1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3
-  ['rnbqkb1r/pp2pppp/3p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R b', 'Sicilian Defense: Open'],
-  // 1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 a6
-  ['rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w', 'Sicilian: Najdorf'],
-  // 1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 a6 6.Bg5
-  ['rnbqkb1r/1p2pppp/p2p1n2/6B1/3NP3/2N5/PPP2PPP/R2QKB1R b', 'Sicilian: Najdorf, Classical'],
-  // 1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 a6 6.Be2
-  ['rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP1BPPP/R1BQK2R b', 'Sicilian: Najdorf, English Attack Prep'],
-  // 1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 a6 6.Be3
-  ['rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N1B3/PPP2PPP/R2QKB1R b', 'Sicilian: Najdorf, English Attack'],
-  // 1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 a6 6.f3
-  ['rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N2P2/PPP3PP/R1BQKB1R b', 'Sicilian: Najdorf, f3'],
-  // 1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 g6
-  ['rnbqkb1r/pp2pp1p/3p1np1/8/3NP3/2N5/PPP2PPP/R1BQKB1R w', 'Sicilian: Dragon'],
-  // 1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 g6 6.Be3 Bg7 7.f3
-  ['rnbqk2r/pp2ppbp/3p1np1/8/3NP3/2N1BP2/PPP3PP/R2QKB1R b', 'Sicilian: Dragon, Yugoslav Attack'],
-  // 1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 e6
-  ['rnbqkb1r/pp3ppp/3ppn2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w', 'Sicilian: Scheveningen'],
-  // 1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 Nc6
-  ['r1bqkb1r/pp2pppp/2np1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w', 'Sicilian: Classical'],
-  // 1.e4 c5 2.Nf3 Nc6
-  ['r1bqkbnr/pp1ppppp/2n5/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w', 'Sicilian Defense'],
-  // 1.e4 c5 2.Nf3 Nc6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 e5
-  ['r1bqkb1r/pp1p1ppp/2n2n2/4p3/3NP3/2N5/PPP2PPP/R1BQKB1R w', 'Sicilian: Sveshnikov'],
-  // 1.e4 c5 2.Nf3 Nc6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 e5 6.Ndb5 d6
-  ['r1bqkb1r/pp3ppp/2np1n2/1N2p3/4P3/2N5/PPP2PPP/R1BQKB1R w', 'Sicilian: Sveshnikov'],
-  // 1.e4 c5 2.Nf3 Nc6 3.Bb5
-  ['r1bqkbnr/pp1ppppp/2n5/1Bp5/4P3/5N2/PPPP1PPP/RNBQK2R b', 'Sicilian: Rossolimo'],
-  // 1.e4 c5 2.Nf3 e6
-  ['rnbqkbnr/pp1p1ppp/4p3/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w', 'Sicilian Defense'],
-  // 1.e4 c5 2.Nf3 e6 3.d4 cxd4 4.Nxd4 a6
-  ['rnbqkbnr/1p1p1ppp/p3p3/8/3NP3/8/PPP2PPP/RNBQKB1R w', 'Sicilian: Kan'],
-  // 1.e4 c5 2.Nf3 e6 3.d4 cxd4 4.Nxd4 Nc6
-  ['r1bqkbnr/pp1p1ppp/2n1p3/8/3NP3/8/PPP2PPP/RNBQKB1R w', 'Sicilian: Taimanov'],
-  // 1.e4 c5 2.c3
-  ['rnbqkbnr/pp1ppppp/8/2p5/4P3/2P5/PP1P1PPP/RNBQKBNR b', 'Sicilian: Alapin'],
-  // 1.e4 c5 2.d4 cxd4 3.c3
-  ['rnbqkbnr/pp1ppppp/8/8/3pP3/2P5/PP3PPP/RNBQKBNR b', 'Sicilian: Smith-Morra Gambit'],
-  // 1.e4 c5 2.Nc3
-  ['rnbqkbnr/pp1ppppp/8/2p5/4P3/2N5/PPPP1PPP/R1BQKBNR b', 'Sicilian: Closed'],
-  // 1.e4 c5 2.f4
-  ['rnbqkbnr/pp1ppppp/8/2p5/4PP2/8/PPPP2PP/RNBQKBNR b', 'Sicilian: Grand Prix Attack'],
-
-  // ─── French Defense ─────────────────────────────────────────
-  // 1.e4 e6
-  ['rnbqkbnr/pppp1ppp/4p3/8/4P3/8/PPPP1PPP/RNBQKBNR w', 'French Defense'],
-  // 1.e4 e6 2.d4
-  ['rnbqkbnr/pppp1ppp/4p3/8/3PP3/8/PPP2PPP/RNBQKBNR b', 'French Defense'],
-  // 1.e4 e6 2.d4 d5
-  ['rnbqkbnr/ppp2ppp/4p3/3p4/3PP3/8/PPP2PPP/RNBQKBNR w', 'French Defense'],
-  // 1.e4 e6 2.d4 d5 3.Nc3
-  ['rnbqkbnr/ppp2ppp/4p3/3p4/3PP3/2N5/PPP2PPP/R1BQKBNR b', 'French Defense: Paulsen'],
-  // 1.e4 e6 2.d4 d5 3.Nc3 Bb4
-  ['rnbqk1nr/ppp2ppp/4p3/3p4/1b1PP3/2N5/PPP2PPP/R1BQKBNR w', 'French Defense: Winawer'],
-  // 1.e4 e6 2.d4 d5 3.Nc3 Nf6
-  ['rnbqkb1r/ppp2ppp/4pn2/3p4/3PP3/2N5/PPP2PPP/R1BQKBNR w', 'French Defense: Classical'],
-  // 1.e4 e6 2.d4 d5 3.Nc3 dxe4
-  ['rnbqkbnr/ppp2ppp/4p3/8/3Pp3/2N5/PPP2PPP/R1BQKBNR w', 'French Defense: Rubinstein'],
-  // 1.e4 e6 2.d4 d5 3.Nd2
-  ['rnbqkbnr/ppp2ppp/4p3/3p4/3PP3/8/PPPN1PPP/R1BQKBNR b', 'French Defense: Tarrasch'],
-  // 1.e4 e6 2.d4 d5 3.e5
-  ['rnbqkbnr/ppp2ppp/4p3/3pP3/3P4/8/PPP2PPP/RNBQKBNR b', 'French Defense: Advance'],
-  // 1.e4 e6 2.d4 d5 3.exd5
-  ['rnbqkbnr/ppp2ppp/4p3/3P4/3P4/8/PPP2PPP/RNBQKBNR b', 'French Defense: Exchange'],
-
-  // ─── Caro-Kann Defense ──────────────────────────────────────
-  // 1.e4 c6
-  ['rnbqkbnr/pp1ppppp/2p5/8/4P3/8/PPPP1PPP/RNBQKBNR w', 'Caro-Kann Defense'],
-  // 1.e4 c6 2.d4
-  ['rnbqkbnr/pp1ppppp/2p5/8/3PP3/8/PPP2PPP/RNBQKBNR b', 'Caro-Kann Defense'],
-  // 1.e4 c6 2.d4 d5
-  ['rnbqkbnr/pp2pppp/2p5/3p4/3PP3/8/PPP2PPP/RNBQKBNR w', 'Caro-Kann Defense'],
-  // 1.e4 c6 2.d4 d5 3.Nc3
-  ['rnbqkbnr/pp2pppp/2p5/3p4/3PP3/2N5/PPP2PPP/R1BQKBNR b', 'Caro-Kann: Classical'],
-  // 1.e4 c6 2.d4 d5 3.Nc3 dxe4 4.Nxe4
-  ['rnbqkbnr/pp2pppp/2p5/8/3PN3/8/PPP2PPP/R1BQKBNR b', 'Caro-Kann: Classical'],
-  // 1.e4 c6 2.d4 d5 3.Nc3 dxe4 4.Nxe4 Bf5
-  ['rn1qkbnr/pp2pppp/2p5/5b2/3PN3/8/PPP2PPP/R1BQKBNR w', 'Caro-Kann: Classical, Bf5'],
-  // 1.e4 c6 2.d4 d5 3.Nc3 dxe4 4.Nxe4 Nd7
-  ['r1bqkbnr/pp1npppp/2p5/8/3PN3/8/PPP2PPP/R1BQKBNR w', 'Caro-Kann: Karpov'],
-  // 1.e4 c6 2.d4 d5 3.Nc3 dxe4 4.Nxe4 Nf6 5.Nxf6+ exf6
-  ['rnbqkb1r/pp3ppp/2p2p2/8/3P4/8/PPP2PPP/R1BQKBNR w', 'Caro-Kann: Bronstein-Larsen'],
-  // 1.e4 c6 2.d4 d5 3.e5
-  ['rnbqkbnr/pp2pppp/2p5/3pP3/3P4/8/PPP2PPP/RNBQKBNR b', 'Caro-Kann: Advance'],
-  // 1.e4 c6 2.d4 d5 3.exd5 cxd5
-  ['rnbqkbnr/pp2pppp/8/3p4/3P4/8/PPP2PPP/RNBQKBNR w', 'Caro-Kann: Exchange'],
-  // 1.e4 c6 2.d4 d5 3.f3
-  ['rnbqkbnr/pp2pppp/2p5/3p4/3PP3/5P2/PPP3PP/RNBQKBNR b', 'Caro-Kann: Fantasy'],
-
-  // ─── Pirc / Modern ──────────────────────────────────────────
-  // 1.e4 d6
-  ['rnbqkbnr/ppp1pppp/3p4/8/4P3/8/PPPP1PPP/RNBQKBNR w', 'Pirc Defense'],
-  // 1.e4 d6 2.d4 Nf6 3.Nc3
-  ['rnbqkb1r/ppp1pppp/3p1n2/8/3PP3/2N5/PPP2PPP/R1BQKBNR b', 'Pirc Defense'],
-  // 1.e4 d6 2.d4 Nf6 3.Nc3 g6
-  ['rnbqkb1r/ppp1pp1p/3p1np1/8/3PP3/2N5/PPP2PPP/R1BQKBNR w', 'Pirc Defense: Classical'],
-  // 1.e4 g6
-  ['rnbqkbnr/pppppp1p/6p1/8/4P3/8/PPPP1PPP/RNBQKBNR w', 'Modern Defense'],
-
-  // ─── Scandinavian ───────────────────────────────────────────
-  // 1.e4 d5
-  ['rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w', 'Scandinavian Defense'],
-  // 1.e4 d5 2.exd5 Qxd5
-  ['rnb1kbnr/ppp1pppp/8/3q4/8/8/PPPP1PPP/RNBQKBNR w', 'Scandinavian Defense'],
-  // 1.e4 d5 2.exd5 Nf6
-  ['rnbqkb1r/ppp1pppp/5n2/3P4/8/8/PPPP1PPP/RNBQKBNR w', 'Scandinavian: Modern'],
-
-  // ─── Alekhine's Defense ─────────────────────────────────────
-  // 1.e4 Nf6
-  ['rnbqkb1r/pppppppp/5n2/8/4P3/8/PPPP1PPP/RNBQKBNR w', 'Alekhine\'s Defense'],
-  // 1.e4 Nf6 2.e5 Nd5
-  ['rnbqkb1r/pppppppp/8/3nP3/8/8/PPPP1PPP/RNBQKBNR w', 'Alekhine\'s Defense'],
-
-  // ─── Nimzowitsch Defense ────────────────────────────────────
-  // 1.e4 Nc6
-  ['r1bqkbnr/pppppppp/2n5/8/4P3/8/PPPP1PPP/RNBQKBNR w', 'Nimzowitsch Defense'],
-
-  // ─── Owen's Defense ─────────────────────────────────────────
-  // 1.e4 b6
-  ['rnbqkbnr/p1pppppp/1p6/8/4P3/8/PPPP1PPP/RNBQKBNR w', 'Owen\'s Defense'],
-
-  // ─── 1.d4 ───────────────────────────────────────────────────
-  ['rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b', 'Queen\'s Pawn Opening'],
-
-  // 1.d4 d5
-  ['rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP1PPPP/RNBQKBNR w', 'Queen\'s Pawn Game'],
-
-  // ─── Queen's Gambit ─────────────────────────────────────────
-  // 1.d4 d5 2.c4
-  ['rnbqkbnr/ppp1pppp/8/3p4/2PP4/8/PP2PPPP/RNBQKBNR b', 'Queen\'s Gambit'],
-  // 1.d4 d5 2.c4 dxc4
-  ['rnbqkbnr/ppp1pppp/8/8/2pP4/8/PP2PPPP/RNBQKBNR w', 'Queen\'s Gambit Accepted'],
-  // 1.d4 d5 2.c4 e6
-  ['rnbqkbnr/ppp2ppp/4p3/3p4/2PP4/8/PP2PPPP/RNBQKBNR w', 'Queen\'s Gambit Declined'],
-  // 1.d4 d5 2.c4 e6 3.Nc3 Nf6
-  ['rnbqkb1r/ppp2ppp/4pn2/3p4/2PP4/2N5/PP2PPPP/R1BQKBNR w', 'Queen\'s Gambit Declined'],
-  // 1.d4 d5 2.c4 e6 3.Nc3 Nf6 4.Bg5
-  ['rnbqkb1r/ppp2ppp/4pn2/3p2B1/2PP4/2N5/PP2PPPP/R2QKBNR b', 'QGD: Orthodox'],
-  // 1.d4 d5 2.c4 e6 3.Nc3 Nf6 4.Nf3 Be7 5.Bf4
-  ['rnbqk2r/ppp1bppp/4pn2/3p4/2PP1B2/2N2N2/PP2PPPP/R2QKB1R b', 'QGD: London System'],
-  // 1.d4 d5 2.c4 e6 3.Nc3 Nf6 4.cxd5 exd5
-  ['rnbqkb1r/ppp2ppp/5n2/3p4/3P4/2N5/PP2PPPP/R1BQKBNR w', 'QGD: Exchange'],
-  // 1.d4 d5 2.c4 c6
-  ['rnbqkbnr/pp2pppp/2p5/3p4/2PP4/8/PP2PPPP/RNBQKBNR w', 'Slav Defense'],
-  // 1.d4 d5 2.c4 c6 3.Nf3 Nf6 4.Nc3 dxc4
-  ['rnbqkb1r/pp2pppp/2p2n2/8/2pP4/2N2N2/PP2PPPP/R1BQKB1R w', 'Semi-Slav Defense'],
-  // 1.d4 d5 2.c4 c6 3.Nf3 Nf6 4.Nc3 e6
-  ['rnbqkb1r/pp3ppp/2p1pn2/3p4/2PP4/2N2N2/PP2PPPP/R1BQKB1R w', 'Semi-Slav Defense'],
-  // 1.d4 d5 2.c4 c6 3.Nf3 Nf6 4.Nc3 e6 5.Bg5 h6 6.Bxf6 Qxf6
-  // Removed — too specific for this map; keeping Semi-Slav above
-
-  // ─── Catalan ────────────────────────────────────────────────
-  // 1.d4 d5 2.c4 e6 3.Nf3 Nf6 4.g3
-  ['rnbqkb1r/ppp2ppp/4pn2/3p4/2PP4/5NP1/PP2PP1P/RNBQKB1R b', 'Catalan Opening'],
-  // 1.d4 d5 2.c4 e6 3.g3
-  ['rnbqkbnr/ppp2ppp/4p3/3p4/2PP4/6P1/PP2PP1P/RNBQKBNR b', 'Catalan Opening'],
-
-  // ─── 1.d4 Nf6 systems ──────────────────────────────────────
-  // 1.d4 Nf6
-  ['rnbqkb1r/pppppppp/5n2/8/3P4/8/PPP1PPPP/RNBQKBNR w', 'Indian Defense'],
-  // 1.d4 Nf6 2.c4
-  ['rnbqkb1r/pppppppp/5n2/8/2PP4/8/PP2PPPP/RNBQKBNR b', 'Indian Defense'],
-
-  // ─── Nimzo-Indian ───────────────────────────────────────────
-  // 1.d4 Nf6 2.c4 e6 3.Nc3 Bb4
-  ['rnbqk2r/pppp1ppp/4pn2/8/1bPP4/2N5/PP2PPPP/R1BQKBNR w', 'Nimzo-Indian Defense'],
-  // 1.d4 Nf6 2.c4 e6 3.Nc3 Bb4 4.e3
-  ['rnbqk2r/pppp1ppp/4pn2/8/1bPP4/2N1P3/PP3PPP/R1BQKBNR b', 'Nimzo-Indian: Rubinstein'],
-  // 1.d4 Nf6 2.c4 e6 3.Nc3 Bb4 4.Qc2
-  ['rnbqk2r/pppp1ppp/4pn2/8/1bPP4/2N5/PPQ1PPPP/R1B1KBNR b', 'Nimzo-Indian: Classical'],
-  // 1.d4 Nf6 2.c4 e6 3.Nc3 Bb4 4.f3
-  ['rnbqk2r/pppp1ppp/4pn2/8/1bPP4/2N2P2/PP2P1PP/R1BQKBNR b', 'Nimzo-Indian: Kmoch'],
-
-  // ─── Queen's Indian ─────────────────────────────────────────
-  // 1.d4 Nf6 2.c4 e6 3.Nf3 b6
-  ['rnbqkb1r/p1pp1ppp/1p2pn2/8/2PP4/5N2/PP2PPPP/RNBQKB1R w', 'Queen\'s Indian Defense'],
-
-  // ─── Bogo-Indian ────────────────────────────────────────────
-  // 1.d4 Nf6 2.c4 e6 3.Nf3 Bb4+
-  ['rnbqk2r/pppp1ppp/4pn2/8/1bPP4/5N2/PP2PPPP/RNBQKB1R w', 'Bogo-Indian Defense'],
-
-  // ─── King's Indian Defense ──────────────────────────────────
-  // 1.d4 Nf6 2.c4 g6
-  ['rnbqkb1r/pppppp1p/5np1/8/2PP4/8/PP2PPPP/RNBQKBNR w', 'King\'s Indian Defense'],
-  // 1.d4 Nf6 2.c4 g6 3.Nc3 Bg7
-  ['rnbqk2r/ppppppbp/5np1/8/2PP4/2N5/PP2PPPP/R1BQKBNR w', 'King\'s Indian Defense'],
-  // 1.d4 Nf6 2.c4 g6 3.Nc3 Bg7 4.e4 d6
-  ['rnbqk2r/ppp1ppbp/3p1np1/8/2PPP3/2N5/PP3PPP/R1BQKBNR w', 'King\'s Indian Defense'],
-  // 1.d4 Nf6 2.c4 g6 3.Nc3 Bg7 4.e4 d6 5.Nf3 O-O 6.Be2 e5
-  ['rnbq1rk1/ppp2pbp/3p1np1/4p3/2PPP3/2N2N2/PP2BPPP/R1BQK2R w', 'King\'s Indian: Classical'],
-  // 1.d4 Nf6 2.c4 g6 3.Nc3 Bg7 4.e4 d6 5.f3
-  ['rnbqk2r/ppp1ppbp/3p1np1/8/2PPP3/2N2P2/PP4PP/R1BQKBNR b', 'King\'s Indian: Saemisch'],
-  // 1.d4 Nf6 2.c4 g6 3.Nc3 Bg7 4.e4 d6 5.Nf3 O-O 6.Be2 e5 7.O-O Nc6 8.d5 Ne7
-  ['r1bq1rk1/ppp1npbp/3p1np1/3Pp3/2P1P3/2N2N2/PP2BPPP/R1BQ1RK1 w', 'King\'s Indian: Mar del Plata'],
-  // 1.d4 Nf6 2.c4 g6 3.Nc3 Bg7 4.e4 d6 5.Be2 O-O 6.Bg5
-  ['rnbq1rk1/ppp1ppbp/3p1np1/6B1/2PPP3/2N5/PP2BPPP/R2QK1NR b', 'King\'s Indian: Averbakh'],
-  // 1.d4 Nf6 2.c4 g6 3.Nc3 Bg7 4.e4 d6 5.Nf3 O-O 6.Be2 e5 7.d5
-  ['rnbq1rk1/ppp2pbp/3p1np1/3Pp3/2P1P3/2N2N2/PP2BPPP/R1BQK2R b', 'King\'s Indian: Petrosian'],
-
-  // ─── Grunfeld ───────────────────────────────────────────────
-  // 1.d4 Nf6 2.c4 g6 3.Nc3 d5
-  ['rnbqkb1r/ppp1pp1p/5np1/3p4/2PP4/2N5/PP2PPPP/R1BQKBNR w', 'Grunfeld Defense'],
-  // 1.d4 Nf6 2.c4 g6 3.Nc3 d5 4.cxd5 Nxd5 5.e4 Nxc3 6.bxc3 Bg7
-  ['rnbqk2r/ppp1ppbp/6p1/8/3PP3/2P5/P4PPP/R1BQKBNR w', 'Grunfeld: Exchange'],
-  // 1.d4 Nf6 2.c4 g6 3.Nc3 d5 4.Nf3
-  ['rnbqkb1r/ppp1pp1p/5np1/3p4/2PP4/2N2N2/PP2PPPP/R1BQKB1R b', 'Grunfeld: Russian System'],
-
-  // ─── Benoni ─────────────────────────────────────────────────
-  // 1.d4 Nf6 2.c4 c5 3.d5
-  ['rnbqkb1r/pp1ppppp/5n2/2pP4/2P5/8/PP2PPPP/RNBQKBNR b', 'Benoni Defense'],
-  // 1.d4 Nf6 2.c4 c5 3.d5 e6 4.Nc3 exd5 5.cxd5 d6
-  ['rnbqkb1r/pp3ppp/3p1n2/2pP4/8/2N5/PP2PPPP/R1BQKBNR w', 'Modern Benoni'],
-
-  // ─── Dutch Defense ──────────────────────────────────────────
-  // 1.d4 f5
-  ['rnbqkbnr/ppppp1pp/8/5p2/3P4/8/PPP1PPPP/RNBQKBNR w', 'Dutch Defense'],
-  // 1.d4 f5 2.c4 Nf6 3.g3 e6 4.Bg2 Be7
-  ['rnbqk2r/ppppb1pp/4pn2/5p2/2PP4/6P1/PP2PPBP/RNBQK1NR w', 'Dutch: Classical'],
-  // 1.d4 f5 2.c4 Nf6 3.g3 g6
-  ['rnbqkb1r/ppppp2p/5np1/5p2/2PP4/6P1/PP2PP1P/RNBQKBNR w', 'Dutch: Leningrad'],
-  // 1.d4 f5 2.g3 e6 3.Bg2 Nf6 4.Nf3 d5
-  ['rnbqkb1r/ppp3pp/4pn2/3p1p2/3P4/5NP1/PPP1PPBP/RNBQK2R w', 'Dutch: Stonewall'],
-
-  // ─── London System ──────────────────────────────────────────
-  // 1.d4 d5 2.Bf4
-  ['rnbqkbnr/ppp1pppp/8/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR b', 'London System'],
-  // 1.d4 Nf6 2.Bf4
-  ['rnbqkb1r/pppppppp/5n2/8/3P1B2/8/PPP1PPPP/RN1QKBNR b', 'London System'],
-  // 1.d4 d5 2.Nf3 Nf6 3.Bf4
-  ['rnbqkb1r/ppp1pppp/5n2/3p4/3P1B2/5N2/PPP1PPPP/RN1QKB1R b', 'London System'],
-
-  // ─── Trompowsky ─────────────────────────────────────────────
-  // 1.d4 Nf6 2.Bg5
-  ['rnbqkb1r/pppppppp/5n2/6B1/3P4/8/PPP1PPPP/RN1QKBNR b', 'Trompowsky Attack'],
-
-  // ─── Torre Attack ───────────────────────────────────────────
-  // 1.d4 Nf6 2.Nf3 e6 3.Bg5
-  ['rnbqkb1r/pppp1ppp/4pn2/6B1/3P4/5N2/PPP1PPPP/RN1QKB1R b', 'Torre Attack'],
-
-  // ─── Colle System ───────────────────────────────────────────
-  // 1.d4 d5 2.Nf3 Nf6 3.e3
-  ['rnbqkb1r/ppp1pppp/5n2/3p4/3P4/4PN2/PPP2PPP/RNBQKB1R b', 'Colle System'],
-
-  // ─── 1.c4 English ───────────────────────────────────────────
-  ['rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b', 'English Opening'],
-  // 1.c4 e5
-  ['rnbqkbnr/pppp1ppp/8/4p3/2P5/8/PP1PPPPP/RNBQKBNR w', 'English: Reversed Sicilian'],
-  // 1.c4 c5
-  ['rnbqkbnr/pp1ppppp/8/2p5/2P5/8/PP1PPPPP/RNBQKBNR w', 'English: Symmetrical'],
-  // 1.c4 c5 2.Nf3 Nf6 3.Nc3 Nc6
-  ['r1bqkb1r/pp1ppppp/2n2n2/2p5/2P5/2N2N2/PP1PPPPP/R1BQKB1R w', 'English: Four Knights'],
-  // 1.c4 Nf6
-  ['rnbqkb1r/pppppppp/5n2/8/2P5/8/PP1PPPPP/RNBQKBNR w', 'English Opening'],
-  // 1.c4 e6
-  ['rnbqkbnr/pppp1ppp/4p3/8/2P5/8/PP1PPPPP/RNBQKBNR w', 'English Opening'],
-  // 1.c4 c6
-  ['rnbqkbnr/pp1ppppp/2p5/8/2P5/8/PP1PPPPP/RNBQKBNR w', 'English: Caro-Kann Setup'],
-  // 1.c4 g6
-  ['rnbqkbnr/pppppp1p/6p1/8/2P5/8/PP1PPPPP/RNBQKBNR w', 'English Opening'],
-
-  // ─── 1.Nf3 Reti ────────────────────────────────────────────
-  ['rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b', 'Reti Opening'],
-  // 1.Nf3 d5
-  ['rnbqkbnr/ppp1pppp/8/3p4/8/5N2/PPPPPPPP/RNBQKB1R w', 'Reti Opening'],
-  // 1.Nf3 d5 2.c4
-  ['rnbqkbnr/ppp1pppp/8/3p4/2P5/5N2/PP1PPPPP/RNBQKB1R b', 'Reti Opening'],
-  // 1.Nf3 d5 2.g3
-  ['rnbqkbnr/ppp1pppp/8/3p4/8/5NP1/PPPPPP1P/RNBQKB1R b', 'King\'s Indian Attack'],
-  // 1.Nf3 Nf6
-  ['rnbqkb1r/pppppppp/5n2/8/8/5N2/PPPPPPPP/RNBQKB1R w', 'Reti Opening'],
-  // 1.Nf3 Nf6 2.c4 g6 3.Nc3 Bg7 4.e4 d6
-  // → transposes to KID, covered above
-
-  // ─── 1.g3 / 1.b3 / 1.f4 ───────────────────────────────────
-  ['rnbqkbnr/pppppppp/8/8/8/6P1/PPPPPP1P/RNBQKBNR b', 'Hungarian Opening'],
-  ['rnbqkbnr/pppppppp/8/8/8/1P6/P1PPPPPP/RNBQKBNR b', 'Larsen\'s Opening'],
+  ['rnbqkbnr/pppppppp/8/8/8/P7/1PPPPPPP/RNBQKBNR b', 'Anderssen Opening'],
+  ['rnbqkbnr/pppppppp/8/8/6P1/8/PPPPPP1P/RNBQKBNR b', 'Grob Opening'],
+  ['rnbqkbnr/pppppppp/8/8/1P6/8/P1PPPPPP/RNBQKBNR b', 'Polish Opening'],
+  ['rnbqkbnr/pppppppp/8/8/8/2N5/PPPPPPPP/R1BQKBNR b', 'Van Geet Opening'],
   ['rnbqkbnr/pppppppp/8/8/5P2/8/PPPPP1PP/RNBQKBNR b', 'Bird\'s Opening'],
-  // 1.f4 d5
-  ['rnbqkbnr/ppp1pppp/8/3p4/5P2/8/PPPPP1PP/RNBQKBNR w', 'Bird\'s Opening'],
-  // 1.f4 e5
-  ['rnbqkbnr/pppp1ppp/8/4p3/5P2/8/PPPPP1PP/RNBQKBNR w', 'Bird\'s Opening: From Gambit'],
-
-  // ─── Grob / Misc ────────────────────────────────────────────
-  ['rnbqkbnr/pppppppp/8/8/6P1/8/PPPPPP1P/RNBQKBNR b', 'Grob\'s Attack'],
-
-  // ─── 1.d4 d6 / 1.d4 g6 — Old Indian / King's Indian setups ─
-  // 1.d4 d6
-  ['rnbqkbnr/ppp1pppp/3p4/8/3P4/8/PPP1PPPP/RNBQKBNR w', 'Old Indian Defense'],
-  // 1.d4 g6
-  ['rnbqkbnr/pppppp1p/6p1/8/3P4/8/PPP1PPPP/RNBQKBNR w', 'Modern Defense'],
-
-  // ─── 1.d4 e6 — can transpose to French/QGD ─────────────────
-  // 1.d4 e6
-  ['rnbqkbnr/pppp1ppp/4p3/8/3P4/8/PPP1PPPP/RNBQKBNR w', 'Indian Game'],
-
-  // ─── 1.e4 b5 — Polish/Owen ─────────────────────────────────
-  // Handled under Owen above
-
-  // ─── Uncommon but known 1.e4 responses ──────────────────────
-  // 1.e4 e5 2.d4 exd4 3.Qxd4
-  ['rnbqkbnr/pppp1ppp/8/8/3QP3/8/PPP2PPP/RNB1KBNR b', 'Center Game'],
-  // 1.e4 e5 2.d4 exd4 3.c3
-  ['rnbqkbnr/pppp1ppp/8/8/3pP3/2P5/PP3PPP/RNBQKBNR b', 'Danish Gambit'],
-
-  // ─── Four Knights ───────────────────────────────────────────
-  // 1.e4 e5 2.Nf3 Nc6 3.Nc3 Nf6
-  ['r1bqkb1r/pppp1ppp/2n2n2/4p3/4P3/2N2N2/PPPP1PPP/R1BQKB1R w', 'Four Knights Game'],
-
-  // ─── Three Knights ──────────────────────────────────────────
-  // 1.e4 e5 2.Nf3 Nc6 3.Nc3
-  ['r1bqkbnr/pppp1ppp/2n5/4p3/4P3/2N2N2/PPPP1PPP/R1BQKB1R b', 'Three Knights Game'],
-
-  // ─── Hungarian / Giuoco Piano ───────────────────────────────
-  // 1.e4 e5 2.Nf3 Nc6 3.Bc4 Be7
-  ['r1bqk1nr/ppppbppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w', 'Hungarian Defense'],
-
-  // ─── Queen's Pawn misc ─────────────────────────────────────
-  // 1.d4 Nf6 2.c4 e6 3.Nf3
-  ['rnbqkb1r/pppp1ppp/4pn2/8/2PP4/5N2/PP2PPPP/RNBQKB1R b', 'Indian Game'],
-  // 1.d4 Nf6 2.c4 e6
-  ['rnbqkb1r/pppp1ppp/4pn2/8/2PP4/8/PP2PPPP/RNBQKBNR w', 'Indian Game'],
-
-  // ─── Chigorin ───────────────────────────────────────────────
-  // 1.d4 d5 2.c4 Nc6
-  ['r1bqkbnr/ppp1pppp/2n5/3p4/2PP4/8/PP2PPPP/RNBQKBNR w', 'Chigorin Defense'],
-
-  // ─── Tarrasch Defense ───────────────────────────────────────
-  // 1.d4 d5 2.c4 e6 3.Nc3 c5
-  ['rnbqkbnr/pp3ppp/4p3/2pp4/2PP4/2N5/PP2PPPP/R1BQKBNR w', 'Tarrasch Defense'],
-
-  // ─── Albin Countergambit ────────────────────────────────────
-  // 1.d4 d5 2.c4 e5
-  ['rnbqkbnr/ppp2ppp/8/3pp3/2PP4/8/PP2PPPP/RNBQKBNR w', 'Albin Countergambit'],
-
-  // ─── Budapest Gambit ────────────────────────────────────────
-  // 1.d4 Nf6 2.c4 e5
-  ['rnbqkb1r/pppp1ppp/5n2/4p3/2PP4/8/PP2PPPP/RNBQKBNR w', 'Budapest Gambit'],
-
-  // ─── Benko Gambit ───────────────────────────────────────────
-  // 1.d4 Nf6 2.c4 c5 3.d5 b5
-  ['rnbqkb1r/p2ppppp/5n2/1ppP4/2P5/8/PP2PPPP/RNBQKBNR w', 'Benko Gambit'],
-
-  // ─── King's Indian Attack (as White system) ────────────────
-  // 1.Nf3 d5 2.g3 Nf6 3.Bg2 g6
-  ['rnbqkb1r/ppp1pp1p/5np1/3p4/8/5NP1/PPPPPPBP/RNBQK2R w', 'King\'s Indian Attack'],
-  // 1.e4 e6 2.d3 d5 3.Nd2 Nf6 4.Ngf3 Nc6 — KIA vs French not included (too specific)
-
-  // ─── Ponziani ───────────────────────────────────────────────
-  // 1.e4 e5 2.Nf3 Nc6 3.c3
+  ['rnbqkbnr/pppppppp/8/8/8/1P6/P1PPPPPP/RNBQKBNR b', 'Nimzowitsch-Larsen Attack'],
+  ['rnbqkbnr/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR b', 'Van \'t Kruijs Opening'],
+  ['rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b', 'English Opening'],
+  ['rnbqkbnr/pppppppp/8/8/8/3P4/PPP1PPPP/RNBQKBNR b', 'Mieses Opening'],
+  ['rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b', 'Réti Opening'],
+  ['rnbqkbnr/pppppppp/8/8/8/6P1/PPPPPP1P/RNBQKBNR b', 'King\'s Fianchetto Opening'],
+  ['rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b', 'Queen\'s Pawn Opening'],
+  ['rnbqkbnr/pp1ppppp/8/2p5/8/1P6/P1PPPPPP/RNBQKBNR w', 'Nimzowitsch-Larsen Attack: English Variation'],
+  ['rnbqkbnr/pppp1ppp/4p3/8/3P4/8/PPP1PPPP/RNBQKBNR w', 'Queen\'s Pawn Opening: Horwitz Defense'],
+  ['rnbqkbnr/pp1ppppp/8/2p5/8/5N2/PPPPPPPP/RNBQKB1R w', 'Réti Opening: Sicilian Invitation'],
+  ['rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w', 'Scandinavian Defense'],
+  ['rnbqkbnr/pp1ppppp/8/2p5/3P4/8/PPP1PPPP/RNBQKBNR w', 'Old Benoni Defense'],
+  ['rnbqkb1r/pppppppp/5n2/8/8/1P6/P1PPPPPP/RNBQKBNR w', 'Nimzowitsch-Larsen Attack: Indian Variation'],
+  ['rnbqkbnr/pppp1ppp/8/4p3/2P5/8/PP1PPPPP/RNBQKBNR w', 'English Opening: King\'s English Variation'],
+  ['rnbqkbnr/pppp1ppp/8/4p3/3P4/8/PPP1PPPP/RNBQKBNR w', 'Englund Gambit'],
+  ['rnbqkbnr/pppppp1p/6p1/8/8/6P1/PPPPPP1P/RNBQKBNR w', 'King\'s Fianchetto Opening: Symmetrical Variation'],
+  ['rnbqkbnr/pp1ppppp/8/2p5/2P5/8/PP1PPPPP/RNBQKBNR w', 'English Opening: Symmetrical Variation'],
+  ['rnbqkbnr/pppppp1p/6p1/8/4P3/8/PPPP1PPP/RNBQKBNR w', 'Modern Defense with 1.e4'],
+  ['rnbqkbnr/pppp1ppp/4p3/8/2P5/8/PP1PPPPP/RNBQKBNR w', 'English Opening: Agincourt Defense'],
+  ['rnbqkbnr/pp1ppppp/2p5/8/2P5/8/PP1PPPPP/RNBQKBNR w', 'English Opening: Caro-Kann Defensive System'],
+  ['rnbqkbnr/pppppp1p/6p1/8/8/5N2/PPPPPPPP/RNBQKB1R w', 'Réti Opening: Kingside Fianchetto Variation'],
+  ['rnbqkbnr/p1pppppp/1p6/8/4P3/8/PPPP1PPP/RNBQKBNR w', 'Owen\'s Defense'],
+  ['rnbqkbnr/1ppppppp/p7/8/3P4/8/PPP1PPPP/RNBQKBNR w', 'Queen\'s Pawn Opening: St. George Defense'],
+  ['rnbqkbnr/pppp1ppp/4p3/8/8/5N2/PPPPPPPP/RNBQKB1R w', 'Réti Opening: Queen\'s Gambit Invitation'],
+  ['rnbqkbnr/pppp1ppp/8/4p3/8/1P6/P1PPPPPP/RNBQKBNR w', 'Nimzowitsch-Larsen Attack: Modern Variation'],
+  ['r1bqkbnr/pppppppp/2n5/8/4P3/8/PPPP1PPP/RNBQKBNR w', 'Nimzowitsch Defense'],
+  ['rnbqkbnr/ppp1pppp/3p4/8/8/5N2/PPPPPPPP/RNBQKB1R w', 'Réti Opening: Pirc Invitation'],
+  ['rnbqkbnr/ppp1pppp/8/3p4/5P2/8/PPPPP1PP/RNBQKBNR w', 'Bird\'s Opening: Dutch Variation'],
+  ['rnbqkbnr/ppp1pppp/8/3p4/8/1P6/P1PPPPPP/RNBQKBNR w', 'Nimzowitsch-Larsen Attack: Classical Variation'],
+  ['rnbqkbnr/pppp1ppp/4p3/8/4P3/8/PPPP1PPP/RNBQKBNR w', 'French Defense'],
+  ['rnbqkbnr/ppppp1pp/8/5p2/8/5N2/PPPPPPPP/RNBQKB1R w', 'Réti Opening: Dutch Variation'],
+  ['rnbqkb1r/pppppppp/5n2/8/8/6P1/PPPPPP1P/RNBQKBNR w', 'King\'s Fianchetto Opening: Indian Defense'],
+  ['rnbqkb1r/pppppppp/5n2/8/3P4/8/PPP1PPPP/RNBQKBNR w', 'Indian Game'],
+  ['rnbqkbnr/pp1ppppp/2p5/8/4P3/8/PPPP1PPP/RNBQKBNR w', 'Caro-Kann Defense'],
+  ['rnbqkbnr/ppppp1pp/8/5p2/2P5/8/PP1PPPPP/RNBQKBNR w', 'English Opening: Anglo-Dutch Defense'],
+  ['rnbqkbnr/ppppp1pp/8/5pB1/3P4/8/PPP1PPPP/RN1QKBNR b', 'Dutch Defense: Hopton Attack'],
+  ['rnbqkbnr/pp1ppppp/8/2p5/4P3/1P6/P1PP1PPP/RNBQKBNR b', 'Sicilian Defense: Cowboy Attack'],
+  ['rnbqkbnr/pppp1ppp/4p3/8/4P3/2N5/PPPP1PPP/R1BQKBNR b', 'French Defense: Queen\'s Knight Variation'],
+  ['rnbqkbnr/pppp1ppp/8/4p3/4PP2/8/PPPP2PP/RNBQKBNR b', 'King\'s Gambit'],
+  ['rnbqkb1r/pppppppp/5n2/8/8/4PN2/PPPP1PPP/RNBQKB1R b', 'Réti Opening: Quiet System'],
+  ['rnbqkbnr/pp1ppppp/8/2p5/3PP3/8/PPP2PPP/RNBQKBNR b', 'Sicilian Defense: Smith-Morra Gambit'],
+  ['rnbqkbnr/pp1ppppp/8/2p5/2P1P3/8/PP1P1PPP/RNBQKBNR b', 'Sicilian Defense: Staunton-Cochrane Variation'],
+  ['rnbqkb1r/pppppppp/5n2/8/8/1P3N2/P1PPPPPP/RNBQKB1R b', 'Réti Opening: Nimzo-Larsen Variation'],
+  ['rnbqkbnr/ppp1pppp/8/3p4/2P5/5N2/PP1PPPPP/RNBQKB1R b', 'Réti Opening: Réti Gambit'],
+  ['rnbqkbnr/ppp1pppp/3p4/8/3P4/5N2/PPP1PPPP/RNBQKB1R b', 'Queen\'s Pawn Opening: Tartakower Variation'],
+  ['rnbqkbnr/ppp1pppp/8/3p4/3P4/2N5/PPP1PPPP/R1BQKBNR b', 'Queen\'s Pawn Opening: Chigorin Variation'],
+  ['r1bqkbnr/pppppppp/2n5/8/4P3/5N2/PPPP1PPP/RNBQKB1R b', 'Nimzowitsch Defense Declined'],
+  ['rnbqkbnr/ppp1pppp/8/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR b', 'Queen\'s Pawn Opening: Accelerated London System'],
+  ['rnbqkbnr/ppppp1pp/8/5p2/3P4/2N5/PPP1PPPP/R1BQKBNR b', 'Dutch Defense: Raphael Variation'],
+  ['rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPPNPPP/RNBQKB1R b', 'Sicilian Defense: Keres Variation'],
+  ['rnbqkbnr/pppp1ppp/4p3/8/4P3/3P4/PPP2PPP/RNBQKBNR b', 'French Defense: King\'s Indian Attack'],
+  ['rnbqkbnr/pppp1ppp/8/4p3/4P3/2N5/PPPP1PPP/R1BQKBNR b', 'Vienna Game'],
+  ['rnbqkbnr/pppp1ppp/8/4p3/3PP3/8/PPP2PPP/RNBQKBNR b', 'Center Game'],
+  ['rnbqkbnr/pp1ppppp/2p5/8/4P3/3P4/PPP2PPP/RNBQKBNR b', 'Caro-Kann Defense: Breyer Variation'],
+  ['rnbqkbnr/pp1ppppp/8/2p5/4PP2/8/PPPP2PP/RNBQKBNR b', 'Sicilian Defense: McDonnell Attack'],
+  ['rnbqkbnr/pppp1ppp/4p3/8/4P3/8/PPPPQPPP/RNB1KBNR b', 'French Defense: Chigorin Variation'],
+  ['rnbqkbnr/ppp1pppp/8/3p4/4P3/2N5/PPPP1PPP/R1BQKBNR b', 'Scandinavian Defense: Closed'],
+  ['rnbqkbnr/pp1ppppp/8/2p5/4P3/6P1/PPPP1P1P/RNBQKBNR b', 'Sicilian Defense: Lasker-Dunne Attack'],
+  ['rnbqkb1r/pppppppp/5n2/8/8/5NP1/PPPPPP1P/RNBQKB1R b', 'Réti Opening: King\'s Indian Attack'],
+  ['rnbqkbnr/pppp1ppp/8/4p3/2P5/2N5/PP1PPPPP/R1BQKBNR b', 'English Opening: Reversed Sicilian Variation'],
+  ['rnbqkbnr/ppp1pppp/3p4/8/4P3/5N2/PPPP1PPP/RNBQKB1R b', 'Pirc Defense: Modern Defense, Geller System'],
+  ['rnbqkbnr/pp1ppppp/8/2p5/1P2P3/8/P1PP1PPP/RNBQKBNR b', 'Sicilian Defense: Wing Gambit'],
+  ['rnbqkbnr/pppp1ppp/4p3/8/4P3/1P6/P1PP1PPP/RNBQKBNR b', 'French Defense: Horwitz Attack'],
+  ['rnbqkbnr/pp1ppppp/8/2p5/4P3/P7/1PPP1PPP/RNBQKBNR b', 'Sicilian Defense: Mengarini Variation'],
+  ['rnbqkb1r/pppppppp/5n2/8/2P5/2N5/PP1PPPPP/R1BQKBNR b', 'English Opening: Anglo-Indian, Queen\'s Knight Variation'],
+  ['rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPPBPPP/RNBQK1NR b', 'Sicilian Defense: Slow Variation'],
+  ['rnbqkbnr/ppp1pppp/8/3p4/8/5NP1/PPPPPP1P/RNBQKB1R b', 'King\'s Indian Attack'],
+  ['rnbqkbnr/pp1ppppp/8/2p5/4P3/2P5/PP1P1PPP/RNBQKBNR b', 'Alapin Sicilian Defense'],
+  ['rnbqkbnr/ppp1pppp/8/3p4/2PP4/8/PP2PPPP/RNBQKBNR b', 'Queen\'s Gambit'],
+  ['rnbqkb1r/pppppppp/5n2/8/3P4/5N2/PPP1PPPP/RNBQKB1R b', 'Indian Game: Knights Variation'],
+  ['rnbqkbnr/ppppp1pp/8/5p2/3PP3/8/PPP2PPP/RNBQKBNR b', 'Dutch Defense: Staunton Gambit'],
+  ['rnbqkb1r/pppppppp/5n2/6B1/3P4/8/PPP1PPPP/RN1QKBNR b', 'Trompowsky Attack'],
+  ['r1bqkbnr/ppp1pppp/2n5/3p4/2PP4/8/PP2PPPP/RNBQKBNR w', 'Queen\'s Gambit Declined: Chigorin Defense'],
+  ['rnbqkbnr/pp2pppp/2p5/3p4/8/6P1/PPPPPPBP/RNBQK1NR w', 'King\'s Fianchetto Opening: Slav Formation'],
+  ['rnbqk1nr/pppp1ppp/8/2b1p3/4PP2/8/PPPP2PP/RNBQKBNR w', 'King\'s Gambit Declined: Classical Variation'],
+  ['rnbqkbnr/p1pp1ppp/1p2p3/8/2PP4/8/PP2PPPP/RNBQKBNR w', 'Queen\'s Pawn Opening: English Defense'],
+  ['rnbqkbnr/ppp1pp1p/6p1/3p4/8/5NP1/PPPPPP1P/RNBQKB1R w', 'King\'s Indian Attack: Double Fianchetto Variation'],
+  ['rnbqkb1r/ppp1pppp/3p1n2/8/3P4/5N2/PPP1PPPP/RNBQKB1R w', 'Indian Game: Tartakower Defense'],
+  ['rnbqkbnr/1ppp1ppp/p3p3/8/3PP3/8/PPP2PPP/RNBQKBNR w', 'French Defense: St. George Defense'],
+  ['rnbqkbnr/pp2pppp/2p5/3p4/4P3/2N5/PPPP1PPP/R1BQKBNR w', 'Caro-Kann Defense'],
+  ['rnbqkb1r/ppp1pppp/5n2/3P4/8/8/PPPP1PPP/RNBQKBNR w', 'Scandinavian Defense: Modern Variation'],
+  ['rnbqkbnr/pppp1ppp/8/8/4Pp2/8/PPPP2PP/RNBQKBNR w', 'King\'s Gambit Accepted'],
+  ['r1bqkbnr/pp1ppppp/2n5/2p5/2P5/2N5/PP1PPPPP/R1BQKBNR w', 'English Opening: Symmetrical, Two Knights Variation'],
+  ['rnbqkb1r/ppp1pppp/5n2/3p4/3P4/5N2/PPP1PPPP/RNBQKB1R w', 'Queen\'s Pawn Opening: Symmetrical Variation'],
+  ['rnbqkb1r/pppppp1p/5np1/8/3P4/5N2/PPP1PPPP/RNBQKB1R w', 'Indian Game: Knights Variation, East Indian Defense'],
+  ['rnbqkbnr/ppp1pppp/8/8/2Pp4/5N2/PP1PPPPP/RNBQKB1R w', 'Réti Opening: Réti Gambit Declined, Advance Variation'],
+  ['r1bqkbnr/pppp1ppp/2n5/4p3/3PP3/8/PPP2PPP/RNBQKBNR w', 'Nimzowitsch Defense: Kennedy Variation'],
+  ['rnbqkbnr/ppppp1pp/8/8/3Pp3/8/PPP2PPP/RNBQKBNR w', 'Dutch Defense: Staunton Gambit Accepted'],
+  ['rnbqkbnr/ppp2ppp/3p4/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w', 'Philidor Defense'],
+  ['rnbqkbnr/ppp1pp1p/3p2p1/8/3P4/5N2/PPP1PPPP/RNBQKB1R w', 'Queen\'s Pawn Opening: Rossolimo Variation'],
+  ['rnbqkb1r/pppppp1p/5np1/8/2PP4/8/PP2PPPP/RNBQKBNR w', 'King\'s Indian Defense'],
+  ['rnbqkb1r/pppp1ppp/4pn2/6B1/3P4/8/PPP1PPPP/RN1QKBNR w', 'Trompowsky Attack: Classical Defense'],
+  ['r1bqkbnr/pppp1ppp/2n5/4p3/2P5/2N5/PP1PPPPP/R1BQKBNR w', 'English Opening: Reversed Sicilian, Closed'],
+  ['rnbqkbnr/pppp2pp/4p3/5p2/2PP4/8/PP2PPPP/RNBQKBNR w', 'Dutch Defense: Classical Variation'],
+  ['rnbqkbnr/ppp2ppp/8/3pp3/4PP2/8/PPPP2PP/RNBQKBNR w', 'King\'s Gambit Declined: Falkbeer Countergambit'],
+  ['rnbqkbnr/ppp1pp1p/3p2p1/8/2PP4/8/PP2PPPP/RNBQKBNR w', 'Modern Defense'],
+  ['rnbqkb1r/pppp1ppp/4pn2/8/2PP4/8/PP2PPPP/RNBQKBNR w', 'Indian Game: East Indian Defense'],
+  ['rnbqkb1r/pppp1ppp/5n2/4p3/2B1P3/8/PPPP1PPP/RNBQK1NR w', 'Bishop\'s Opening: Berlin Defense'],
+  ['r1bqkbnr/pp1ppppp/2n5/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w', 'Sicilian Defense: Old Sicilian Variation'],
+  ['rnb1kbnr/ppp1pppp/8/3q4/8/8/PPPP1PPP/RNBQKBNR w', 'Scandinavian Defense: Mieses-Kotrč Variation'],
+  ['rnbqkbnr/1p1ppppp/p7/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w', 'Sicilian Defense: O\'Kelly Variation'],
+  ['rnbqkb1r/pppppppp/8/3nP3/8/8/PPPP1PPP/RNBQKBNR w', 'Alekhine\'s Defense: Normal Variation'],
+  ['r1bqkbnr/ppp1pppp/2n5/3p4/3P4/5N2/PPP1PPPP/RNBQKB1R w', 'Queen\'s Pawn Opening: Zukertort, Chigorin Variation'],
+  ['rnbqkbnr/ppp2ppp/3p4/4p3/3PP3/8/PPP2PPP/RNBQKBNR w', 'Pirc Defense: Maróczy Defense'],
+  ['rn1qkbnr/ppp1pppp/8/3p4/6b1/5NP1/PPPPPP1P/RNBQKB1R w', 'King\'s Indian Attack: Keres Variation'],
+  ['rnbqkbnr/pp1ppp1p/2p3p1/8/3PP3/8/PPP2PPP/RNBQKBNR w', 'Modern Defense: Gurgenidze Variation'],
+  ['rnbqkb1r/ppp1pppp/5n2/3p4/2PP4/8/PP2PPPP/RNBQKBNR w', 'Queen\'s Gambit Declined: Marshall Defense'],
+  ['rnbqkb1r/pp1ppppp/5n2/2p5/2PP4/8/PP2PPPP/RNBQKBNR w', 'Benoni Defense'],
+  ['rnbqkbnr/pp2pppp/8/2pp4/8/5NP1/PPPPPP1P/RNBQKB1R w', 'King\'s Indian Attack: Sicilian Variation'],
+  ['rnbqkbnr/pppp1ppp/8/8/3pP3/8/PPP2PPP/RNBQKBNR w', 'Center Game Accepted'],
+  ['rnbqkbnr/pp2pppp/8/2pp4/3P4/5N2/PPP1PPPP/RNBQKB1R w', 'Queen\'s Pawn Opening: Krause Variation'],
+  ['rnbqkbnr/pp2pppp/8/2pp4/3P1B2/8/PPP1PPPP/RN1QKBNR w', 'Queen\'s Pawn Opening: Accelerated London, Steinitz Countergambit'],
+  ['r1bqkbnr/pppp1ppp/2n5/4p3/4P3/2N5/PPPP1PPP/R1BQKBNR w', 'Vienna Game: Max Lange Defense'],
+  ['rnbqkb1r/ppp1pppp/5n2/3p4/8/5NP1/PPPPPP1P/RNBQKB1R w', 'King\'s Indian Attack: Yugoslav Variation'],
+  ['rnbqkb1r/pp1ppppp/5n2/2pP4/8/8/PPP1PPPP/RNBQKBNR w', 'Old Benoni Defense: Benoni-Indian Defense'],
+  ['rnbqk1nr/pppp1ppp/8/4p3/1bP5/2N5/PP1PPPPP/R1BQKBNR w', 'English Opening: Reversed Sicilian, Kramnik-Shirov Counterattack'],
+  ['rnbqkbnr/pp2pppp/2p5/3p4/2P5/5N2/PP1PPPPP/RNBQKB1R w', 'English Opening: Caro-Kann Defensive System'],
+  ['rnbqkb1r/p1pppppp/5n2/1p6/8/5NP1/PPPPPP1P/RNBQKB1R w', 'Réti Opening: King\'s Indian Attack, Spassky Variation'],
+  ['r1bqkbnr/ppp1pppp/2np4/8/4P3/5N2/PPPP1PPP/RNBQKB1R w', 'Nimzowitsch Defense Declined: Williams Variation'],
+  ['rnbqkb1r/ppp1pppp/3p1n2/8/2P5/5N2/PP1PPPPP/RNBQKB1R w', 'English Opening: Anglo-Indian, Old Indian Formation'],
+  ['rnbqkbnr/pp1p1ppp/2p5/4p3/2P1P3/8/PP1P1PPP/RNBQKBNR w', 'Caro-Kann Defense: Accelerated Panov, Open'],
+  ['rnbqkbnr/pp1ppp1p/6p1/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w', 'Sicilian Defense: Hyperaccelerated Dragon Variation'],
+  ['rnbqkb1r/ppp1pppp/5n2/3p4/2P5/2N5/PP1PPPPP/R1BQKBNR w', 'English Opening: Anglo-Indian, Anglo-Grünfeld Defense'],
+  ['rnbqkbnr/ppp2ppp/8/3pp3/2PP4/8/PP2PPPP/RNBQKBNR w', 'Queen\'s Gambit Declined: Albin Countergambit'],
+  ['rnbqkb1r/pp1ppppp/5n2/2p5/3P4/5N2/PPP1PPPP/RNBQKB1R w', 'Indian Game: Spielmann-Indian Variation'],
+  ['rnbqkbnr/ppp1pppp/8/8/2p5/5N2/PP1PPPPP/RNBQKB1R w', 'Réti Opening: Réti Gambit Accepted'],
+  ['rn1qkbnr/ppp1pppp/8/3p1b2/2PP4/8/PP2PPPP/RNBQKBNR w', 'Queen\'s Gambit Declined: Baltic Defense'],
+  ['rnbqkbnr/1p1ppppp/p7/2p5/4P3/2P2N2/PP1P1PPP/RNBQKB1R b', 'Sicilian Defense: O\'Kelly, Venice System'],
+  ['rnbqkbnr/ppp1pppp/8/8/2pPP3/8/PP3PPP/RNBQKBNR b', 'Queen\'s Gambit Accepted: Central Variation'],
+  ['rnbqkb1r/pppppppp/8/8/3Pn2B/8/PPP1PPPP/RN1QKBNR b', 'Trompowsky Attack: Edge Variation'],
+  ['rnbqkb1r/pppp1ppp/5n2/4p3/4P3/2N3P1/PPPP1P1P/R1BQKBNR b', 'Vienna Game: Falkbeer, Mieses Variation'],
+  ['rnbqkb1r/ppp1pppp/5n2/3p4/3P4/5NP1/PPP1PP1P/RNBQKB1R b', 'Queen\'s Pawn Opening: Pseudo-Catalan Variation'],
+  ['r1bqkbnr/pppp1ppp/2n5/4p3/4P3/2N3P1/PPPP1P1P/R1BQKBNR b', 'Vienna Game: Max Lange, Paulsen Variation'],
+  ['rnbqkbnr/pppp2pp/4p3/5p2/2PP4/2N5/PP2PPPP/R1BQKBNR b', 'Dutch Defense: Classical, Rubinstein Variation'],
+  ['rnbqkb1r/pppppp1p/5np1/8/3P1B2/5N2/PPP1PPPP/RN1QKB1R b', 'Indian Game: East Indian, London System'],
+  ['rnbqkb1r/pppp1ppp/4pn2/8/3P1B2/5N2/PPP1PPPP/RN1QKB1R b', 'Indian Game: London System'],
+  ['rnbqkb1r/ppp1pppp/3p1n2/8/3PP3/5P2/PPP3PP/RNBQKBNR b', 'Pirc Defense: Lion\'s Jaw Variation'],
+  ['rnbqkbnr/ppp2ppp/4p3/3p4/3PP3/3B4/PPP2PPP/RNBQK1NR b', 'French Defense: Schlechter Variation'],
+  ['rnbqkbnr/ppp2ppp/4p3/3p4/2P5/5NP1/PP1PPP1P/RNBQKB1R b', 'English Opening: Agincourt Defense'],
+  ['rnbqkb1r/pppp1ppp/5n2/4p3/2P5/2N3P1/PP1PPP1P/R1BQKBNR b', 'English Opening: Carls-Bremen System'],
+  ['rnbqkb1r/pp1ppppp/5n2/2pP4/8/5N2/PPP1PPPP/RNBQKB1R b', 'Indian Game: Spielmann-Indian Variation'],
+  ['rnbqkb1r/pppp1ppp/5n2/4p3/4P3/2N2N2/PPPP1PPP/R1BQKB1R b', 'Petrov\'s Defense: Three Knights Game'],
+  ['r1bqkbnr/pp1ppppp/2n5/2p5/4PP2/2N5/PPPP2PP/R1BQKBNR b', 'Closed Sicilian Defense: Grand Prix Attack'],
+  ['rnbqkb1r/pp1ppppp/5n2/2p5/2PP4/5N2/PP2PPPP/RNBQKB1R b', 'English Opening: Symmetrical, Anti-Benoni Variation'],
   ['r1bqkbnr/pppp1ppp/2n5/4p3/4P3/2P2N2/PP1P1PPP/RNBQKB1R b', 'Ponziani Opening'],
-
-  // ─── Latvian Gambit ─────────────────────────────────────────
-  // 1.e4 e5 2.Nf3 f5
-  ['rnbqkbnr/pppp2pp/8/4pp2/4P3/5N2/PPPP1PPP/RNBQKB1R w', 'Latvian Gambit'],
-
-  // ─── Sicilian: Accelerated Dragon ──────────────────────────
-  // 1.e4 c5 2.Nf3 Nc6 3.d4 cxd4 4.Nxd4 g6
-  ['r1bqkbnr/pp1ppp1p/2n3p1/8/3NP3/8/PPP2PPP/RNBQKB1R w', 'Sicilian: Accelerated Dragon'],
-
-  // ─── Sicilian: Kalashnikov ─────────────────────────────────
-  // 1.e4 c5 2.Nf3 Nc6 3.d4 cxd4 4.Nxd4 e5 5.Nb5 d6
-  ['r1bqkbnr/pp3ppp/2np4/1N2p3/4P3/8/PPP2PPP/RNBQKB1R w', 'Sicilian: Kalashnikov'],
-
-  // ─── Sicilian: Hyper-Accelerated Dragon ────────────────────
-  // 1.e4 c5 2.Nf3 g6
-  ['rnbqkbnr/pp1ppp1p/6p1/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w', 'Sicilian: Hyper-Accelerated Dragon'],
-
-  // ─── QGD: Ragozin ───────────────────────────────────────────
-  // 1.d4 d5 2.c4 e6 3.Nc3 Nf6 4.Nf3 Bb4
-  ['rnbqk2r/ppp2ppp/4pn2/3p4/1bPP4/2N2N2/PP2PPPP/R1BQKB1R w', 'QGD: Ragozin'],
-
-  // ─── QGD: Semi-Tarrasch ─────────────────────────────────────
-  // 1.d4 d5 2.c4 e6 3.Nc3 Nf6 4.Nf3 c5
-  ['rnbqkb1r/pp3ppp/4pn2/2pp4/2PP4/2N2N2/PP2PPPP/R1BQKB1R w', 'QGD: Semi-Tarrasch'],
-
-  // ─── King's Fianchetto (Benko Opening) ─────────────────────
-  // 1.g3 d5
-  ['rnbqkbnr/ppp1pppp/8/3p4/8/6P1/PPPPPP1P/RNBQKBNR w', 'Benko Opening'],
-
-  // ─── Zukertort / Reti systems ──────────────────────────────
-  // 1.Nf3 d5 2.c4 c6
-  ['rnbqkbnr/pp2pppp/2p5/3p4/2P5/5N2/PP1PPPPP/RNBQKB1R w', 'Reti: Anti-Slav'],
-  // 1.Nf3 d5 2.c4 e6
-  ['rnbqkbnr/ppp2ppp/4p3/3p4/2P5/5N2/PP1PPPPP/RNBQKB1R w', 'Reti Opening'],
-
-  // ─── 1.e4 rare but named lines ─────────────────────────────
-  // 1.e4 e5 2.Nf3 d5 — Elephant Gambit
-  ['rnbqkbnr/ppp2ppp/8/3pp3/4P3/5N2/PPPP1PPP/RNBQKB1R w', 'Elephant Gambit'],
-
-  // 1.e4 e5 2.Nf3 Nc6 3.d4 exd4 4.Bc4 — Scotch Gambit
-  ['r1bqkbnr/pppp1ppp/2n5/8/2BpP3/5N2/PPP2PPP/RNBQK2R b', 'Scotch Gambit'],
-
-  // ─── Symmetrical English ────────────────────────────────────
-  // 1.c4 c5 2.Nc3 Nc6
-  ['r1bqkbnr/pp1ppppp/2n5/2p5/2P5/2N5/PP1PPPPP/R1BQKBNR w', 'English: Symmetrical'],
-
-  // ─── English: Botvinnik System ──────────────────────────────
-  // 1.c4 e5 2.Nc3 Nc6 3.g3 g6 4.Bg2 Bg7 5.e4
-  // Too deep; keeping simpler English entries
-
-  // ─── Semi-Slav: Meran ───────────────────────────────────────
-  // 1.d4 d5 2.c4 c6 3.Nf3 Nf6 4.Nc3 e6 5.e3 Nbd7 6.Bd3 dxc4 7.Bxc4 b5
-  ['r1bqkb1r/p2n1ppp/2p1pn2/1p6/2BP4/2N1PN2/PP3PPP/R1BQK2R w', 'Semi-Slav: Meran'],
-
-  // ─── Slav: main line ────────────────────────────────────────
-  // 1.d4 d5 2.c4 c6 3.Nf3 Nf6
-  ['rnbqkb1r/pp2pppp/2p2n2/3p4/2PP4/5N2/PP2PPPP/RNBQKB1R w', 'Slav Defense'],
-  // 1.d4 d5 2.c4 c6 3.Nf3 Nf6 4.Nc3
-  ['rnbqkb1r/pp2pppp/2p2n2/3p4/2PP4/2N2N2/PP2PPPP/R1BQKB1R b', 'Slav Defense'],
-
-  // ─── Blackmar-Diemer Gambit ─────────────────────────────────
-  // 1.d4 d5 2.e4 dxe4 3.Nc3
-  ['rnbqkbnr/ppp1pppp/8/8/3Pp3/2N5/PPP2PPP/R1BQKBNR b', 'Blackmar-Diemer Gambit'],
-
-  // ─── QGD: Vienna / Anti-Vienna ──────────────────────────────
-  // 1.d4 d5 2.c4 e6 3.Nc3 Nf6 4.Nf3 dxc4
-  ['rnbqkb1r/ppp2ppp/4pn2/8/2pP4/2N2N2/PP2PPPP/R1BQKB1R w', 'QGD: Vienna'],
-
-  // ─── Ruy Lopez: Exchange ────────────────────────────────────
-  // 1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Bxc6
-  ['r1bqkbnr/1ppp1ppp/p1B5/4p3/4P3/5N2/PPPP1PPP/RNBQK2R b', 'Ruy Lopez: Exchange'],
-
-  // ─── Ruy Lopez: Open ───────────────────────────────────────
-  // 1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4 Nf6 5.O-O Nxe4
-  ['r1bqkb1r/1ppp1ppp/p1n5/4p3/B3n3/5N2/PPPP1PPP/RNBQ1RK1 w', 'Ruy Lopez: Open'],
-
-  // ─── Caro-Kann: Two Knights ─────────────────────────────────
-  // 1.e4 c6 2.Nf3 d5 3.Nc3
-  ['rnbqkbnr/pp2pppp/2p5/3p4/4P3/2N2N2/PPPP1PPP/R1BQKB1R b', 'Caro-Kann: Two Knights'],
+  ['rnbqkb1r/pp1ppppp/5n2/2p5/4P3/2N2N2/PPPP1PPP/R1BQKB1R b', 'Sicilian Defense: Nimzowitsch, Closed'],
+  ['rnbqkbnr/pppp1ppp/8/8/2B1Pp2/8/PPPP2PP/RNBQK1NR b', 'King\'s Gambit Accepted: Bishop\'s Gambit'],
+  ['rnbqkb1r/pppppppp/8/3nP3/2P5/8/PP1P1PPP/RNBQKBNR b', 'Alekhine\'s Defense: Two Pawns Attack'],
+  ['rnbqkb1r/pp1ppppp/5n2/2p5/2P5/2N3P1/PP1PPP1P/R1BQKBNR b', 'English Opening: Symmetrical, Fianchetto Variation'],
+  ['rnbqkb1r/pppp1ppp/4pn2/8/2P1P3/2N5/PP1P1PPP/R1BQKBNR b', 'English Opening: Mikėnas-Carls Variation'],
+  ['rnbqkbnr/ppp2ppp/4p3/3p4/4P3/1P6/PBPP1PPP/RN1QKBNR b', 'French Defense: Horwitz, Papa-Ticulat Gambit'],
+  ['rnbqkbnr/pp2pppp/2p5/3p4/3PP3/5P2/PPP3PP/RNBQKBNR b', 'Caro-Kann Defense: Fantasy Variation'],
+  ['rnbqkb1r/pppppp1p/5np1/8/2PP4/5P2/PP2P1PP/RNBQKBNR b', 'King\'s Indian Defense: Alekhine Anti-Grünfeld Variation'],
+  ['rnbqkb1r/pppppppp/8/6B1/3Pn2P/8/PPP1PPP1/RN1QKBNR b', 'Trompowsky Attack: Raptor Variation'],
+  ['r1bqkbnr/pppp1ppp/2n5/4p3/2P5/2N2N2/PP1PPPPP/R1BQKB1R b', 'English Opening: Reversed Sicilian, Three Knights System'],
+  ['rnbqkbnr/pp2pppp/3p4/2p5/4PP2/2N5/PPPP2PP/R1BQKBNR b', 'Closed Sicilian Defense: Grand Prix Variation'],
+  ['rnbqkb1r/pppp1ppp/4pn2/6B1/3PP3/8/PPP2PPP/RN1QKBNR b', 'Trompowsky Attack: Classical, Big Center Variation'],
+  ['r1bqkbnr/pp1ppppp/2n5/2p5/4P3/2N5/PPPPNPPP/R1BQKB1R b', 'Closed Sicilian Defense: Chameleon Variation'],
+  ['rnbqkb1r/pppp1ppp/5n2/4p3/3PP3/5N2/PPP2PPP/RNBQKB1R b', 'Petrov\'s Defense: Steinitz Attack'],
+  ['rnbqkbnr/pp1p1ppp/4p3/2p5/4P3/1P3N2/P1PP1PPP/RNBQKB1R b', 'Sicilian Defense: Westerinen Attack'],
+  ['rnbqkbnr/ppp1pppp/8/8/2pP4/4P3/PP3PPP/RNBQKBNR b', 'Queen\'s Gambit Accepted: Old Variation'],
+  ['rnbqkb1r/ppp1pppp/5n2/3p2B1/3P4/2N5/PPP1PPPP/R2QKBNR b', 'Richter-Veresov Attack'],
+  ['rnbqkb1r/ppp1pppp/5n2/3p4/3P4/4PN2/PPP2PPP/RNBQKB1R b', 'Colle System'],
+  ['rnbqkbnr/ppp2ppp/4p3/3p4/2PP4/2N5/PP2PPPP/R1BQKBNR b', 'Queen\'s Gambit Declined: Queen\'s Knight Variation'],
+  ['r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b', 'Italian Game'],
+  ['r1bqkbnr/pppp1ppp/2n5/4p3/4P3/2N2N2/PPPP1PPP/R1BQKB1R b', 'Three Knights Opening'],
+  ['r1bqkbnr/pp1ppppp/2n5/2p5/3PP3/5N2/PPP2PPP/RNBQKB1R b', 'Sicilian Defense: Open'],
+  ['rnbqkbnr/ppp2ppp/4p3/3pP3/3P4/8/PPP2PPP/RNBQKBNR b', 'French Defense: Advance Variation'],
+  ['rnbqkb1r/pppp1ppp/4pn2/8/3P4/4PN2/PPP2PPP/RNBQKB1R b', 'Indian Game: Yusupov-Rubinstein System'],
+  ['rnbqkbnr/pp2pppp/2p5/3p4/2PP4/5N2/PP2PPPP/RNBQKB1R b', 'Slav Defense: Modern Line'],
+  ['rnbqk1nr/ppppppbp/6p1/8/2PP4/2N5/PP2PPPP/R1BQKBNR b', 'Modern Defense with 1.d4'],
+  ['rnbqkbnr/pp2pppp/2p5/3P4/3P4/8/PPP2PPP/RNBQKBNR b', 'Caro-Kann Defense: Exchange Variation'],
+  ['rnbqkb1r/pppppp1p/5np1/6B1/3P4/5N2/PPP1PPPP/RN1QKB1R b', 'Torre Attack with 3.Bg5'],
+  ['rnbqkbnr/ppp2ppp/4p3/3p4/3PP3/8/PPPN1PPP/R1BQKBNR b', 'French Defense: Tarrasch Variation'],
+  ['rnbqkbnr/pp2pppp/3p4/2p5/4P3/2P2N2/PP1P1PPP/RNBQKB1R b', 'Sicilian Defense: Delayed Alapin Variation'],
+  ['rnbqkbnr/pp2pppp/2p5/3p4/4P3/2N2N2/PPPP1PPP/R1BQKB1R b', 'Caro-Kann Defense: Two Knights Attack'],
+  ['r1bqkbnr/pp1ppppp/2n5/2p5/4P3/2N3P1/PPPP1P1P/R1BQKBNR b', 'Closed Sicilian Defense: Fianchetto Variation'],
+  ['rnbqkbnr/pp2pppp/2p5/3p4/3PP3/8/PPPN1PPP/R1BQKBNR b', 'Caro-Kann Defense: Modern Variation'],
+  ['rnbqkbnr/pp2pppp/2p5/3pP3/3P4/8/PPP2PPP/RNBQKBNR b', 'Caro-Kann Defense: Advance Variation'],
+  ['rnbqkbnr/pp1p1ppp/4p3/2p5/4P3/2P2N2/PP1P1PPP/RNBQKB1R b', 'Alapin Sicilian Defense'],
+  ['rnbqkbnr/pp2pppp/3p4/1Bp5/4P3/5N2/PPPP1PPP/RNBQK2R b', 'Sicilian Defense: Canal Attack'],
+  ['rnbqkb1r/ppp1pppp/5n2/3p4/3P1B2/5N2/PPP1PPPP/RN1QKB1R b', 'London System'],
+  ['r1bqkbnr/pp1ppppp/2n5/1Bp5/4P3/5N2/PPPP1PPP/RNBQK2R b', 'Sicilian Defense: Nyezhmetdinov-Rossolimo Attack'],
+  ['rnbqkbnr/pp2pppp/2p5/3P4/3P4/8/PP2PPPP/RNBQKBNR b', 'Slav Defense: Exchange Variation'],
+  ['rnbqkb1r/pppppp1p/5np1/8/3P4/5NP1/PPP1PP1P/RNBQKB1R b', 'Indian Game: East Indian, Przepiórka Variation'],
+  ['r1bqkbnr/pppp1ppp/2n5/4p3/3PP3/5N2/PPP2PPP/RNBQKB1R b', 'Scotch Game'],
+  ['rnbqkb1r/pppp1ppp/4pn2/8/2PP4/6P1/PP2PP1P/RNBQKBNR b', 'Catalan Opening'],
+  ['rnbqkbnr/ppp2ppp/4p3/3P4/3P4/8/PPP2PPP/RNBQKBNR b', 'French Defense: Exchange Variation'],
+  ['rnbqkb1r/pp1ppppp/5n2/2p5/2P5/2N2N2/PP1PPPPP/R1BQKB1R b', 'English Opening: Symmetrical, Three Knights System'],
+  ['rnbqkb1r/pppp1ppp/5n2/4N3/4P3/8/PPPP1PPP/RNBQKB1R b', 'Petrov\'s Defense: Classical Variation'],
+  ['r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b', 'Ruy López Opening'],
+  ['rnbqkb1r/pppp1ppp/4pn2/6B1/3P4/5N2/PPP1PPPP/RN1QKB1R b', 'Torre Attack'],
+  ['rnbqkb1r/pppp1ppp/4pn2/8/2PP4/5N2/PP2PPPP/RNBQKB1R b', 'Indian Game: East Indian, Anti-Nimzo-Indian Variation'],
+  ['rnbqk1nr/ppp1bppp/4p3/3p4/3PP3/8/PPPN1PPP/R1BQKBNR w', 'French Defense: Tarrasch, Morozevich Variation'],
+  ['r1bqkbnr/1ppp1ppp/p1n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w', 'Ruy López Opening: Morphy Defense'],
+  ['rnbqkb1r/p2ppppp/5n2/1ppP4/8/5N2/PPP1PPPP/RNBQKB1R w', 'Indian Game: Spielmann-Indian, Pseudo-Benko Variation'],
+  ['r1bqkbnr/pppn1ppp/3p4/4p3/3PP3/5N2/PPP2PPP/RNBQKB1R w', 'Philidor Defense: Hanham Variation'],
+  ['rnbqkbnr/pp2pp1p/2pp2p1/8/3PP3/2N5/PPP2PPP/R1BQKBNR w', 'Modern Defense: Rat Defense, Accelerated Gurgenidze Variation'],
+  ['rnbqk2r/pppp1ppp/4pn2/8/1bP5/2N2N2/PP1PPPPP/R1BQKB1R w', 'English Opening: Nimzo-English Opening'],
+  ['rnbqkb1r/ppp1pp1p/5np1/3p4/2PP4/2N5/PP2PPPP/R1BQKBNR w', 'Grünfeld Defense'],
+  ['rnbqkbnr/pp2pppp/8/2p5/2pP4/5N2/PP2PPPP/RNBQKB1R w', 'Queen\'s Gambit Accepted: Gunsberg Defense with 3...c5'],
+  ['rn1qkb1r/ppp1pppp/5n2/3p1b2/3P4/4PN2/PPP2PPP/RNBQKB1R w', 'Colle System: Anti-Colle Variation'],
+  ['rnbqkb1r/ppp1pppp/5n2/8/2pPP3/8/PP3PPP/RNBQKBNR w', 'Queen\'s Gambit Accepted: Central Variation, Alekhine System'],
+  ['rnbqkb1r/pp2pppp/2p2n2/3P4/2P5/8/PP1P1PPP/RNBQKBNR w', 'Scandinavian Defense: Modern, Scandinavian Gambit'],
+  ['rnbqkb1r/pp1ppppp/5n2/8/3pP3/2P5/PP3PPP/RNBQKBNR w', 'Sicilian Defense: Smith-Morra Gambit Declined, Alapin Formation'],
+  ['r1bqkbnr/pppp2pp/2n5/1B2pp2/4P3/5N2/PPPP1PPP/RNBQK2R w', 'Ruy López Opening: Jaenisch Gambit'],
+  ['rnbqkb1r/pp1p1ppp/4pn2/2p5/2PP4/2N5/PP2PPPP/R1BQKBNR w', 'Indian Game: East Indian, Benoni Defense'],
+  ['rnbqkb1r/ppp1pp1p/5np1/3p4/2PP4/5P2/PP2P1PP/RNBQKBNR w', 'King\'s Indian Defense: Alekhine Anti-Grünfeld, Neo-Grünfeld Defense, Goglidze Attack'],
+  ['rnbqkbnr/1p1p1ppp/p3p3/2p5/2P1P3/5N2/PP1P1PPP/RNBQKB1R w', 'Sicilian Defense: O\'Kelly, Maróczy Bind, Paulsen Line'],
+  ['rnbqk1nr/pp1pppbp/6p1/2p5/3PP3/5N2/PPP2PPP/RNBQKB1R w', 'Sicilian Defense: Hyperaccelerated Dragon, Fianchetto, Pterodactyl Defense'],
+  ['rn1qkb1r/ppp1pppp/5n2/3P4/3P2b1/8/PPP2PPP/RNBQKBNR w', 'Scandinavian Defense: Modern, Portuguese Variation'],
+  ['r1bqk1nr/ppppbppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w', 'Italian Game: Hungarian Defense'],
+  ['rnbqkb1r/pp2pppp/3p1n2/2pP4/2P5/8/PP2PPPP/RNBQKBNR w', 'Benoni Defense: Hromádka System'],
+  ['rnbqkb1r/1ppp1ppp/p3pn2/8/2P5/5NP1/PP1PPP1P/RNBQKB1R w', 'English Opening: Agincourt, Romanishin Variation'],
+  ['r1bqkb1r/pppp1ppp/2n2n2/4p3/4P3/2P2N2/PP1P1PPP/RNBQKB1R w', 'Ponziani Opening: Jaenisch Counterattack'],
+  ['rnbqk1nr/ppp2ppp/4p3/3p4/1b1PP3/2N5/PPP2PPP/R1BQKBNR w', 'French Defense: Winawer Variation'],
+  ['r1bqkbnr/pppp1ppp/8/1B2p3/3nP3/5N2/PPPP1PPP/RNBQK2R w', 'Ruy López Opening: Bird\'s Defense'],
+  ['rnbqkb1r/ppp1pppp/8/3p2B1/3Pn3/5N2/PPP1PPPP/RN1QKB1R w', 'Queen\'s Pawn Opening: Torre, Gossip Variation'],
+  ['r1bqkbnr/ppp2ppp/2n1p3/3p4/3PP3/8/PPPN1PPP/R1BQKBNR w', 'French Defense: Tarrasch, Guimard Defense'],
+  ['rnbqkb1r/pp1p1ppp/4pn2/2pP4/2P5/8/PP2PPPP/RNBQKBNR w', 'Benoni Defense: Modern Variation'],
+  ['rnbqkb1r/pp1p1ppp/5n2/2pPp3/2P5/8/PP2PPPP/RNBQKBNR w', 'Benoni Defense: Czech Variation'],
+  ['rnbqkbnr/pp3ppp/2p1p3/3p4/2PP4/5N2/PP2PPPP/RNBQKB1R w', 'Slav Defense: Modern, Triangle System'],
+  ['r1bqkb1r/pppnpppp/3p1n2/8/3PP3/2N5/PPP2PPP/R1BQKBNR w', 'Lion Defense'],
+  ['r1bqkb1r/pppnpppp/3p1n2/8/2PP4/2N5/PP2PPPP/R1BQKBNR w', 'Old Indian Defense: Duz-Khotimirsky Variation'],
+  ['rnbqkbnr/pp3ppp/4p3/2pp4/4P3/2N3P1/PPPP1P1P/R1BQKBNR w', 'Closed Sicilian Defense: Korchnoi Defense'],
+  ['rnbqkb1r/pppp1ppp/8/4p3/3Pn3/5N2/PPP2PPP/RNBQKB1R w', 'Petrov\'s Defense: Steinitz Attack, Symmetrical Variation'],
+  ['rnbqkbnr/pp2pp1p/2p3p1/3p4/3PP3/2N5/PPP2PPP/R1BQKBNR w', 'Caro-Kann Defense: Gurgenidze System'],
+  ['rnbqkbnr/ppp2ppp/4p3/8/2pP4/5N2/PP2PPPP/RNBQKB1R w', 'Queen\'s Gambit Accepted: Rosenthal Variation'],
+  ['rnbqkb1r/pp1p1ppp/2p2n2/4p3/2P5/2N3P1/PP1PPP1P/R1BQKBNR w', 'English Opening: Carls-Bremen, Keres Variation'],
+  ['rnbqkb1r/p1pp1ppp/1p2pn2/8/2PP4/5N2/PP2PPPP/RNBQKB1R w', 'Queen\'s Indian Defense'],
+  ['r1bqkb1r/pp1ppppp/2n2n2/2p5/2P5/2N2N2/PP1PPPPP/R1BQKB1R w', 'English Opening: Symmetrical, Four Knights Variation'],
+  ['rnbqkb1r/ppppp2p/5np1/5p2/2PP4/6P1/PP2PP1P/RNBQKBNR w', 'Dutch Defense: Leningrad Variation'],
+  ['r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w', 'Italian Game: Two Knights Defense'],
+  ['rnbqkb1r/ppp1pp1p/3p1np1/8/3PP3/2N5/PPP2PPP/R1BQKBNR w', 'Pirc Defense: Main Line'],
+  ['rnbqk1nr/pp1pppbp/6p1/2p5/2PP4/2N5/PP2PPPP/R1BQKBNR w', 'Modern Defense: Pterodactyl Defense'],
+  ['r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w', 'Ruy López Opening: Berlin Defense'],
+  ['rnbqkbnr/pp3ppp/4p3/2pp4/2PP4/2N5/PP2PPPP/R1BQKBNR w', 'Tarrasch Defense'],
+  ['r1bqkbnr/pp1ppp1p/2n3p1/1Bp5/4P3/5N2/PPPP1PPP/RNBQK2R w', 'Sicilian Defense: Nyezhmetdinov-Rossolimo, Fianchetto Variation'],
+  ['r1bqkb1r/ppppnppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w', 'Ruy López Opening: Cozio Defense'],
+  ['r1bqk1nr/pppp1ppp/2n5/1Bb1p3/4P3/5N2/PPPP1PPP/RNBQK2R w', 'Ruy López Opening: Classical Defense'],
+  ['rnbqkbnr/pp1ppppp/8/8/4P3/2Pp4/PP3PPP/RNBQKBNR w', 'Sicilian Defense: Smith-Morra Gambit Declined, Push Variation'],
+  ['rnbqkbnr/pp3ppp/3p4/2pPp3/4P3/8/PPP2PPP/RNBQKBNR w', 'Old Benoni Defense: Semi-Benoni Variation, Blockade Variation'],
+  ['rnbqk2r/ppppppbp/5np1/6B1/3P4/5N2/PPP1PPPP/RN1QKB1R w', 'Torre Attack: Fianchetto Defense'],
+  ['rnbqkb1r/ppp2ppp/5n2/3pp3/4PP2/2N5/PPPP2PP/R1BQKBNR w', 'Vienna Game: Main Line'],
+  ['rnbqkb1r/ppp2ppp/4pn2/3p4/2P5/5NP1/PP1PPP1P/RNBQKB1R w', 'English Opening: Neo-Catalan Defense'],
+  ['rnbqkbnr/1pp1pppp/p7/8/2pP4/5N2/PP2PPPP/RNBQKB1R w', 'Queen\'s Gambit Accepted: Alekhine Variation'],
+  ['r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/2N5/PPPP1PPP/R1BQK1NR w', 'Vienna Game: Max Lange Defense'],
+  ['rnbqkbnr/ppp2ppp/4p3/8/3Pp3/2N5/PPP2PPP/R1BQKBNR w', 'French Defense: Rubinstein Variation'],
+  ['r2qkbnr/ppp1pppp/2n5/3p4/2PP2b1/5N2/PP2PPPP/RNBQKB1R w', 'Queen\'s Gambit Declined: Chigorin, Main Line'],
+  ['rnbqkb1r/pp2pppp/3p1n2/2p5/3PP3/5N2/PPP2PPP/RNBQKB1R w', 'Sicilian Defense: Anti-Qxd4 Move-Order'],
+  ['r1bqkbnr/pp2pppp/2n5/2pp4/8/5NP1/PPPPPPBP/RNBQK2R w', 'King\'s Indian Attack: French Variation'],
+  ['rnbqkb1r/ppppp2p/5np1/5p2/3P4/6P1/PPP1PPBP/RNBQK1NR w', 'Dutch Defense: Fianchetto, Semi-Leningrad Variation'],
+  ['rn1qkbnr/pp2pppp/2p5/3p4/4P1b1/2N2N2/PPPP1PPP/R1BQKB1R w', 'Caro-Kann Defense: Two Knights, Mindeno Variation'],
+  ['rn1qkbnr/pp1bpppp/3p4/1Bp5/4P3/5N2/PPPP1PPP/RNBQK2R w', 'Sicilian Defense: Canal, Main Line'],
+  ['rnbqkb1r/pp2pppp/2pp1n2/8/3PP3/2N5/PPP2PPP/R1BQKBNR w', 'Pirc Defense: Czech Defense'],
+  ['rnbqkbnr/1pp2ppp/p3p3/3p4/2PP4/2N5/PP2PPPP/R1BQKBNR w', 'Magnus Queen\'s Gambit'],
+  ['rnbqkbnr/ppp2ppp/8/4p3/2pPP3/8/PP3PPP/RNBQKBNR w', 'Queen\'s Gambit Accepted: Central Variation, McDonnell Defense'],
+  ['rnbqk2r/pppp1ppp/4pn2/8/1bPP4/5N2/PP2PPPP/RNBQKB1R w', 'Bogo-Indian Defense'],
+  ['rnbqkb1r/ppp2ppp/3p1n2/4p3/2PP4/2N5/PP2PPPP/R1BQKBNR w', 'Old Indian Defense: Ukrainian Variation'],
+  ['rnb1kbnr/pp2pppp/8/2pq4/8/2P5/PP1P1PPP/RNBQKBNR w', 'Alapin Sicilian Defense: Barmen Defense'],
+  ['rnbqkb1r/pp1p1ppp/4pn2/2p5/2P1P3/2N5/PP1P1PPP/R1BQKBNR w', 'English Opening: Mikėnas-Carls, Sicilian Variation'],
+  ['rnbqkb1r/ppp1pppp/5n2/8/2pP4/5N2/PP2PPPP/RNBQKB1R w', 'Queen\'s Gambit Accepted'],
+  ['r1bqkb1r/pppp1ppp/2n2n2/4p3/4P3/2N2N2/PPPP1PPP/R1BQKB1R w', 'Four Knights Game'],
+  ['rnbqkb1r/ppp1pp1p/3p1np1/8/3PP3/2N3P1/PPP2P1P/R1BQKBNR b', 'Pirc Defense: Main Line, Sveshnikov System'],
+  ['r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/2NP4/PPP2PPP/R1BQK1NR b', 'Bishop\'s Opening: Berlin, Vienna Hybrid Variation'],
+  ['rnbqkb1r/ppp2ppp/4pn2/3pP3/2P5/2N5/PP1P1PPP/R1BQKBNR b', 'English Opening: Mikėnas-Carls, Flohr Variation'],
+  ['rnbqk1nr/pp1pppbp/6p1/2p5/2PPP3/5N2/PP3PPP/RNBQKB1R b', 'Modern Defense: Pterodactyl, Semi-Averbakh Variation'],
+  ['rnbqkb1r/pp2pppp/2p2n2/3p4/2PP4/5N2/PP1NPPPP/R1BQKB1R b', 'Slav Defense: Modern, Breyer Variation'],
+  ['rnbqkb1r/p2ppppp/5n2/1ppP4/2P5/5N2/PP2PPPP/RNBQKB1R b', 'Benko Gambit Declined: Main Line'],
+  ['rnbqkb1r/ppp1pp1p/5np1/3p4/2PP1B2/2N5/PP2PPPP/R2QKBNR b', 'Grünfeld Defense: Brinckmann Attack'],
+  ['rnbqkbnr/pp2pppp/8/3p4/2PP4/8/PP3PPP/RNBQKBNR b', 'Caro-Kann Defense: Panov Attack'],
+  ['r1bqkbnr/pppp1ppp/2n5/8/4P3/4Q3/PPP2PPP/RNB1KBNR b', 'Center Game Accepted: Paulsen Attack'],
+  ['rnbqkb1r/ppp2ppp/4pn2/3P4/3P4/2N5/PP2PPPP/R1BQKBNR b', 'Queen\'s Gambit Declined: Exchange Variation'],
+  ['r1bqkb1r/pppp1ppp/2n2n2/4p3/2BPP3/5N2/PPP2PPP/RNBQK2R b', 'Italian Game: Two Knights, Open'],
+  ['rnbqk2r/pppp1ppp/4pn2/8/1bPP4/2N3P1/PP2PP1P/R1BQKBNR b', 'Nimzo-Indian Defense: Romanishin-Kasparov System'],
+  ['rnbqkb1r/pppp1ppp/8/4P3/2P2Bn1/8/PP2PPPP/RN1QKBNR b', 'Budapest Gambit: Rubinstein Variation'],
+  ['r1bqkb1r/pppp1ppp/2n2n2/4p3/2P5/2N1PN2/PP1P1PPP/R1BQKB1R b', 'English Opening: Four Knights, Quiet Line'],
+  ['rnbqkb1r/ppp1pppp/5n2/8/2pP4/2N2N2/PP2PPPP/R1BQKB1R b', 'Queen\'s Gambit Accepted: Showalter Variation'],
+  ['rnbqk1nr/ppp1ppbp/3p2p1/8/3PP3/2P2N2/PP3PPP/RNBQKB1R b', 'Modern Defense: Geller System'],
+  ['rnbqkb1r/ppp2ppp/4pn2/3p4/2PP4/5NP1/PP2PP1P/RNBQKB1R b', 'Queen\'s Gambit Declined: Catalan Opening'],
+  ['rnbqkb1r/pppp1ppp/8/4P3/2P3n1/5N2/PP2PPPP/RNBQKB1R b', 'Budapest Gambit: Adler Variation'],
+  ['rnbqkb1r/p1pp1ppp/1p2pn2/8/2PP4/5NP1/PP2PP1P/RNBQKB1R b', 'Queen\'s Indian Defense: Fianchetto Variation'],
+  ['r1bqkb1r/pppp1ppp/2n2n2/4p3/2P1P3/2N2N2/PP1P1PPP/R1BQKB1R b', 'English Opening: Four Knights, Nimzowitsch Variation'],
+  ['r1bqkbnr/pppp2pp/2n5/1B2pp2/4P3/2N2N2/PPPP1PPP/R1BQK2R b', 'Ruy López Opening: Jaenisch, Dyckhoff Variation'],
+  ['r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R b', 'Italian Game: Two Knights, Modern Bishop\'s Opening'],
+  ['r1bqkbnr/ppp2ppp/2n1p3/3p4/3PP3/5N2/PPPN1PPP/R1BQKB1R b', 'French Defense: Tarrasch, Guimard, Main Line'],
+  ['r1bqk1nr/pppp1ppp/2n5/2b1p3/1PB1P3/5N2/P1PP1PPP/RNBQK2R b', 'Giuoco Piano Game: Evans Gambit'],
+  ['rn1qkbnr/pp2pppp/2p5/3pPb2/3P4/2N5/PPP2PPP/R1BQKBNR b', 'Caro-Kann Defense: Advance, Van der Wiel Attack'],
+  ['rnbqk2r/pppp1ppp/4pn2/6B1/1bPP4/2N5/PP2PPPP/R2QKBNR b', 'Nimzo-Indian Defense: Leningrad Variation'],
+  ['rnbqkb1r/ppp2ppp/4pn2/3pP3/3P4/2N5/PPP2PPP/R1BQKBNR b', 'French Defense: Classical, Steinitz Variation'],
+  ['rnbqkb1r/pppp1ppp/8/4p3/3Pn3/3B1N2/PPP2PPP/RNBQK2R b', 'Petrov\'s Defense: Steinitz Attack, Symmetrical, Center Variation'],
+  ['rnbqkb1r/pp2pppp/2p2n2/3p4/2PP4/4PN2/PP3PPP/RNBQKB1R b', 'Slav Defense: Modern, Quiet Variation'],
+  ['rnbqkb1r/ppp1pp1p/5np1/3p2B1/2PP4/2N5/PP2PPPP/R2QKBNR b', 'Grünfeld Defense: Stockholm Variation'],
+  ['rnbqkb1r/ppp2ppp/4pn2/3p2B1/2PP4/2N5/PP2PPPP/R2QKBNR b', 'Queen\'s Gambit Declined: Modern Variation'],
+  ['rnbqk2r/pppp1ppp/4pn2/8/1bPP4/2N5/PPQ1PPPP/R1B1KBNR b', 'Nimzo-Indian Defense: Classical Variation'],
+  ['rnbqk1nr/ppp2ppp/4p3/3p4/1b1PP3/2N5/PPP1NPPP/R1BQKB1R b', 'French Defense: Winawer, Alekhine-Maróczy Gambit'],
+  ['r1bqkbnr/pppp1ppp/2n5/8/3pP3/2P2N2/PP3PPP/RNBQKB1R b', 'Scotch Game: Göring Gambit'],
+  ['rnbqkb1r/ppp1pp1p/5np1/3p4/2PP4/2N2N2/PP2PPPP/R1BQKB1R b', 'Grünfeld Defense: Three Knights Variation'],
+  ['rnbqkb1r/ppp2ppp/3p1n2/4p3/2PP4/2N2N2/PP2PPPP/R1BQKB1R b', 'Old Indian Defense: Ukrainian, Two Knights Variation'],
+  ['r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/2P2N2/PP1P1PPP/RNBQK2R b', 'Giuoco Piano Game: Main Line'],
+  ['rnbqkbnr/ppp2ppp/8/3p4/2PP4/8/PP3PPP/RNBQKBNR b', 'French Defense: Exchange, Monte Carlo Variation'],
+  ['rnbqkb1r/p2ppppp/5n2/1PpP4/8/8/PP2PPPP/RNBQKBNR b', 'Benko Gambit Half-Accepted'],
+  ['rnbqkb1r/ppp2ppp/4pn2/3p4/2PP4/2N2N2/PP2PPPP/R1BQKB1R b', 'Queen\'s Gambit Declined: Three Knights Variation'],
+  ['rnbqkb1r/ppp1pppp/5n2/8/Q1pP4/5N2/PP2PPPP/RNB1KB1R b', 'Queen\'s Gambit Accepted: Mannheim Variation'],
+  ['rnbqk2r/ppppppbp/5np1/8/2PP4/6P1/PP2PPBP/RNBQK1NR b', 'King\'s Indian Defense: Fianchetto Variation'],
+  ['rnbqkb1r/pppp2pp/4pn2/5p2/2PP4/6P1/PP2PPBP/RNBQK1NR b', 'Dutch Defense: Classical Variation'],
+  ['rnbqkb1r/ppp2ppp/4pn2/3p2B1/2PP4/5N2/PP2PPPP/RN1QKB1R b', 'Queen\'s Gambit Declined: Traditional Variation'],
+  ['r1bqkbnr/pppp1ppp/2n5/8/2BpP3/5N2/PPP2PPP/RNBQK2R b', 'Scotch Game: Scotch Gambit'],
+  ['r1bqkb1r/pppp1ppp/2n2n2/4p3/4P3/P1N2N2/1PPP1PPP/R1BQKB1R b', 'Four Knights Game: Gunsberg Variation'],
+  ['rnbqkb1r/pp2pppp/2p2n2/3p4/2PP4/2N2N2/PP2PPPP/R1BQKB1R b', 'Slav Defense: Modern, Three Knights Variation'],
+  ['rnbqk1nr/pp1pppbp/6p1/2pP4/2P1P3/8/PP3PPP/RNBQKBNR b', 'Modern Defense: Pterodactyl, Central Benoni Variation'],
+  ['rnbqkb1r/ppp1pp1p/5np1/3p4/2PP4/2N1P3/PP3PPP/R1BQKBNR b', 'Grünfeld Defense: Schlechter Variation'],
+  ['rnbqkb1r/p1pp1ppp/1p2pn2/8/2PP4/P4N2/1P2PPPP/RNBQKB1R b', 'Queen\'s Indian Defense: Petrosian Variation'],
+  ['rnbqkbnr/pp3ppp/4p3/2ppP3/1P6/5N2/P1PP1PPP/RNBQKB1R b', 'French Defense: Knight Variation, Wing Gambit'],
+  ['rn1qkbnr/pp2pppp/2p5/3pPb2/3P4/5N2/PPP2PPP/RNBQKB1R b', 'Caro-Kann Defense: Advance, Short Variation with 4.Nf3'],
+  ['r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/2N2N2/PPPP1PPP/R1BQK2R b', 'Four Knights Game: Spanish Variation'],
+  ['rnbqkbnr/pp2pppp/3p4/8/3QP3/5N2/PPP2PPP/RNB1KB1R b', 'Sicilian Defense: Chekhover Variation'],
+  ['rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/2NP4/PPP2PPP/R1BQK1NR b', 'Bishop\'s Opening: Berlin, Spielmann Attack'],
+  ['rnbqk2r/pppp1ppp/4pn2/8/1bPP4/2N2P2/PP2P1PP/R1BQKBNR b', 'Nimzo-Indian Defense: Kmoch Variation'],
+  ['rn1qkbnr/pp2pppp/2p5/3pPb2/3P3P/8/PPP2PP1/RNBQKBNR b', 'Caro-Kann Defense: Advance, Tal Variation'],
+  ['r1bqkb1r/pppp1ppp/2n2n2/4p3/2P5/2NP1N2/PP2PPPP/R1BQKB1R b', 'English Opening: Four Knights, Flexible Line'],
+  ['rnbqk2r/ppppppbp/5np1/6B1/2PP4/2N5/PP2PPPP/R2QKBNR b', 'King\'s Indian Defense: Smyslov Variation'],
+  ['rnbqk1nr/ppp1ppbp/3p2p1/8/3PP3/2N2N2/PPP2PPP/R1BQKB1R b', 'Modern Defense: Standard, Two Knights Variation'],
+  ['r1bqkb1r/pppnpppp/5n2/3p2B1/3P4/2N2N2/PPP1PPPP/R2QKB1R b', 'Richter-Veresov Attack: Two Knights System'],
+  ['rnbqk2r/ppppppbp/5np1/8/2P1P3/2N2N2/PP1P1PPP/R1BQKB1R b', 'English Opening: Anglo-Indian, Anti-Anti-Grünfeld Variation'],
+  ['rnbqk1nr/ppp2ppp/4p3/3p4/1b1PP3/P1N5/1PP2PPP/R1BQKBNR b', 'French Defense: Winawer, Winckelmann-Riemer Gambit'],
+  ['r1bqkb1r/pppp1ppp/2n2n2/4p3/2P5/2N2NP1/PP1PPP1P/R1BQKB1R b', 'English Opening: Four Knights, Kingside Fianchetto Line'],
+  ['rnbqk1nr/ppp1ppbp/3p2p1/8/2PPP3/2N5/PP3PPP/R1BQKBNR b', 'Modern Defense: Averbakh Variation'],
+  ['r1bqkbnr/1ppp1ppp/p1B5/4p3/4P3/5N2/PPPP1PPP/RNBQK2R b', 'Ruy López Opening: Morphy Defense, Exchange Variation'],
+  ['r1bqkb1r/pppp1ppp/2n2n2/4p1N1/2B1P3/8/PPPP1PPP/RNBQK2R b', 'Italian Game: Knight Attack'],
+  ['r1bqk1nr/pppp1ppp/2n5/1Bb1p3/4P3/2P2N2/PP1P1PPP/RNBQK2R b', 'Ruy López Opening: Classical, Central Variation'],
+  ['r1bqkb1r/pppp1ppp/2n2n2/4p3/3PP3/2N2N2/PPP2PPP/R1BQKB1R b', 'Four Knights Game: Scotch Variation'],
+  ['rnbqkb1r/ppp1pppp/3p4/3nP3/3P4/5N2/PPP2PPP/RNBQKB1R b', 'Alekhine\'s Defense: Modern Variation'],
+  ['rnbqk2r/pppp1ppp/4pn2/8/1bPP4/2N1P3/PP3PPP/R1BQKBNR b', 'Nimzo-Indian Defense: Normal Line'],
+  ['rnbqkbnr/pp2pppp/2p5/8/3PN3/8/PPP2PPP/R1BQKBNR b', 'Caro-Kann Defense: Main Line'],
+  ['r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R b', 'Four Knights Game: Italian Variation'],
+  ['rnbqkbnr/1p1p1ppp/p3p3/8/3NP3/8/PPP2PPP/RNBQKB1R w', 'Sicilian Defense: Kan Variation'],
+  ['r1bqkbnr/pp1p1ppp/2n1p3/8/3NP3/8/PPP2PPP/RNBQKB1R w', 'Sicilian Defense: Taimanov Variation'],
+  ['rnbqkb1r/pp3ppp/2p1pn2/3p4/2PP4/2N2N2/PP2PPPP/R1BQKB1R w', 'Semi-Slav Defense'],
+  ['rnbqkb1r/pp1p1ppp/4pn2/8/3NP3/8/PPP2PPP/RNBQKB1R w', 'Sicilian Defense: Normal Line'],
+  ['rnbqkb1r/ppp1pp1p/6p1/3n4/3P4/2N5/PP2PPPP/R1BQKBNR w', 'Grünfeld Defense: Exchange Variation'],
+  ['r1bqkbnr/pp1ppp1p/2n3p1/8/3NP3/8/PPP2PPP/RNBQKB1R w', 'Sicilian Defense: Old Sicilian, Open, Accelerated Dragon Variation'],
+  ['rnbqkb1r/pp2pppp/2p2n2/8/2pP4/2N2N2/PP2PPPP/R1BQKB1R w', 'Slav Defense: Modern, Two Knights Attack'],
+  ['rn1qkbnr/pp2pppp/2p5/5b2/3PN3/8/PPP2PPP/R1BQKBNR w', 'Caro-Kann Defense: Classical Variation'],
+  ['rn1qkb1r/p1pp1ppp/bp2pn2/8/2PP4/5NP1/PP2PP1P/RNBQKB1R w', 'Queen\'s Indian Defense: Fianchetto, Nimzowitsch Variation'],
+  ['r1bqkb1r/pppn1ppp/3p1n2/4p3/3PP3/2N2N2/PPP2PPP/R1BQKB1R w', 'Philidor Defense: Hanham, Lion Variation'],
+  ['rnbqk2r/ppp2ppp/4pn2/3p4/1bPP4/2N2N2/PP2PPPP/R1BQKB1R w', 'Queen\'s Gambit Declined: Ragozin Defense'],
+  ['rnbqkb1r/ppp2ppp/4pn2/6B1/3Pp3/2N5/PPP2PPP/R2QKBNR w', 'French Defense: Classical, Burn Variation'],
+  ['rn1qkb1r/pbpp1ppp/1p2pn2/8/2PP4/5NP1/PP2PP1P/RNBQKB1R w', 'Queen\'s Indian Defense: Fianchetto, Traditional Line'],
+  ['rnbqk2r/ppp1bppp/4pn2/3p4/2P5/5NP1/PP1PPPBP/RNBQK2R w', 'English Opening: Neo-Catalan Defense Declined'],
+  ['r1bqkbnr/pp1p1ppp/2n5/4p3/3NP3/8/PPP2PPP/RNBQKB1R w', 'Sicilian Defense: Open, Löwenthal Variation'],
+  ['r1bqk1nr/pp1pppbp/2n3p1/2p5/2P5/2N3P1/PP1PPPBP/R1BQK1NR w', 'English Opening: Fianchetto, Ultra-Symmetrical Line'],
+  ['rnbqk2r/pp1p1ppp/4pn2/2p5/1bPP4/2N1P3/PP3PPP/R1BQKBNR w', 'Nimzo-Indian Defense: Hübner Variation'],
+  ['r1bqkb1r/pppp1ppp/2n5/1B2p3/4n3/5N2/PPPP1PPP/RNBQ1RK1 w', 'Ruy López Opening: Berlin, Rio Gambit Accepted'],
+  ['rnbqkb1r/1p2pppp/p1p2n2/3p4/2PP4/2N2N2/PP2PPPP/R1BQKB1R w', 'Slav Defense: Modern, Chameleon Variation'],
+  ['r1bqkb1r/pppp1ppp/2n2n2/8/3NP3/8/PPP2PPP/RNBQKB1R w', 'Scotch Game: Schmidt Variation'],
+  ['rnbqk2r/p1pp1ppp/1p2pn2/8/1bPP4/2N1P3/PP3PPP/R1BQKBNR w', 'Nimzo-Indian Defense: St. Petersburg Variation'],
+  ['rn1qkb1r/pp2pppp/2p2n2/3p1b2/2PP4/4PN2/PP3PPP/RNBQKB1R w', 'Slav Defense: Modern, Quiet, Schallopp Defense'],
+  ['r1bqkbnr/1pp2ppp/p1np4/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R w', 'Ruy López Opening: Morphy Defense, Modern Steinitz Defense'],
+  ['r1bqk1nr/pppp1ppp/2n5/2b5/3NP3/8/PPP2PPP/RNBQKB1R w', 'Scotch Game: Classical Variation'],
+  ['r1bqkbnr/pp1npppp/2p5/8/3PN3/8/PPP2PPP/R1BQKBNR w', 'Caro-Kann Defense: Karpov Variation'],
+  ['r1bqkb1r/pppp1ppp/2n2n2/8/3pP3/2N2N2/PPP2PPP/R1BQKB1R w', 'Four Knights Game: Scotch Variation Accepted'],
+  ['rnb1k2r/ppppqppp/4pn2/8/1bPP4/5N2/PP1BPPPP/RN1QKB1R w', 'Bogo-Indian Defense: Nimzowitsch Variation'],
+  ['r1bqkb1r/pppn1ppp/4pn2/3p4/2PP4/2N2N2/PP2PPPP/R1BQKB1R w', 'Queen\'s Gambit Declined: Three Knights, Barmen Variation'],
+  ['rn1qkb1r/pbpp1ppp/1p2pn2/8/2P5/5NP1/PP1PPPBP/RNBQK2R w', 'English Opening: Anglo-Indian, King\'s Knight, Queen\'s Indian Formation with 4...Bb7'],
+  ['r1bqkb1r/pppp1ppp/2n2n2/8/2BpP3/5N2/PPP2PPP/RNBQK2R w', 'Scotch Game: Scotch Gambit, Dubois Réti Defense'],
+  ['r1bqkbnr/pppn1ppp/4p3/8/3PN3/8/PPP2PPP/R1BQKBNR w', 'French Defense: Rubinstein, Blackburne Defense'],
+  ['rnb1kbnr/pp3ppp/4p3/2pq4/3P4/8/PPPN1PPP/R1BQKBNR w', 'French Defense: Tarrasch, Open, Chistyakov Defense'],
+  ['rnbqk2r/pp1p1ppp/4pn2/2p5/1bPP4/2N5/PPQ1PPPP/R1B1KBNR w', 'Nimzo-Indian Defense: Classical, Berlin Variation'],
+  ['rnbqkb1r/pp3ppp/4pn2/2pp4/2PP4/2N2N2/PP2PPPP/R1BQKB1R w', 'Queen\'s Gambit Declined: Three Knights, Semi-Tarrasch Defense'],
+  ['rnbqkb1r/ppp2ppp/4pn2/8/2pP4/2N2N2/PP2PPPP/R1BQKB1R w', 'Queen\'s Gambit Declined: Three Knights, Vienna Variation'],
+  ['rnbqk2r/p1pp1ppp/1p2pn2/8/1bPP4/2N2N2/PP2PPPP/R1BQKB1R w', 'Nimzo-Indian Defense: Three Knights, Duchamp Variation'],
+  ['r1bqk1nr/pppp1pbp/2n3p1/4p3/2P5/2N3P1/PP1PPPBP/R1BQK1NR w', 'English Opening: Reversed Sicilian, Taimanov Variation'],
+  ['rnbqk2r/ppp2ppp/4pn2/3p4/1bPP4/2N5/PPQ1PPPP/R1B1KBNR w', 'Nimzo-Indian Defense: Classical, Noa Variation'],
+  ['rn1qkbnr/pp2pppp/2p5/3p4/4P3/2N2b1P/PPPP1PP1/R1BQKB1R w', 'Caro-Kann Defense: Two Knights, Mindeno, Exchange Line'],
+  ['rnbqkb1r/ppp2ppp/4pn2/8/2p5/5NP1/PP1PPPBP/RNBQK2R w', 'English Opening: Neo-Catalan Defense Accepted'],
+  ['rnbqkb1r/pp2pppp/5n2/3P4/8/8/PP1P1PPP/RNBQKBNR w', 'Caro-Kann Defense: Accelerated Panov, Modern Variation'],
+  ['rnbqk2r/ppp2ppp/4pn2/3p2B1/1b1PP3/2N5/PPP2PPP/R2QKBNR w', 'French Defense: Classical, MacCutcheon Variation'],
+  ['rn1qkb1r/ppp1pppp/3p4/3nP3/3P2b1/5N2/PPP2PPP/RNBQKB1R w', 'Alekhine\'s Defense: Modern, Main Line'],
+  ['rnbqkbnr/pp3ppp/8/2pp4/3P4/8/PPPN1PPP/R1BQKBNR w', 'French Defense: Tarrasch, Open, Delayed Exchange Variation'],
+  ['r1bqkb1r/ppp2ppp/2n2n2/3pp1N1/2B1P3/8/PPPP1PPP/RNBQK2R w', 'Italian Game: Knight Attack, Normal Variation'],
+  ['r1b1kbnr/pp1ppppp/1qn5/8/3NP3/8/PPP2PPP/RNBQKB1R w', 'Sicilian Defense: Open, Godiva Variation'],
+  ['r1bqk2r/pppp1ppp/2n2n2/1B2p3/1b2P3/2N2N2/PPPP1PPP/R1BQK2R w', 'Four Knights Game: Double Spanish Variation'],
+  ['rn1qkb1r/pp2pppp/2p2n2/3p4/2PP2b1/4PN2/PP3PPP/RNBQKB1R w', 'Slav Defense: Modern, Quiet, Pin Defense'],
+  ['r1b1kbnr/ppqppppp/2n5/8/3NP3/8/PPP2PPP/RNBQKB1R w', 'Sicilian Defense: Open, Flohr Variation'],
+  ['rnbqk2r/1ppp1ppp/4pn2/p7/1bPP4/5N2/PP1BPPPP/RN1QKB1R w', 'Bogo-Indian Defense: Wade-Smyslov Variation'],
+  ['r1bqkb1r/pppn1ppp/4pn2/3p2B1/2PP4/2N5/PP2PPPP/R2QKBNR w', 'Queen\'s Gambit Declined: Modern, Knight Defense'],
+  ['rnbqkb1r/ppp1pppp/8/3np3/3P4/5N2/PPP2PPP/RNBQKB1R w', 'Alekhine\'s Defense: Modern, Larsen Variation'],
+  ['r1bqkb1r/pppp1ppp/5n2/1B2p3/3nP3/2N2N2/PPPP1PPP/R1BQK2R w', 'Four Knights Game: Spanish Variation, Rubinstein Countergambit'],
+  ['rnbqkbnr/pp3ppp/2p1p3/8/2pP4/2N2N2/PP2PPPP/R1BQKB1R w', 'Slav Defense: Modern, Triangle, Noteboom Variation'],
+  ['rnbqkb1r/ppp1pp1p/3p2p1/3nP3/3P4/5N2/PPP2PPP/RNBQKB1R w', 'Alekhine\'s Defense: Modern, Alburt Variation'],
+  ['rnbqk1nr/pp2ppbp/2pp2p1/8/3PP3/2N2N2/PPP2PPP/R1BQKB1R w', 'Modern Defense: Standard, Two Knights, Suttles Variation'],
+  ['r1bqk1nr/ppp1ppbp/2np2p1/8/2PPP3/2N5/PP3PPP/R1BQKBNR w', 'Modern Defense: Averbakh, Kotov Variation'],
+  ['rnbqkb1r/p2p1ppp/4pn2/1ppP4/2P5/5N2/PP2PPPP/RNBQKB1R w', 'Blumenfeld Countergambit'],
+  ['rnbqk2r/pp1p1ppp/4pn2/2p5/1bPP4/5N2/PP1BPPPP/RN1QKB1R w', 'Bogo-Indian Defense: Vītoliņš Variation'],
+  ['rnbqk2r/ppp1ppbp/5np1/3p4/2PP4/6P1/PP2PPBP/RNBQK1NR w', 'Neo-Grünfeld Defense with 3...d5'],
+  ['r1bqk1nr/pppp1ppp/2n5/4p3/1bB1P3/5N2/P1PP1PPP/RNBQK2R w', 'Giuoco Piano Game: Evans Gambit Accepted'],
+  ['rn1qkb1r/ppp1pppp/5n2/8/2pP2b1/4PN2/PP3PPP/RNBQKB1R w', 'Queen\'s Gambit Accepted: Janowski-Larsen Variation'],
+  ['r1bqkb1r/1pppnppp/p1n5/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R w', 'Ruy López Opening: Morphy Defense, Cozio Defense'],
+  ['rnbqkb1r/pp2pp1p/2p2np1/3p4/2PP4/2N2N2/PP2PPPP/R1BQKB1R w', 'Slav Defense: Modern, Schlechter Variation'],
+  ['rnbqkb1r/pp3ppp/2p1pn2/3p4/2P5/5NP1/PP1PPPBP/RNBQK2R w', 'English Opening: Neo-Catalan, Semi-Slav Defense'],
+  ['rnbqk2r/pppp1ppp/4pn2/8/2PP4/5N2/PP1bPPPP/RN1QKB1R w', 'Bogo-Indian Defense: Exchange Variation'],
+  ['rnb1k1nr/pppq1ppp/4p3/3pP3/1b1P4/2N5/PPP2PPP/R1BQKBNR w', 'French Defense: Winawer, Advance, Petrosian Variation'],
+  ['rnbqkb1r/ppp1pp1p/6p1/3n4/3P4/5N2/PPP2PPP/RNBQKB1R w', 'Scandinavian Defense: Modern Variation'],
+  ['r1bqk2r/pppp1ppp/2n1pn2/8/1bPP4/2N5/PPQ1PPPP/R1B1KBNR w', 'Nimzo-Indian Defense: Classical, Zürich Variation'],
+  ['rnbqk2r/pp1pppbp/5np1/2p5/2PP4/5NP1/PP2PP1P/RNBQKB1R w', 'King\'s Indian Defense: Pterodactyl Defense'],
+  ['r1bqk2r/pppp1ppp/2n2n2/1Bb1p3/4P3/5N2/PPPP1PPP/RNBQ1RK1 w', 'Ruy López Opening: Berlin, Beverwijk Variation'],
+  ['r1bqkbnr/2pp1ppp/p1n5/1p2p3/B3P3/5N2/PPPP1PPP/RNBQK2R w', 'Ruy López Opening: Morphy Defense, Caro Variation'],
+  ['rnbqkbnr/pp3ppp/4p3/3P4/3p4/2N5/PP2PPPP/R1BQKBNR w', 'Tarrasch Defense: Schara Gambit'],
+  ['r1bqk1nr/pppp1ppp/2n5/2b5/2BpP3/5N2/PPP2PPP/RNBQK2R w', 'Scotch Game: Scotch Gambit, Haxo Gambit'],
+  ['r1bqk1nr/1ppp1ppp/p1n5/2b1p3/B3P3/5N2/PPPP1PPP/RNBQK2R w', 'Ruy López Opening: Morphy Defense, Deferred Classical Defense'],
+  ['rnbqk2r/ppp1ppbp/3p1np1/8/2PP4/6P1/PP2PPBP/RNBQK1NR w', 'King\'s Indian Defense: Fianchetto, Yugoslav System'],
+  ['r1bqk1nr/pppp1ppp/2n5/8/1b1NP3/8/PPP2PPP/RNBQKB1R w', 'Scotch Game: Malaniuk Variation'],
+  ['rnbqkb1r/pp1p1ppp/4pn2/8/2PN4/8/PP2PPPP/RNBQKB1R w', 'Queen\'s Pawn Opening: Horwitz Defense'],
+  ['r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R w', 'Giuoco Piano Game: Four Knights Game'],
+  ['r1bqkb1r/pppp1ppp/2n2n2/8/4P3/4Q3/PPP2PPP/RNB1KBNR w', 'Center Game Accepted: Paulsen, Berger Variation'],
+  ['rnbqkbnr/pp3ppp/3p4/2pP4/8/8/PP2PPPP/RNBQKBNR w', 'Queen\'s Pawn Opening: Benoni Defense'],
+  ['rnbqk2r/ppp1ppbp/5np1/3p4/2PP4/2N1P3/PP3PPP/R1BQKBNR w', 'Grünfeld Defense: Schlechter, Makogonov Variation'],
+  ['rnbqkb1r/ppp2ppp/5n2/3P4/5p2/5N2/PPPP2PP/RNBQKB1R w', 'King\'s Gambit Accepted: Modern, Abbazia Defense'],
+  ['rnbqkb1r/2pp1ppp/p3pn2/1p6/2P5/5NP1/PP1PPPBP/RNBQK2R w', 'English Opening: Agincourt, Romanishin Variation, Romanishin Gambit'],
+  ['rnb1kbnr/pp1p1ppp/1q2p3/8/3NP3/8/PPP2PPP/RNBQKB1R w', 'Sicilian Defense: Kveinis Variation'],
+  ['rn1qkb1r/ppp1pppp/8/3n4/3P2b1/5N2/PPP2PPP/RNBQKB1R w', 'Scandinavian Defense: Modern, Marshall, Gipslis Variation'],
+  ['rn1qkb1r/pbpppp1p/1p3np1/8/2P5/5NP1/PP1PPPBP/RNBQK2R w', 'English Opening: Anglo-Indian, King\'s Knight, Queen\'s Indian Formation'],
+  ['rnbqk2r/ppppp1bp/5np1/5p2/2PP4/2N2N2/PP2PPPP/R1BQKB1R w', 'Dutch Defense: Queen\'s Knight, Ozols Variation'],
+  ['rnbqkb1r/pp3ppp/2p1pn2/3p4/2PP4/2N1PN2/PP3PPP/R1BQKB1R b', 'Semi-Slav Defense: Main Line'],
+  ['rnbqk2r/ppp1ppbp/3p1np1/8/2PPP3/2N5/PP2BPPP/R1BQK1NR b', 'King\'s Indian Defense: Standard Development'],
+  ['rnbqkb1r/ppp2ppp/5n2/3p2B1/3P4/2N5/PP2PPPP/R2QKBNR b', 'Queen\'s Gambit Declined: Exchange, Positional Line'],
+  ['rnbqk2r/ppp1ppbp/3p1np1/8/2PPP3/2N2P2/PP4PP/R1BQKBNR b', 'King\'s Indian Defense: Sämisch Variation'],
+  ['rnbqkbnr/1p1p1ppp/p3p3/8/3NP3/2N5/PPP2PPP/R1BQKB1R b', 'Sicilian Defense: Kan, Knight Variation'],
+  ['rnbqkbnr/1p1p1ppp/p3p3/8/3NP3/3B4/PPP2PPP/RNBQK2R b', 'Sicilian Defense: Kan, Modern Variation'],
+  ['rnbqkb1r/pp2pppp/2p2n2/8/P1pP4/2N2N2/1P2PPPP/R1BQKB1R b', 'Slav Defense: Modern, Alapin Variation'],
+  ['r1bqkbnr/pp3ppp/2n1p3/2ppP3/3P4/2P2N2/PP3PPP/RNBQKB1R b', 'French Defense: Advance, Paulsen Attack'],
+  ['rnbqkb1r/pp3ppp/2p1pn2/3p2B1/2PP4/2N2N2/PP2PPPP/R2QKB1R b', 'Semi-Slav Defense: Anti-Meran Gambit'],
+  ['r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2PP1N2/PP3PPP/RNBQK2R b', 'Giuoco Piano Game: Main Line, Giuoco Pianissimo Variation'],
+  ['r1bqkbnr/pp1ppp1p/2n3p1/8/2PNP3/8/PP3PPP/RNBQKB1R b', 'Sicilian Defense: Open, Accelerated Dragon, Maróczy Bind Formation'],
+  ['rnbq1rk1/pppp1ppp/4pn2/8/1bPP4/2NBP3/PP3PPP/R1BQK1NR b', 'Nimzo-Indian Defense: Bishop Attack'],
+  ['r1bqkbnr/pp1ppp1p/2n3p1/8/3NP3/2N5/PPP2PPP/R1BQKB1R b', 'Sicilian Defense: Open, Accelerated Dragon, Modern Variation'],
+  ['rnbqk2r/ppp1bppp/4pn2/3p4/2PP1B2/2N2N2/PP2PPPP/R2QKB1R b', 'Queen\'s Gambit Declined: Three Knights, Harrwitz Attack'],
+  ['rn1qkb1r/pbpp1ppp/1p2pn2/8/2PP4/P1N2N2/1P2PPPP/R1BQKB1R b', 'Queen\'s Indian Defense: Kasparov Variation, Petrosian Variation'],
+  ['rnbqkb1r/3ppppp/P4n2/2pP4/8/8/PP2PPPP/RNBQKBNR b', 'Benko Gambit Fully-Accepted'],
+  ['r1bqkbnr/1pp2ppp/p1p5/4p3/4P3/5N2/PPPP1PPP/RNBQ1RK1 b', 'Ruy López Opening: Morphy Defense, Exchange, Normal Variation'],
+  ['rnbqkb1r/ppp2ppp/3p4/8/3Pn3/5N2/PPP2PPP/RNBQKB1R b', 'Petrov\'s Defense: Classical Attack'],
+  ['r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/3P1N2/PPP2PPP/RNBQK2R b', 'Ruy López Opening: Morphy Defense, Anderssen Variation'],
+  ['rnbqk2r/ppp1ppbp/3p1np1/8/3PP3/2N2N2/PPP1BPPP/R1BQK2R b', 'Pirc Defense: Classical, Quiet System'],
+  ['rn1qkb1r/p1pp1ppp/bp2pn2/8/2PP4/1P3NP1/P3PP1P/RNBQKB1R b', 'Queen\'s Indian Defense: Fianchetto, Nimzowitsch Variation, Quiet Line'],
+  ['rnbqk2r/ppp1ppbp/3p1np1/8/2PPP3/2N4P/PP3PP1/R1BQKBNR b', 'King\'s Indian Defense: Makogonov Variation'],
+  ['rnbqkbnr/1p1p1ppp/p3p3/8/2PNP3/8/PP3PPP/RNBQKB1R b', 'Sicilian Defense: Kan, Maróczy Bind Formation'],
+  ['rnbqkb1r/ppp1pppp/1n1P4/8/2PP4/8/PP3PPP/RNBQKBNR b', 'Alekhine\'s Defense: Exchange Variation'],
+  ['rnbqkbnr/pp3ppp/8/2pp4/3P4/2N2N2/PP2PPPP/R1BQKB1R b', 'Tarrasch Defense: Two Knights Variation'],
+  ['rnbq1rk1/pppp1ppp/4pn2/8/1bPP4/2N1P3/PP2NPPP/R1BQKB1R b', 'Nimzo-Indian Defense: Reshevsky Variation'],
+  ['rnbqk2r/ppp1ppbp/3p1np1/8/2PPPP2/2N5/PP4PP/R1BQKBNR b', 'King\'s Indian Defense: Four Pawns Attack'],
+  ['rnbqk2r/ppp1bppp/4pn2/3pP1B1/3P4/2N5/PPP2PPP/R2QKBNR b', 'French Defense: Main Line'],
+  ['rnbqkb1r/ppp2ppp/3p4/8/4n3/2N2N2/PPPP1PPP/R1BQKB1R b', 'Petrov\'s Defense: Classical, Nimzowitsch Attack'],
+  ['rnbqkb1r/pp3ppp/4pn2/2pP4/3P4/2N2N2/PP2PPPP/R1BQKB1R b', 'Queen\'s Gambit Declined: Semi-Tarrasch, Main Line'],
+  ['rnbqk2r/ppp1ppbp/5np1/3p2B1/2PP4/2N2N2/PP2PPPP/R2QKB1R b', 'Grünfeld Defense: Petrosian System'],
+  ['rnbqkb1r/pp2pppp/3p1n2/8/3NP3/5P2/PPP3PP/RNBQKB1R b', 'Sicilian Defense: Open, Prins Variation'],
+  ['rnbqk2r/ppp1ppbp/5np1/3p4/2PP4/1QN2N2/PP2PPPP/R1B1KB1R b', 'Grünfeld Defense: Russian Variation'],
+  ['rn2kbnr/pp1qpppp/3p4/2p5/2P1P3/5N2/PP1P1PPP/RNBQK2R b', 'Sicilian Defense: Canal, Main Line, Sokolsky Variation'],
+  ['r1bqkbnr/pp1p1ppp/2n1p3/1N6/4P3/8/PPP2PPP/RNBQKB1R b', 'Sicilian Defense: Taimanov, Szén Variation'],
+  ['r1bqk2r/pppp1ppp/2n2n2/2b1p3/2BPP3/2P2N2/PP3PPP/RNBQK2R b', 'Giuoco Piano Game: Center Attack'],
+  ['r1bqkb1r/pppp1ppp/2n2n2/4P3/2Bp4/5N2/PPP2PPP/RNBQK2R b', 'Scotch Game: Scotch Gambit, Dubois Réti, Advance Variation'],
+  ['rnbqk2r/ppp2ppp/4pn2/3pP1B1/1b1P4/2N5/PPP2PPP/R2QKBNR b', 'French Defense: Classical, MacCutcheon, Advance Variation'],
+  ['rnbqk2r/p1pp1ppp/1p2pn2/8/1bPP4/2N1P3/PP2NPPP/R1BQKB1R b', 'Nimzo-Indian Defense: St. Petersburg, Fischer Variation'],
+  ['rnbqk2r/pppp1ppp/4pn2/8/2PP4/P1P5/4PPPP/R1BQKBNR b', 'Nimzo-Indian Defense: Sämisch Variation'],
+  ['rnbqk2r/ppp1ppbp/5np1/3p4/2PP4/2N1PN2/PP3PPP/R1BQKB1R b', 'Grünfeld Defense: Burille Variation'],
+  ['r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPPQPPP/RNB1K2R b', 'Ruy López Opening: Morphy Defense, Wormald Attack'],
+  ['rnbqkb1r/3ppppp/pP3n2/2pP4/8/8/PP2PPPP/RNBQKBNR b', 'Benko Gambit Half-Accepted: Pawn Return Variation'],
+  ['r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R b', 'Giuoco Piano Game: Giuoco Pianissimo, Italian Four Knights Variation'],
+  ['rnbqk2r/ppppp1bp/5np1/5p2/2PP4/5NP1/PP2PPBP/RNBQK2R b', 'English Opening: Anglo-Dutch Defense'],
+  ['rnbqk2r/pp1p1ppp/4pn2/2p5/1bPP4/2N1P3/PP2NPPP/R1BQKB1R b', 'Nimzo-Indian Defense: Hübner, Rubinstein Variation'],
+  ['rnbqk2r/ppp1ppbp/3p1np1/8/3PP3/2N2N1P/PPP2PP1/R1BQKB1R b', 'Pirc Defense: Classical, Schlechter Variation'],
+  ['rnbqkb1r/1p2pppp/p1p2n2/2Pp4/3P4/2N2N2/PP2PPPP/R1BQKB1R b', 'Slav Defense: Modern, Chameleon, Advance System'],
+  ['rnbqkb1r/pppn1ppp/4p3/3pP3/3P1P2/8/PPPN2PP/R1BQKBNR b', 'French Defense: Tarrasch, Closed, Pawn Center Variation'],
+  ['r1bqk1nr/pppp1ppp/2n5/2b5/4P3/1N6/PPP2PPP/RNBQKB1R b', 'Scotch Game: Classical, Potter Variation'],
+  ['rnbqkb1r/ppp1pppp/1n1p4/4P3/2PP1P2/8/PP4PP/RNBQKBNR b', 'Alekhine\'s Defense: Four Pawns Attack'],
+  ['rnbqk2r/ppp1ppbp/5np1/3p4/2PP1B2/2N2N2/PP2PPPP/R2QKB1R b', 'Grünfeld Defense: Hungarian Attack'],
+  ['rnbqk2r/ppp2ppp/4pn2/3p4/QbPP4/2N2N2/PP2PPPP/R1B1KB1R b', 'Queen\'s Gambit Declined: Ragozin, Alekhine Variation'],
+  ['r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B2PP3/5N2/PPP2PPP/RNBQK2R b', 'Ruy López Opening: Morphy Defense, Mackenzie Variation'],
+  ['rnbqkb1r/pp3ppp/2p1pn2/3p4/2PP4/4PN2/PP1N1PPP/R1BQKB1R b', 'Queen\'s Gambit Declined: Semi-Slav Defense, Quiet Variation'],
+  ['r1bqkb1r/pppp1ppp/2n2n2/8/2BpP3/5N2/PPP2PPP/RNBQ1RK1 b', 'Scotch Game: Dubois Réti, Scotch Gambit'],
+  ['rnbqkb1r/ppp2ppp/4pn2/8/2pP4/2N1PN2/PP3PPP/R1BQKB1R b', 'Queen\'s Gambit Declined: Three Knights, Vienna, Quiet Variation'],
+  ['rnbqkb1r/3ppppp/p4n2/1PpP4/8/4P3/PP3PPP/RNBQKBNR b', 'Benko Gambit Half-Accepted: Modern Variation'],
+  ['rnbqkb1r/ppp2ppp/3p4/8/4n3/5N2/PPPPQPPP/RNB1KB1R b', 'Petrov\'s Defense: Classical, Cozio Attack'],
+  ['rn1qkb1r/p1pp1ppp/bp2pn2/8/Q1PP4/5NP1/PP2PP1P/RNB1KB1R b', 'Queen\'s Indian Defense: Fianchetto, Nimzowitsch Variation, Nimzowitsch Attack'],
+  ['rnbqk2r/ppp1ppbp/3p1np1/8/2PPP3/2N5/PP2NPPP/R1BQKB1R b', 'King\'s Indian Defense: Kramer Variation'],
+  ['rnbqk1nr/pp3ppp/4p3/2ppP3/1b1P4/2N5/PPPB1PPP/R2QKBNR b', 'French Defense: Winawer, Advance, Bogoljubov Variation'],
+  ['rnbqk2r/ppp1ppbp/3p1np1/8/2PP4/2N2NP1/PP2PP1P/R1BQKB1R b', 'King\'s Indian Defense: Normal, Fianchetto Variation'],
+  ['r1bqk1nr/pp1pppbp/2n3p1/2p5/2P1P3/2N3P1/PP1P1PBP/R1BQK1NR b', 'English Opening: Fianchetto, Ultra-Symmetrical, Botvinnik System'],
+  ['rnbqk2r/ppp1ppbp/3p1np1/6B1/2PP4/2N2N2/PP2PPPP/R2QKB1R b', 'King\'s Indian Defense: Normal, Smyslov Variation'],
+  ['rnbqkb1r/pp3ppp/4pn2/2pp4/3P4/1P1BPN2/P1P2PPP/RNBQK2R b', 'Colle System: Rubinstein Opening'],
+  ['rnbqkb1r/ppp1pp1p/6p1/3n4/Q7/2N2N2/PP1PPPPP/R1B1KB1R b', 'English Opening: Anglo-Indian, Anglo-Grünfeld, Stein Attack'],
+  ['r1bqkbnr/1pp2ppp/p1p5/4p3/4P3/2N2N2/PPPP1PPP/R1BQK2R b', 'Ruy López Opening: Morphy Defense, Exchange, Keres Variation'],
+  ['r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/2N2N2/PPPP1PPP/R1BQK2R b', 'Ruy López Opening: Morphy Defense, Tarrasch Variation'],
+  ['rnbqkb1r/pp2pp1p/2pp1np1/8/3PP3/2N1B3/PPPQ1PPP/R3KBNR b', 'Pirc Defense: Main Line, 150 Attack'],
+  ['rnbqkb1r/pp3ppp/4pn2/2pp4/2P5/1P2PN2/PB1P1PPP/RN1QKB1R b', 'English Opening: Agincourt, Wimpey System'],
+  ['rnbqkb1r/3ppppp/p4n2/1PpP4/8/5P2/PP2P1PP/RNBQKBNR b', 'Benko Gambit Half-Accepted: Dlugy Variation'],
+  ['rnbqkb1r/pp2pppp/2p2n2/8/2pPP3/2N2N2/PP3PPP/R1BQKB1R b', 'Slav Defense: Modern, Geller Gambit'],
+  ['rnbqkb1r/p2p1ppp/4pn2/1ppP2B1/2P5/5N2/PP2PPPP/RN1QKB1R b', 'Blumenfeld Countergambit: Duz-Khotimirsky Variation'],
+  ['rnbqkb1r/pp3ppp/4pn2/2pp4/3P4/2PBPN2/PP3PPP/RNBQK2R b', 'Colle System: Traditional Line'],
+  ['rnbqk2r/ppp1ppbp/3p1np1/6B1/2PPP3/2N5/PP3PPP/R2QKBNR b', 'King\'s Indian Defense: Accelerated Averbakh Variation'],
+  ['r1bqk1nr/pppp1pbp/2n3p1/4p3/2P5/2N3P1/PP1PPPBP/1RBQK1NR b', 'English Opening: Reversed Sicilian, Taimanov, Hungarian Attack'],
+  ['r1bqkbnr/ppp2ppp/2n5/4P3/2Pp4/5NP1/PP2PP1P/RNBQKB1R b', 'Queen\'s Gambit Declined: Albin, Fianchetto Variation'],
+  ['rnbqkb1r/3ppppp/p4n2/1PpP4/8/2N5/PP2PPPP/R1BQKBNR b', 'Benko Gambit Half-Accepted: Zaitsev System'],
+  ['r1bqkbnr/pp3ppp/2n1p3/2pp4/3P4/5NP1/PPP1PPBP/RNBQ1RK1 b', 'King\'s Indian Attack: French, Reversed Grünfeld Variation'],
+  ['rnbqkb1r/ppp2ppp/3p4/8/4n3/3P1N2/PPP2PPP/RNBQKB1R b', 'Petrov\'s Defense: Classical, French Attack'],
+  ['r1bqk2r/pppp1ppp/2n2n2/1Bb1p3/4P3/2P2N2/PP1P1PPP/RNBQ1RK1 b', 'Ruy López Opening: Berlin, Beverwijk, Zukertort Gambit'],
+  ['rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w', 'Sicilian Defense: Open, Najdorf Variation'],
+  ['r1bqkb1r/pp2pppp/2np1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w', 'Sicilian Defense: Open, Classical Variation'],
+  ['r1bqk2r/1pppbppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 w', 'Ruy López Opening: Morphy Defense, Closed'],
+  ['r1bqkb1r/pp1n1ppp/2p1pn2/3p4/2PP4/2N1PN2/PP3PPP/R1BQKB1R w', 'Semi-Slav Defense: Main Line, Normal Variation'],
+  ['r1b1kbnr/ppqp1ppp/2n1p3/8/3NP3/2N5/PPP2PPP/R1BQKB1R w', 'Sicilian Defense: Taimanov, Bastrikov Variation'],
+  ['rnbqkb1r/pp2pp1p/3p1np1/8/3NP3/2N5/PPP2PPP/R1BQKB1R w', 'Sicilian Defense: Open, Dragon Variation'],
+  ['r1bqkb1r/pp1p1ppp/2n2n2/4p3/3NP3/2N5/PPP2PPP/R1BQKB1R w', 'Sicilian Defense: Open, Pelikán and Sveshnikov Variations'],
+  ['rnbqkb1r/pp3ppp/3ppn2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w', 'Sicilian Defense: Open, Scheveningen Variation'],
+  ['rnbq1rk1/ppp1ppbp/3p1np1/8/2PPP3/2N2P2/PP4PP/R1BQKBNR w', 'King\'s Indian Defense: Sämisch, Normal Defense'],
+  ['r1bqkb1r/pp1p1ppp/2n1pn2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w', 'Sicilian Defense: Four Knights Variation'],
+  ['rn1qkb1r/pp2pppp/2p2n2/5b2/P1pP4/2N2N2/1P2PPPP/R1BQKB1R w', 'Slav Defense: Modern, Alapin Variation, Czech Variation'],
+  ['rnbq1rk1/ppp2ppp/4pn2/3p4/1bPP4/2NBP3/PP3PPP/R1BQK1NR w', 'Nimzo-Indian Defense: Bishop Attack, Classical Defense'],
+  ['rnbqkb1r/pp3ppp/4pn2/2p5/2BP4/4PN2/PP3PPP/RNBQK2R w', 'Queen\'s Gambit Accepted: Classical Defense'],
+  ['r1bqkbnr/pp3ppp/2np4/1N2p3/4P3/8/PPP2PPP/RNBQKB1R w', 'Sicilian Defense: Open, Löwenthal, Kalashnikov Variation'],
+  ['r1bqkb1r/1ppp1ppp/p1n5/4p3/B3n3/5N2/PPPP1PPP/RNBQ1RK1 w', 'Ruy López Opening: Morphy Defense, Open'],
+  ['rnbqkb1r/pp3ppp/2p2p2/8/3P4/8/PPP2PPP/R1BQKBNR w', 'Caro-Kann Defense: Tartakower Variation'],
+  ['r2qkbnr/pp1b1ppp/2n1p3/2ppP3/3P4/2P2N2/PP3PPP/RNBQKB1R w', 'French Defense: Advance, Paulsen, Euwe Variation'],
+  ['rn1qkb1r/pbp2ppp/1p2pn2/3p4/2PP4/P1N2N2/1P2PPPP/R1BQKB1R w', 'Queen\'s Indian Defense: Kasparov Variation, Petrosian Variation'],
+  ['r1bqkb1r/pppp1ppp/2nn4/1B2p3/3P4/5N2/PPP2PPP/RNBQ1RK1 w', 'Ruy López Opening: Berlin, l\'Hermet Variation'],
+  ['rnbqk1nr/1p1p1ppp/p3p3/2b5/3NP3/3B4/PPP2PPP/RNBQK2R w', 'Sicilian Defense: Kan, Modern, Polugaevsky Variation'],
+  ['r1bqkb1r/pp2pppp/2n2n2/3p4/2PP4/2N5/PP3PPP/R1BQKBNR w', 'Caro-Kann Defense: Panov, Modern Defense'],
+  ['rn1qk2r/p1pp1ppp/bp2pn2/8/1bPP4/1P3NP1/P3PP1P/RNBQKB1R w', 'Queen\'s Indian Defense: Fianchetto, Nimzowitsch Variation, Quiet, Check Variation'],
+  ['rnbqkbnr/3p1ppp/p3p3/1p6/3NP3/2N5/PPP2PPP/R1BQKB1R w', 'Sicilian Defense: Kan, Knight Variation, Wing Attack'],
+  ['r1bqkb1r/pp3ppp/2n1pn2/2pp4/2PP4/2N1PN2/PP3PPP/R1BQKB1R w', 'Tarrasch Defense: Symmetrical Variation'],
+  ['rn1qkbnr/ppp2ppp/2b1p3/8/3PN3/5N2/PPP2PPP/R1BQKB1R w', 'French Defense: Rubinstein, Fort Knox Variation'],
+  ['rnbqkb1r/pp3ppp/2p1pn2/6B1/2pP4/2N2N2/PP2PPPP/R2QKB1R w', 'Semi-Slav Defense Accepted'],
+  ['r1bqkb1r/ppp2ppp/5n2/n2Pp1N1/2B5/8/PPPP1PPP/RNBQK2R w', 'Italian Game: Knight Attack, Polerio Defense'],
+  ['rn1qk2r/pbpp1ppp/1p2pn2/8/1bPP4/5NP1/PP2PPBP/RNBQK2R w', 'Queen\'s Indian Defense: Fianchetto, Capablanca Variation'],
+  ['r1bqk1nr/pp1p1pbp/2n3p1/2p1p3/2P5/2N2NP1/PP1PPPBP/R1BQK2R w', 'English Opening: Two Knights, Fianchetto, Ultra-Symmetrical, Reversed Botvinnik System'],
+  ['r1bqkbnr/1pp3pp/p1p2p2/4p3/4P3/5N2/PPPP1PPP/RNBQ1RK1 w', 'Ruy López Opening: Morphy Defense, Exchange, Gligorić Variation'],
+  ['rn2kb1r/pp2pppp/5n2/2pq4/3P2b1/2P2N2/PP3PPP/RNBQKB1R w', 'Alapin Sicilian Defense: Barmen, Modern Line'],
+  ['r1bqkbnr/pp3ppp/2n5/2pp4/3P4/5N2/PPPN1PPP/R1BQKB1R w', 'French Defense: Tarrasch, Open, Delayed Exchange, Main Line'],
+  ['rnbqkb1r/pp2pp1p/5np1/3p4/2PP4/2N5/PP3PPP/R1BQKBNR w', 'Caro-Kann Defense: Panov, Fianchetto Defense'],
+  ['rnbqkb1r/pp2pp1p/2p2p2/8/3P4/8/PPP2PPP/R1BQKBNR w', 'Caro-Kann Defense: Bronstein-Larsen Variation'],
+  ['rnbq1rk1/ppp1ppbp/5np1/3p4/8/3P1NP1/PPP1PPBP/RNBQ1RK1 w', 'Réti Opening: King\'s Indian Attack, Symmetrical Defense'],
+  ['rn2kbnr/pp1b1ppp/1q2p3/2ppP3/3P4/2P2N2/PP3PPP/RNBQKB1R w', 'French Defense: Advance, Wade Variation'],
+  ['rn1qkb1r/pb1ppp1p/1p3np1/2p5/2P5/5NP1/PP1PPPBP/RNBQ1RK1 w', 'English Opening: Symmetrical, Double Fianchetto Defense'],
+  ['rnbq1rk1/ppp2ppp/4pn2/3p4/1bPP4/2N1PN2/PP3PPP/R1BQKB1R w', 'Queen\'s Gambit Declined: Ragozin Defense'],
+  ['rnbqk2r/pp2ppbp/3p1np1/2p5/3PPP2/2N2N2/PPP3PP/R1BQKB1R w', 'Pirc Defense: Main Line, Austrian, Dragon Formation'],
+  ['rnbq1rk1/pp1p1ppp/4pn2/2P5/1bP5/2N5/PPQ1PPPP/R1B1KBNR w', 'Nimzo-Indian Defense: Classical, Berlin, Pirc Variation'],
+  ['r1b1k1nr/pppp1ppp/2N2q2/2b5/4P3/8/PPP2PPP/RNBQKB1R w', 'Scotch Game: Classical, Intermezzo Variation'],
+  ['rnbqkb1r/1p3ppp/p1p1pn2/3p4/2PP4/2N1PN2/PP3PPP/R1BQKB1R w', 'Semi-Slav Defense: Main Line'],
+  ['rnbqk2r/ppp1ppbp/6p1/3n4/3P4/6P1/PP2PPBP/RNBQK1NR w', 'Neo-Grünfeld Defense: Exchange Variation'],
+  ['r1bqkb1r/1ppp1ppp/p1n2n2/8/B2pP3/5N2/PPP2PPP/RNBQK2R w', 'Ruy López Opening: Morphy Defense, Mackenzie, Center Attack'],
+  ['rnbqk1nr/pp3ppp/4p3/b1ppP3/3P4/P1N5/1PP2PPP/R1BQKBNR w', 'French Defense: Winawer, Advance, Retreat Variation'],
+  ['rnbq1rk1/ppp1ppbp/5np1/3p2B1/3P4/4PN2/PPPN1PPP/R2QKB1R w', 'Queen\'s Pawn Opening: Torre, Grünfeld, Main Line'],
+  ['r1bqkb1r/1pp2ppp/p1np1n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 w', 'Ruy López Opening: Morphy Defense, Deferred Steinitz Defense'],
+  ['r1bqk2r/1ppp1ppp/p1n2n2/2b1p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 w', 'Ruy López Opening: Morphy Defense, Neo-Arkhangelsk Variation'],
+  ['rnbqkb1r/ppn1pppp/8/2p5/8/2N3P1/PP1PPPBP/R1BQK1NR w', 'English Opening: Symmetrical, Fianchetto, Rubinstein Variation'],
+  ['r1bqk1nr/ppp2pbp/2np2p1/4p3/2P5/2NP2P1/PP2PPBP/R1BQK1NR w', 'English Opening: Reversed Sicilian, Taimanov, Full Symmetry Line'],
+  ['rnb1kb1r/1pp1pppp/p2q1n2/8/3P4/2N2N2/PPP2PPP/R1BQKB1R w', 'Scandinavian Defense: Mieses-Kotrč, Gubinsky-Melts, Bronstein Variation'],
+  ['rnbq1rk1/ppp1ppbp/5np1/3p4/2PP1B2/2N1P3/PP3PPP/R2QKBNR w', 'Grünfeld Defense: Brinckmann, Grünfeld Gambit'],
+  ['rn1qkb1r/pbpp1ppp/1p2pn2/8/2PP4/P4N2/1PQ1PPPP/RNB1KB1R w', 'Queen\'s Indian Defense: Petrosian Variation, Farago Defense'],
+  ['rn1qkb1r/pp2pppp/2pp4/3nP3/3P2b1/5N2/PPP1BPPP/RNBQK2R w', 'Alekhine\'s Defense: Modern, Main Line, Flohr Variation'],
+  ['rn1qk2r/p1pp1ppp/bp2pn2/8/1bPP4/2N1P3/PP2NPPP/R1BQKB1R w', 'Nimzo-Indian Defense: St. Petersburg, Fischer, Normal Line, Bronstein Variation'],
+  ['r1b1kbnr/1pp2ppp/p1pq4/4p3/4P3/5N2/PPPP1PPP/RNBQ1RK1 w', 'Ruy López Opening: Morphy Defense, Exchange, Bronstein Variation'],
+  ['rn1qkb1r/pp1bpppp/3p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w', 'Sicilian Defense: Open, Kupreichik Variation'],
+  ['rnbqkb1r/pp3ppp/2p1pn2/8/P1pP4/2N2N2/1P2PPPP/R1BQKB1R w', 'Slav Defense: Modern, Alapin Variation, Soultanbéieff Variation'],
+  ['r1bqk1nr/pppp1ppp/2n5/b3p3/2B1P3/2P2N2/P2P1PPP/RNBQK2R w', 'Giuoco Piano Game: Evans Accepted, Main Line'],
+  ['rnbqk2r/ppp1npbp/6p1/3pp3/8/3P1NP1/PPP1PPBP/RNBQ1RK1 w', 'King\'s Indian Attack: Double Fianchetto, Pachman System'],
+  ['rnbq1rk1/pp1p1ppp/4pn2/2p5/1bPP4/2N1PN2/PP3PPP/R1BQKB1R w', 'Nimzo-Indian Defense: Deferred Hübner Variation'],
+  ['rnbqkbnr/1p1p1p1p/p3p1p1/8/3NP3/3B4/PPP2PPP/RNBQK2R w', 'Sicilian Defense: Kan, Modern, Swiss Cheese Variation'],
+  ['r1bqkb1r/pppp2pp/2n2n2/1B2p3/4N3/5N2/PPPP1PPP/R1BQK2R w', 'Ruy López Opening: Jaenisch, Dyckhoff, Tartakower Variation'],
+  ['rnbqk2r/pp1p1ppp/4pn2/8/1b1NP3/2N5/PPP2PPP/R1BQKB1R w', 'Sicilian Defense: Pin Variation'],
+  ['rnbqk1nr/pp2ppb1/2p3p1/3pP2p/3P1P2/2N5/PPP3PP/R1BQKBNR w', 'Caro-Kann Defense: Gurgenidze System'],
+  ['rn1qkb1r/pp2pppp/2p2n2/8/P1pP2b1/2N2N2/1P2PPPP/R1BQKB1R w', 'Slav Defense: Modern, Alapin Variation, Steiner Variation'],
+  ['rnbqk1nr/ppp2ppp/4p3/8/3Pp3/P1b5/1PP1NPPP/R1BQKB1R w', 'French Defense: Winawer, Alekhine-Maróczy Gambit Accepted'],
+  ['rnbq1rk1/ppp1ppbp/3p1np1/8/2PPP3/2N2N2/PP2BPPP/R1BQK2R b', 'King\'s Indian Defense: Orthodox Variation'],
+  ['r1bqkb1r/pp2pppp/2np1n2/6B1/3NP3/2N5/PPP2PPP/R2QKB1R b', 'Sicilian Defense: Open, Classical, Richter-Rauzer Variation'],
+  ['rnbq1rk1/ppp1ppbp/3p1np1/8/2PP4/5NP1/PP2PPBP/RNBQ1RK1 b', 'King\'s Indian Defense: Fianchetto, Yugoslav, Panno System'],
+  ['rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N1B3/PPP2PPP/R2QKB1R b', 'Sicilian Defense: Open, Najdorf, English Attack'],
+  ['rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP1BPPP/R1BQK2R b', 'Sicilian Defense: Open, Najdorf, Opočenský Variation'],
+  ['r1bqkb1r/pp1n1ppp/2p1pn2/3p4/2PP4/2N1PN2/PPQ2PPP/R1B1KB1R b', 'Semi-Slav Defense: Main Line, Stoltz Variation'],
+  ['r1bqkb1r/pp2pppp/2np1n2/8/2BNP3/2N5/PPP2PPP/R1BQK2R b', 'Sicilian Defense: Open, Classical, Sozin Attack'],
+  ['rn1qk2r/pbppbppp/1p2pn2/8/2PP4/5NP1/PP2PPBP/RNBQ1RK1 b', 'Queen\'s Indian Defense: Fianchetto, Classical Variation'],
+  ['rnbqkb1r/1p2pppp/p2p1n2/8/2BNP3/2N5/PPP2PPP/R1BQK2R b', 'Sicilian Defense: Open, Najdorf, Lipnitsky Attack'],
+  ['rnbqkb1r/pp3ppp/3p1n2/2pP4/4P3/2N5/PP3PPP/R1BQKBNR b', 'Benoni Defense: Modern, King\'s Pawn Line'],
+  ['rnbq1rk1/ppp1ppbp/3p1np1/6B1/2PPP3/2N5/PP2BPPP/R2QK1NR b', 'King\'s Indian Defense: Averbakh Variation'],
+  ['rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N4P/PPP2PP1/R1BQKB1R b', 'Sicilian Defense: Open, Najdorf, Adams\' Attack'],
+  ['rn1qkb1r/pp2pppp/2p2n2/5b2/P1pP4/2N1PN2/1P3PPP/R1BQKB1R b', 'Slav Defense: Modern, Alapin Variation, Czech, Classical System'],
+  ['rnbq1rk1/ppp1ppbp/5np1/3p4/2PP4/5NP1/PP2PPBP/RNBQ1RK1 b', 'Neo-Grünfeld Defense: Classical Variation'],
+  ['rn1qkb1r/pp2pppp/2p2n2/4Nb2/P1pP4/2N5/1P2PPPP/R1BQKB1R b', 'Slav Defense: Modern, Alapin Variation, Czech, Krause Attack'],
+  ['r1bqkb1r/p1pp1ppp/2p2n2/4P3/8/8/PPP2PPP/RNBQKB1R b', 'Scotch Game: Schmidt, Mieses Variation'],
+  ['r1b1kbnr/pp3ppp/1qn1p3/2ppP3/3P4/P1P2N2/1P3PPP/RNBQKB1R b', 'French Defense: Advance, Paulsen, Main Line'],
+  ['rnbqkb1r/1p2pppp/p2p1n2/8/3NPP2/2N5/PPP3PP/R1BQKB1R b', 'Sicilian Defense: Open, Najdorf, Amsterdam Variation'],
+  ['rnbqkb1r/pp3ppp/3ppn2/8/3NP3/2N5/PPP1BPPP/R1BQK2R b', 'Sicilian Defense: Open, Scheveningen, Classical Variation'],
+  ['r1bqk2r/1pppbppp/p1n2n2/4p3/B3P3/3P1N2/PPP2PPP/RNBQ1RK1 b', 'Ruy López Opening: Morphy Defense, Closed, Martinez Variation'],
+  ['rnbqkb1r/pp3ppp/3ppn2/8/3NP1P1/2N5/PPP2P1P/R1BQKB1R b', 'Sicilian Defense: Open, Scheveningen, Keres Attack'],
+  ['rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N3P1/PPP2P1P/R1BQKB1R b', 'Sicilian Defense: Open, Najdorf, Zagreb Variation'],
+  ['r1bqkbnr/pp3ppp/2n5/2pp4/3P4/2N2NP1/PP2PP1P/R1BQKB1R b', 'Tarrasch Defense: Two Knights, Rubinstein System'],
+  ['rnbq1rk1/ppp1ppbp/3p1np1/8/3PPP2/2NB1N2/PPP3PP/R1BQK2R b', 'Pirc Defense: Main Line, Austrian, Weiss Variation'],
+  ['rnbqkb1r/pp2pp1p/3p1np1/8/3NP3/2N5/PPP1BPPP/R1BQK2R b', 'Sicilian Defense: Open, Dragon, Classical Variation'],
+  ['r1bqkb1r/pp1p1ppp/2N1pn2/8/4P3/2N5/PPP2PPP/R1BQKB1R b', 'Sicilian Defense: Four Knights Variation'],
+  ['r1bqkb1r/ppp2ppp/5n2/nB1Pp1N1/8/8/PPPP1PPP/RNBQK2R b', 'Italian Game: Knight Attack, Polerio, Bishop Check Line'],
+  ['rnbq1rk1/ppppb1pp/4pn2/5p2/2PP4/5NP1/PP2PPBP/RNBQ1RK1 b', 'Dutch Defense: Fianchetto, Ilyin-Zhenevsky Variation'],
+  ['r1bqkb1r/pp2pppp/2n2n2/3p4/3P1B2/2PB4/PP3PPP/RN1QK1NR b', 'Caro-Kann Defense: Exchange, Rubinstein Variation'],
+  ['rnbq1rk1/ppp1ppbp/3p1np1/8/2PPP3/2N1B3/PP2BPPP/R2QK1NR b', 'King\'s Indian Defense: Semi-Averbakh System'],
+  ['rnbq1rk1/ppp1ppbp/3p1np1/6B1/2PPP3/2N2P2/PP4PP/R2QKBNR b', 'King\'s Indian Defense: Sämisch, Steiner Attack'],
+  ['rnbqkb1r/pp3ppp/2p1pn2/6B1/2pPP3/2N2N2/PP3PPP/R2QKB1R b', 'Semi-Slav Defense Accepted: Botvinnik Variation'],
+  ['r1bqk2r/1pppbppp/p1B2n2/4p3/4P3/5N2/PPPP1PPP/RNBQ1RK1 b', 'Ruy López Opening: Morphy Defense, Delayed Exchange Variation'],
+  ['rnbq1rk1/ppp1ppbp/3p1np1/8/2PPP3/2N2P2/PP2N1PP/R1BQKB1R b', 'King\'s Indian Defense: Sämisch, Bobotsov-Korchnoi-Petrosian Variation'],
+  ['rn1qk2r/pbppbppp/1p2pn2/8/2PP4/2N2NP1/PP2PPBP/R1BQK2R b', 'Queen\'s Indian Defense: Fianchetto, Anti-Queen\'s Indian System'],
+  ['rnbqkb1r/pp3pp1/2p1pn1p/3p4/2PP3B/2N2N2/PP2PPPP/R2QKB1R b', 'Semi-Slav Defense: Anti-Meran, Anti-Moscow Gambit'],
+  ['rnbqkb1r/pp3ppp/4p3/2pn4/3PP3/2N2N2/PP3PPP/R1BQKB1R b', 'Queen\'s Gambit Declined: Semi-Tarrasch, Main Line, Exchange Variation'],
+  ['r1bqkb1r/pp1ppppp/1nn5/2p1P3/8/1BP2N2/PP1P1PPP/RNBQK2R b', 'Alapin Sicilian Defense: Stoltz Attack'],
+  ['rnbqkb1r/pp3ppp/2p2n2/3p2B1/3P4/2N5/PPQ1PPPP/R3KBNR b', 'Queen\'s Gambit Declined: Exchange, Positional Line, Reshevsky Variation'],
+  ['rnbqk2r/pppnbppp/4p3/3pP1B1/3P3P/2N5/PPP2PP1/R2QKBNR b', 'French Defense: Main Line, Alekhine-Chatard Attack'],
+  ['r1b1kbnr/pp3ppp/1qn1p3/2ppP3/3P4/2PB1N2/PP3PPP/RNBQK2R b', 'French Defense: Advance, Paulsen, Milner-Barry Gambit'],
+  ['r1bqkb1r/pp2pppp/2np1n2/8/3NP3/2N3P1/PPP2P1P/R1BQKB1R b', 'Sicilian Defense: Open, Classical, Fianchetto Variation'],
+  ['r1bqk2r/1pppbppp/p1n2n2/4p3/B3P3/5N2/PPPPQPPP/RNB2RK1 b', 'Ruy López Opening: Morphy Defense, Worrall Attack'],
+  ['rn1qkb1r/pp2pppp/2p2n2/5b2/P1pP3N/2N5/1P2PPPP/R1BQKB1R b', 'Slav Defense: Modern, Alapin Variation, Czech, Bled Attack'],
+  ['rnbqkb1r/pp3ppp/3ppn2/8/3NPP2/2N5/PPP3PP/R1BQKB1R b', 'Sicilian Defense: Open, Scheveningen, Matanović Attack'],
+  ['rnbqkb1r/pp3ppp/3ppn2/8/2BNP3/2N5/PPP2PPP/R1BQK2R b', 'Sicilian Defense: Open, Scheveningen, Sozin Attack'],
+  ['rnbqkb1r/pp2pp1p/3p1np1/8/3NP3/2N3P1/PPP2P1P/R1BQKB1R b', 'Sicilian Defense: Open, Dragon, Fianchetto Variation'],
+  ['rnbq1rk1/ppp1ppbp/5np1/3p4/3P1B2/2N1PN2/PPP1BPPP/R2QK2R b', 'Queen\'s Pawn Opening: Chigorin, Barry Attack'],
+  ['rnbqk1nr/pp3ppp/2p1p3/8/1bPPN3/8/PP1B1PPP/R2QKBNR b', 'Queen\'s Gambit Declined: Marshall Gambit'],
+  ['rnbqkb1r/pp3ppp/3ppn2/8/3NP3/2N3P1/PPP2P1P/R1BQKB1R b', 'Sicilian Defense: Open, Scheveningen, Fianchetto Variation'],
+  ['rn1qkbnr/pp2pppp/2p3b1/8/3P4/6NN/PPP2PPP/R1BQKB1R b', 'Caro-Kann Defense: Classical, Flohr Variation'],
+  ['rnbqkb1r/pp3ppp/4p3/2pn4/3P4/2N1PN2/PP3PPP/R1BQKB1R b', 'Queen\'s Gambit Declined: Semi-Tarrasch, Main Line, Pillsbury Variation'],
+  ['r1bqkb1r/pp1npppp/2p2n2/8/3P4/5NN1/PPP2PPP/R1BQKB1R b', 'Caro-Kann Defense: Karpov, Kasparov Attack'],
+  ['rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP2PPP/R1BQKBR1 b', 'Sicilian Defense: Open, Najdorf, Freak Attack'],
+  ['rnbq1rk1/ppp1ppbp/3p1np1/4P3/3P1P2/2N2N2/PPP3PP/R1BQKB1R b', 'Pirc Defense: Main Line, Austrian, Unzicker Attack'],
+  ['rnbqkb1r/pp3ppp/2p2p2/8/2BP4/8/PPP2PPP/R1BQK1NR b', 'Caro-Kann Defense: Tartakower, Forgács Variation'],
+  ['rnbqkb1r/1p3ppp/p3pn2/2p5/2BP4/4PN2/PP3PPP/RNBQ1RK1 w', 'Queen\'s Gambit Accepted: Classical, Main Line'],
+  ['r1bq1rk1/ppp1ppbp/2np1np1/8/2PP4/2N2NP1/PP2PPBP/R1BQK2R w', 'King\'s Indian Defense: Fianchetto, Karlsbad Variation'],
+  ['r1bq1rk1/pppnppbp/3p1np1/8/2PP4/2N2NP1/PP2PPBP/R1BQK2R w', 'King\'s Indian Defense: Fianchetto, Debrecen Defense'],
+  ['rnbq1rk1/pp2ppbp/2p2np1/3p4/2PP4/5NP1/PP2PPBP/RNBQ1RK1 w', 'Neo-Grünfeld Defense: Classical, Original Defense'],
+  ['rnbq1rk1/pp3ppp/4pn2/2pp4/1bPP4/2NBPN2/PP3PPP/R1BQK2R w', 'Nimzo-Indian Defense: Gligorić System'],
+  ['rn1qk2r/pb1pbppp/1p2pn2/2p5/2P5/2N2NP1/PP1PPPBP/R1BQ1RK1 w', 'English Opening: Symmetrical, Hedgehog Defense'],
+  ['r1bq1rk1/pppnbppp/4pn2/3p2B1/2PP4/2N1PN2/PP3PPP/R2QKB1R w', 'Queen\'s Gambit Declined: Orthodox Defense'],
+  ['r1bqkb1r/pp3ppp/2nppn2/8/2BNP3/2N5/PPP2PPP/R1BQK2R w', 'Sicilian Defense: Taimanov Variation'],
+  ['r2qkb1r/pp2pppp/2n2n2/3p1b2/3P1B2/2N2N2/PP2PPPP/R2QKB1R w', 'Slav Defense: Exchange, Symmetrical Line'],
+  ['rnbq1rk1/ppp1bpp1/4pn1p/3p2B1/2PP4/2N1PN2/PP3PPP/R2QKB1R w', 'Queen\'s Gambit Declined: Neo-Orthodox Variation'],
+  ['rn1qk2r/p1ppbppp/bp2pn2/8/2PP4/1P3NP1/P2BPP1P/RN1QKB1R w', 'Queen\'s Indian Defense: Fianchetto, Nimzowitsch Variation, Quiet, Check Variation, Intermezzo Line'],
+  ['r1bqkb1r/pp3ppp/2n2n2/2pp4/3P4/2N2NP1/PP2PP1P/R1BQKB1R w', 'Tarrasch Defense: Two Knights, Rubinstein, Prague Variation'],
+  ['rnbq1rk1/p1pp1ppp/1p2pn2/8/2PP4/P1Q5/1P2PPPP/R1B1KBNR w', 'Nimzo-Indian Defense: Classical, Keres Defense'],
+  ['rnbqk2r/pp3ppp/4pn2/3p4/1bPP4/2N2N2/PP3PPP/R1BQKB1R w', 'Caro-Kann Defense: Panov Attack'],
+  ['r1b1kb1r/pp2pppp/1qnp1n2/8/2BNP3/2N5/PPP2PPP/R1BQK2R w', 'Sicilian Defense: Open, Classical, Anti-Sozin Variation'],
+  ['rnbqk2r/pp4pp/2pbpn2/3p1p2/2PP4/5NP1/PP2PPBP/RNBQ1RK1 w', 'Dutch Defense: Classical, Stonewall Variation, Modern Variation'],
+  ['r1bqkb1r/pp3ppp/2np1n2/4p3/3NP3/2N5/PPP1BPPP/R1BQK2R w', 'Sicilian Defense: Open, Classical, Boleslavsky Variation'],
+  ['r1bq1rk1/ppp1ppbp/n2p1np1/8/2PPP3/2N2N2/PP2BPPP/R1BQK2R w', 'King\'s Indian Defense: Orthodox, Kazakh Variation'],
+  ['rnbq1rk1/ppp2pbp/3p1np1/4p3/2PPP3/2N1BP2/PP4PP/R2QKBNR w', 'King\'s Indian Defense: Sämisch, Orthodox Variation'],
+  ['r2qkb1r/1bpp1ppp/p1n2n2/1p2p3/4P3/1B3N2/PPPP1PPP/RNBQ1RK1 w', 'Ruy López Opening: Morphy Defense, Arkhangelsk Variation'],
+  ['r2qkb1r/pp1bpppp/2np1n2/6B1/3NP3/2N5/PPP2PPP/R2QKB1R w', 'Sicilian Defense: Open, Classical, Richter-Rauzer, Modern Variation'],
+  ['r1b1kb1r/pp1n1ppp/2p1pn2/q2p2B1/2PP4/2N1PN2/PP3PPP/R2QKB1R w', 'Queen\'s Gambit Declined: Cambridge Springs Defense'],
+  ['rnbq1rk1/pp2ppbp/2pp1np1/8/2PP4/2N2NP1/PP2PPBP/R1BQK2R w', 'King\'s Indian Defense: Fianchetto, Yugoslav, Kaválek-Bronstein Variation'],
+  ['rnbq1rk1/pp2ppbp/2pp1np1/8/3PP3/2N2N2/PPP1BPPP/R1BQ1RK1 w', 'Pirc Defense: Classical, Quiet, Czech Defense'],
+  ['r1bq1rk1/ppp1ppbp/2np1np1/8/2PPP3/2N1BP2/PP4PP/R2QKBNR w', 'King\'s Indian Defense: Sämisch, Yates Defense'],
+  ['rnbq1rk1/ppp1ppbp/5np1/8/2pP4/5NP1/PP2PPBP/RNBQ1RK1 w', 'Neo-Grünfeld Defense: Classical, Modern Defense'],
+  ['rnbq1rk1/ppp1ppbp/6p1/3n4/3P4/5NP1/PP2PPBP/RNBQK2R w', 'English Opening: Anglo-Indian, King\'s Indian Defense'],
+  ['rnbq1rk1/pp2ppbp/3p1np1/2p5/2PPP3/2N1BP2/PP4PP/R2QKBNR w', 'King\'s Indian Defense: Sämisch, Sämisch Gambit'],
+  ['rnbqk2r/ppp1bp1p/4pp2/8/3PN3/8/PPP2PPP/R2QKBNR w', 'French Defense: Classical, Burn, Morozevich Line'],
+  ['rnbq1rk1/pp2ppbp/3p1np1/2p3B1/2PPP3/2N5/PP2BPPP/R2QK1NR w', 'King\'s Indian Defense: Averbakh, Benoni Defense'],
+  ['r1bqkb1r/ppp2ppp/2n5/3p4/3Pn3/3B1N2/PPP2PPP/RNBQK2R w', 'Petrov\'s Defense: Classical Attack, Mason-Showalter Variation'],
+  ['rnbqkb1r/1p2pppp/p2p4/8/3NP1n1/2N1B3/PPP2PPP/R2QKB1R w', 'Sicilian Defense: Open, Najdorf, Anti-English Variation'],
+  ['rnb1k1nr/ppq2ppp/4p3/2ppP3/3P4/P1P5/2P2PPP/R1BQKBNR w', 'French Defense: Winawer, Classical Variation'],
+  ['r1bqkb1r/pp3ppp/2nppn2/8/3NP3/2N5/PPP1BPPP/R1BQK2R w', 'Sicilian Defense: Taimanov Variation'],
+  ['rnbqk2r/ppp2ppp/3b4/3p4/3Pn3/3B1N2/PPP2PPP/RNBQK2R w', 'Petrov\'s Defense: Classical Attack, Marshall Variation'],
+  ['r1bq1rk1/pppnbppp/4pn2/3p4/2PP1B2/2N1PN2/PP3PPP/R2QKB1R w', 'Queen\'s Gambit Declined: Harrwitz, Two Knights Defense'],
+  ['rnbqk2r/ppp2pp1/4pn1p/3pP3/3P4/2b5/PPPB1PPP/R2QKBNR w', 'French Defense: Classical, MacCutcheon, Advance, Lasker Variation'],
+  ['r1bqk2r/pp1n1ppp/2pbpn2/3p4/2PP4/2NBPN2/PP3PPP/R1BQK2R w', 'Semi-Slav Defense: Main Line, Chigorin Defense'],
+  ['r1bq1rk1/ppp2ppp/2np1n2/1B2p3/1b2P3/2NP1N2/PPP2PPP/R1BQ1RK1 w', 'Four Knights Game: Double Spanish, Symmetrical Variation'],
+  ['r1bq1rk1/ppp1ppbp/n2p1np1/6B1/2PPP3/2N5/PP2BPPP/R2QK1NR w', 'King\'s Indian Defense: Averbakh, Modern Defense'],
+  ['r2qkb1r/pp2pppp/2n2n2/3p4/2PP2b1/2N2N2/PP3PPP/R1BQKB1R w', 'Caro-Kann Defense: Panov, Modern, Mieses Line'],
+  ['rn1q1rk1/ppp1ppbp/3p1np1/8/3PP1b1/2N2N2/PPP1BPPP/R1BQ1RK1 w', 'Pirc Defense: Classical, Quiet, Parma Defense'],
+  ['rnbq1rk1/p1p1bppp/1p2pn2/3p4/2PP1B2/2N1PN2/PP3PPP/R2QKB1R w', 'Queen\'s Gambit Declined: Harrwitz, Fianchetto Defense'],
+  ['r1b1kb1r/pp3ppp/1qn1p2n/2ppP3/3P4/P1P2N2/1P3PPP/RNBQKB1R w', 'French Defense: Advance, Paulsen, Main Line, Lputian Variation'],
+  ['rn1qkb1r/pp3ppp/2p1pn2/4Nb2/P1pP4/2N5/1P2PPPP/R1BQKB1R w', 'Slav Defense: Modern, Alapin Variation, Czech, Krause, Wiesbaden Variation'],
+  ['rnbq1rk1/pp2ppbp/3p1np1/2p5/2PP4/2N2NP1/PP2PPBP/R1BQK2R w', 'King\'s Indian Defense: Fianchetto, Yugoslav Variation, Rare Line'],
+  ['r1bqk2r/pp1p1ppp/2n1pn2/1Nb5/4P3/2N5/PPP2PPP/R1BQKB1R w', 'Sicilian Defense: Four Knights, Cobra Variation'],
+  ['rnbqk1nr/pp3ppp/4p3/b2pP3/1P1p4/P1N5/2P2PPP/R1BQKBNR w', 'French Defense: Winawer, Advance, Retreat Variation, Armenian Line'],
+  ['r2qkbnr/1pp2pp1/p1p5/4p2p/4P1b1/5N1P/PPPP1PP1/RNBQ1RK1 w', 'Ruy López Opening: Morphy Defense, Exchange, Alapin Gambit'],
+  ['rnbq1rk1/ppp1ppb1/3p1npp/6B1/2PPP3/2N5/PP2BPPP/R2QK1NR w', 'King\'s Indian Defense: Averbakh, Flexible Defense'],
+  ['rn1qkb1r/pbp2ppp/1p3n2/3p4/3P4/P1N2N2/1P2PPPP/R1BQKB1R w', 'Queen\'s Indian Defense: Kasparov Variation, Petrosian Variation'],
+  ['rn1qk2r/1bpp1ppp/1p2pn2/p7/1bPP4/5NP1/PP1BPPBP/RN1QK2R w', 'Bogo-Indian Defense: Wade-Smyslov Variation'],
+  ['r1bqk2r/ppp2ppp/2n1pn2/8/QbpP4/5NP1/PP2PPBP/RNB1K2R w', 'Catalan Opening: Open Defense, Modern Sharp Variation'],
+  ['rnbq1rk1/p1p2ppp/1p2pn2/3p4/1bPP4/2NBPN2/PP3PPP/R1BQK2R w', 'Nimzo-Indian Defense: Schlechter Defense'],
+  ['r2qkbnr/1ppb1p1p/p1np2p1/4p3/B2PP3/2P2N2/PP3PPP/RNBQK2R w', 'Ruy López Opening: Fianchetto Defense'],
+  ['r1b1kb1r/pp1p1ppp/1qn1pn2/8/2PN4/2N3P1/PP2PP1P/R1BQKB1R w', 'English Opening: Symmetrical, Anti-Benoni, Geller Variation'],
+  ['r1bq1rk1/ppp1ppbp/2np1np1/8/3PP3/2N2N2/PPP1BPPP/R1BQ1RK1 w', 'Pirc Defense: Classical, Quiet, Chigorin Line'],
+  ['r1bqk2r/1pp1bppp/p1np1n2/4p3/B3P3/5N2/PPPP1PPP/RNBQR1K1 w', 'Ruy López Opening: Morphy Defense, Closed, Averbakh Variation'],
+  ['rnbqk2r/pp2ppbp/3p1np1/8/3NP3/2N1BP2/PPP3PP/R2QKB1R b', 'Sicilian Defense: Open, Dragon, Yugoslav Attack'],
+  ['r1bq1rk1/ppp1ppbp/2np1np1/8/2PP4/2N2NP1/PP2PPBP/R1BQ1RK1 b', 'King\'s Indian Defense: Fianchetto, Karlsbad, Panno Variation'],
+  ['r1bqkb1r/pp1n1ppp/2n1p3/2ppP3/3P1P2/2N1BN2/PPP3PP/R2QKB1R b', 'French Defense: Classical, Steinitz, Boleslavsky Variation'],
+  ['rnbqk2r/ppp1ppbp/6p1/8/3PP3/2P2N2/P4PPP/R1BQKB1R b', 'Grünfeld Defense: Exchange, Modern Exchange Variation'],
+  ['r1bqkb1r/pp1n1ppp/2p1pn2/8/2BP4/2N1PN2/PP3PPP/R1BQK2R b', 'Semi-Slav Defense: Main Line, Semi-Meran Variation'],
+  ['rn1q1rk1/pbppbppp/1p2pn2/8/2PP4/2N2NP1/PP2PPBP/R1BQ1RK1 b', 'Queen\'s Indian Defense: Fianchetto, Classical, Traditional Variation'],
+  ['rnbq1rk1/ppp2pbp/3p1np1/4p3/2PPP3/2N1BN2/PP2BPPP/R2QK2R b', 'King\'s Indian Defense: Gligorić System'],
+  ['rnbqk2r/pp2nppp/4p3/2ppP3/3P2Q1/P1P5/2P2PPP/R1B1KBNR b', 'French Defense: Winawer, Advance, Poisoned Pawn Variation'],
+  ['rnbqk2r/ppp1ppbp/6p1/8/2BPP3/2P5/P4PPP/R1BQK1NR b', 'Grünfeld Defense: Exchange, Classical Variation'],
+  ['rnbq1rk1/ppp2pbp/3p1np1/3Pp3/2P1P3/2N2N2/PP2BPPP/R1BQK2R b', 'King\'s Indian Defense: Petrosian Variation'],
+  ['rnbqkb1r/pp3p1p/3p1np1/2pP4/4P3/2N2N2/PP3PPP/R1BQKB1R b', 'Benoni Defense: Modern, Classical Variation'],
+  ['r1bqkb1r/pp3ppp/2nppn2/8/2BNP3/2N1B3/PPP2PPP/R2QK2R b', 'Sicilian Defense: Open, Scheveningen, Sozin, Main Line'],
+  ['rnbqkb1r/1p3ppp/p2ppn2/8/3NP3/2N1BP2/PPP3PP/R2QKB1R b', 'Sicilian Defense: Open, Scheveningen, English Attack with 7.f3'],
+  ['r1b1kbnr/1pqp1ppp/p1n1p3/8/3NP3/2N1B3/PPPQ1PPP/R3KB1R b', 'Sicilian Defense: Taimanov, Bastrikov, English Attack'],
+  ['rnbq1rk1/pp2ppbp/3p1np1/2pP4/2P1PP2/2N2N2/PP4PP/R1BQKB1R b', 'King\'s Indian Defense: Four Pawns, Dynamic Line'],
+  ['rnbqkb1r/pp3p1p/3p1np1/2pP4/4PP2/2N5/PP4PP/R1BQKBNR b', 'Benoni Defense: Modern, Pawn Storm Variation'],
+  ['r1bq1rk1/pp1pppbp/2n2np1/2p5/2PP4/2N2NP1/PP2PPBP/R1BQ1RK1 b', 'English Opening: Fianchetto, Ultra-Symmetrical, Mecking Variation'],
+  ['rnbq1rk1/pp2ppbp/3p1np1/2pP2B1/2P1P3/2N5/PP2BPPP/R2QK1NR b', 'King\'s Indian Defense: Averbakh, Benoni, Advance Variation'],
+  ['rnbqk2r/pp2nppp/4p3/2ppP3/3P4/P1P2N2/2P2PPP/R1BQKB1R b', 'French Defense: Winawer, Positional Variation'],
+  ['rnbqkb1r/pp3p1p/3p1np1/2pP4/8/2N5/PP1NPPPP/R1BQKB1R b', 'Benoni Defense: Modern, Knight\'s Tour Variation'],
+  ['rnbqkb1r/1p3ppp/p3pn2/2p5/P1BP4/4PN2/1P3PPP/RNBQ1RK1 b', 'Queen\'s Gambit Accepted: Classical, Rubinstein Variation'],
+  ['rnb1k2r/pppnqppp/4p3/3pP3/3P1P2/2N5/PPP3PP/R2QKBNR b', 'French Defense: Main Line, Steinitz Variation'],
+  ['rnbqkb1r/pp3p1p/3p1np1/2pP4/8/2N2NP1/PP2PP1P/R1BQKB1R b', 'Benoni Defense: Modern, Fianchetto Variation'],
+  ['rnbq1rk1/ppp2pbp/3p1np1/3Pp3/2P1P3/2N1BP2/PP4PP/R2QKBNR b', 'King\'s Indian Defense: Sämisch, Orthodox, Closed'],
+  ['r1bq1rk1/pppnbppp/4pn2/3p2B1/2PP4/2N1PN2/PPQ2PPP/R3KB1R b', 'Queen\'s Gambit Declined: Orthodox, Rubinstein Variation'],
+  ['rnbqk2r/pp2ppbp/3p1np1/8/3NP3/2N1B3/PPP1BPPP/R2QK2R b', 'Sicilian Defense: Open, Dragon, Classical Attack'],
+  ['r1bqk2r/pp1n1ppp/2pbpn2/3p4/2PP2P1/2N1PN2/PPQ2P1P/R1B1KB1R b', 'Semi-Slav Defense: Main Line, Stoltz, Shabalov Attack'],
+  ['rn1q1rk1/pbppbppp/1p2pn2/8/2PP4/5NP1/PP2PPBP/RNBQR1K1 b', 'Queen\'s Indian Defense: Fianchetto, Classical, Kramnik Variation'],
+  ['rnbqkb1r/1p3ppp/p3pn2/2p5/2BP4/4PN2/PP2QPPP/RNB2RK1 b', 'Queen\'s Gambit Accepted: Classical, Alekhine System'],
+  ['rnbq1rk1/ppp2ppp/4pn2/3p4/2PP4/P1PBP3/5PPP/R1BQK1NR b', 'Nimzo-Indian Defense: Bishop Attack, Classical, Botvinnik System'],
+  ['rnbqkb1r/1p3ppp/p2ppn2/8/3NP1P1/2N1B3/PPP2P1P/R2QKB1R b', 'Sicilian Defense: Open, Scheveningen, Delayed Keres Attack'],
+  ['rnbqkb1r/pp3p1p/3p1np1/2pP4/4P3/2NB4/PP3PPP/R1BQK1NR b', 'Benoni Defense: Modern, Penrose Variation'],
+  ['rnbq1rk1/ppp1bpp1/4pB1p/3p4/2PP4/2N1PN2/PP3PPP/R2QKB1R b', 'Queen\'s Gambit Declined: Neo-Orthodox, Anti-Tartakower Variation'],
+  ['r1bq1rk1/pp1pppbp/2n2np1/2p5/2P5/2NP1NP1/PP2PPBP/R1BQ1RK1 b', 'English Opening: Fianchetto, Ultra-Symmetrical, Duchamp Variation'],
+  ['r1bqkb1r/ppp1pppp/1nn5/4P3/2PP4/4B3/PP4PP/RN1QKBNR b', 'Alekhine\'s Defense: Four Pawns, Main Line'],
+  ['rn1qk2r/pbppbppp/1p2p3/8/2PPn3/2N2NP1/PP1BPPBP/R2QK2R b', 'Queen\'s Indian Defense: Fianchetto, Anti-Queen\'s Indian, Opočenský Variation'],
+  ['r1bq1rk1/ppp2pbp/2np1np1/4p3/2PPP3/2N2N2/PP2BPPP/R1BQ1RK1 w', 'King\'s Indian Defense: Orthodox, Aronin-Taimanov Defense'],
+  ['r1bq1rk1/pppn1pbp/3p1np1/4p3/2PP4/2N2NP1/PP2PPBP/R1BQ1RK1 w', 'King\'s Indian Defense: Fianchetto, Debrecen, Classical Main Line'],
+  ['r1bqkb1r/p2n1ppp/2p1pn2/1p6/2BP4/2N1PN2/PP3PPP/R1BQK2R w', 'Semi-Slav Defense: Main Line, Semi-Meran Variation'],
+  ['r1bq1rk1/pppn1pbp/3p1np1/4p3/2PPP3/2N2N2/PP2BPPP/R1BQ1RK1 w', 'King\'s Indian Defense: Orthodox, Positional Defense'],
+  ['r1bq1rk1/1pp1ppbp/p1np1np1/8/2PP4/2N2NP1/PP2PPBP/R1BQ1RK1 w', 'King\'s Indian Defense: Normal, Fianchetto, Karlsbad, Panno Variation'],
+  ['r1bqk2r/pp2ppbp/2np1np1/8/3NP3/2N1BP2/PPP3PP/R2QKB1R w', 'Sicilian Defense: Open, Dragon, Belezky Line'],
+  ['rnbq1rk1/p1p1bpp1/1p2pn1p/3p4/2PP3B/2N1PN2/PP3PPP/R2QKB1R w', 'Queen\'s Gambit Declined: Tartakower Defense'],
+  ['r1bq1rk1/ppp2pbp/n2p1np1/4p3/2PPP3/2N2N2/PP2BPPP/R1BQ1RK1 w', 'King\'s Indian Defense: Orthodox, Glek Defense'],
+  ['r1bqk2r/pp2bppp/2n2n2/2pp4/3P4/2N2NP1/PP2PPBP/R1BQK2R w', 'Tarrasch Defense: Two Knights, Rubinstein, Prague, Main Line'],
+  ['rnbq1rk1/1pp2pbp/3p1np1/p2Pp3/2P1P3/2N2N2/PP2BPPP/R1BQK2R w', 'King\'s Indian Defense: Petrosian Variation, Stein Defense'],
+  ['rnbq1rk1/pp2p1bp/2pp1np1/5p2/2PP4/2N2NP1/PP2PPBP/R1BQ1RK1 w', 'Dutch Defense: Leningrad, Warsaw Variation'],
+  ['rnbq1rk1/ppp2pbp/5np1/4p3/2P1P3/2N2N2/PP2BPPP/R1BQK2R w', 'King\'s Indian Defense: Orthodox, Exchange Variation'],
+  ['r1bq1rk1/pp1nbppp/2pp1n2/4p3/2PPP3/2N2N2/PP2BPPP/R1BQ1RK1 w', 'Old Indian Defense: Ukrainian, Two Knights, Main Line'],
+  ['rnbqkb1r/5ppp/p2ppn2/1p6/3NP3/1BN5/PPP2PPP/R1BQK2R w', 'Sicilian Defense: Open, Scheveningen, Sozin, Flank Variation'],
+  ['rnb2rk1/pp2ppbp/2pp1np1/q7/2PP4/2N2NP1/PP2PPBP/R1BQ1RK1 w', 'King\'s Indian Defense: Fianchetto, Yugoslav, Kaválek-Bronstein, Kaválek Defense'],
+  ['rnbq1rk1/pp2ppbp/5np1/3p4/3P4/5NP1/PP2PPBP/RNBQ1RK1 w', 'Neo-Grünfeld Defense: Classical, Original, Ultra-Delayed Exchange Variation'],
+  ['r1bq1rk1/ppp2pbp/2np1np1/4p3/2PP4/2N2NP1/PP2PPBP/R1BQ1RK1 w', 'King\'s Indian Defense: Fianchetto, Karlsbad, Panno, Uhlmann-Szabó System'],
+  ['r1bq1rk1/pp3ppp/2n1pn2/2pp4/1bPP4/2NBPN2/PP3PPP/R1BQ1RK1 w', 'Nimzo-Indian Defense: Gligorić, Bernstein Defense'],
+  ['rnbq1rk1/pp3ppp/4pn2/2bp4/2P2B2/2N1PN2/PP3PPP/R2QKB1R w', 'Queen\'s Gambit Declined: Harrwitz, Main Line'],
+  ['r1bqk2r/pp1pppbp/2n3p1/8/2PNP1n1/2N1B3/PP3PPP/R2QKB1R w', 'Sicilian Defense: Open, Accelerated Dragon, Maróczy Bind, Breyer Variation'],
+  ['r1bq1rk1/ppp1p1bp/2np1np1/5p2/2PP4/2N2NP1/PP2PPBP/R1BQ1RK1 w', 'Dutch Defense: Leningrad, Matulović Variation'],
+  ['r1bqkb1r/pp2pp1p/3p1np1/8/2PQP3/2N5/PP3PPP/R1B1KB1R w', 'Sicilian Defense: Open, Accelerated Dragon, Maróczy Bind, Gurgenidze Variation'],
+  ['r1bq1rk1/1pp1ppbp/p1np1np1/8/2PPP3/2N1BP2/PP2N1PP/R2QKB1R w', 'King\'s Indian Defense: Sämisch, Yates, Panno Formation'],
+  ['rnbq1rk1/ppp1bpp1/4p2p/3p4/2PPn2B/2N1PN2/PP3PPP/R2QKB1R w', 'Queen\'s Gambit Declined: Lasker Defense'],
+  ['rn1q1rk1/pp2ppbp/2pp1np1/5b2/2PP4/2N2NP1/PP2PPBP/R1BQ1RK1 w', 'King\'s Indian Defense: Fianchetto, Yugoslav, Kaválek-Bronstein, Larsen Defense'],
+  ['r2q1rk1/ppp1ppbp/2np1np1/5b2/2PP4/2N2NP1/PP2PPBP/R1BQ1RK1 w', 'King\'s Indian Defense: Fianchetto, Karlsbad, Panno, Lesser Simagin Variation'],
+  ['rn1q1rk1/pbp1bppp/1p2pn2/3p4/2PP4/2N2NP1/PP2PPBP/R1BQ1RK1 w', 'Queen\'s Indian Defense: Fianchetto, Classical, Nimzowitsch Line'],
+  ['r1bqkb1r/pp3ppp/1np1pn2/6N1/2BP4/8/PPP1QPPP/R1B1K1NR w', 'Caro-Kann Defense: Karpov, Smyslov Variation'],
+  ['r2q1rk1/ppp1ppbp/2np1np1/8/2PP2b1/2N2NP1/PP2PPBP/R1BQ1RK1 w', 'King\'s Indian Defense: Fianchetto, Karlsbad, Panno, Simagin Variation'],
+  ['rnbq1rk1/1pp1ppbp/p4np1/8/2QPP3/2N2N2/PP3PPP/R1B1KB1R w', 'Grünfeld Defense: Russian, Hungarian Variation'],
+  ['rnbqk1nr/5ppp/2p1p3/pp6/PbpP4/2N1PN2/1P1B1PPP/R2QKB1R w', 'Slav Defense: Modern, Triangle, Noteboom, Abrahams Variation with 7...a5'],
+  ['r1bq1rk1/2ppbppp/p1n2n2/1p2p3/4P3/1B3N2/PPPPQPPP/RNB2RK1 w', 'Ruy López Opening: Morphy Defense, Worrall, Castling Line'],
+  ['rnb1qrk1/ppp1b1pp/3ppn2/5p2/2PP4/2N2NP1/PP2PPBP/R1BQ1RK1 w', 'Dutch Defense: Fianchetto, Ilyin-Zhenevsky Variation with 7...Qe8'],
+  ['rnbqk2r/1p3ppp/p3pn2/2b5/2B5/4PN2/PP3PPP/RNBQ1RK1 w', 'Queen\'s Gambit Accepted: Classical, Main Line, Furman Variation'],
+  ['r1bqk2r/pp3ppp/2nppn2/2p5/2PP4/2PBPN2/P4PPP/R1BQK2R w', 'Nimzo-Indian Defense: Hübner, Main Line'],
+  ['r1bq1rk1/pppn1pbp/3p1np1/3Pp3/2P1P3/2N2N2/PP2BPPP/R1BQK2R w', 'King\'s Indian Defense: Petrosian Variation, Main Line'],
+  ['r2qkbnr/pp1nppp1/2p3bp/7P/3P4/5NN1/PPP2PP1/R1BQKB1R b', 'Caro-Kann Defense: Classical, Spassky Variation'],
+  ['r1bqkb1r/pp1n1ppp/2n1p3/3pP3/3P4/3B4/PP1NNPPP/R1BQK2R b', 'French Defense: Tarrasch, Closed, Main Line'],
+  ['rn1qk2r/pp3ppp/2p1pn2/5b2/PbBP4/2N1PN2/1P3PPP/R1BQ1RK1 b', 'Slav Defense: Modern, Alapin Variation, Czech, Classical, Dutch Variation'],
+  ['r1bq1rk1/2ppbppp/p1n2n2/1p2p3/P3P3/1B3N2/1PPP1PPP/RNBQR1K1 b', 'Ruy López Opening: Morphy Defense, Anti-Marshall Variation'],
+  ['rnbq1rk1/pp3ppp/4pn2/2p5/1bBP4/2N1PN2/PP3PPP/R1BQ1RK1 b', 'Nimzo-Indian Defense: Gligorić, Bronstein Variation'],
+  ['rnbqk2r/pp3pbp/3p1np1/2pP4/4P3/2N2N1P/PP3PP1/R1BQKB1R b', 'Benoni Defense: Modern, Classical, New York Variation'],
+  ['rnbq1rk1/pp3pbp/3ppnp1/2pP4/2P1PP2/2N2N2/PP2B1PP/R1BQK2R b', 'King\'s Indian Defense: Four Pawns, Normal Attack'],
+  ['r1bq1rk1/pp1nbppp/2p1pn2/3p4/2PP4/5NP1/PPQNPPBP/R1B2RK1 b', 'Catalan Opening: Closed, Main Line'],
+  ['rnbqk2r/pp3pbp/3p1np1/1BpP4/4PP2/2N5/PP4PP/R1BQK1NR b', 'Benoni Defense: Modern, Pawn Storm, Taimanov Variation'],
+  ['r1bqk2r/ppp1bppp/2n5/3p4/2PPn3/3B1N2/PP3PPP/RNBQ1RK1 b', 'Petrov\'s Defense: Classical Attack, Mason-Showalter Variation'],
+  ['r1bqk2r/pp2bppp/2nppn2/8/2BNP3/2N1B3/PPP1QPPP/R3K2R b', 'Sicilian Defense: Open, Scheveningen, Sozin, Main Line, Velimirović Attack'],
+  ['r1b1kb1r/ppp2ppp/2n5/3q4/3pn3/2N2N2/PPP2PPP/R1BQR1K1 b', 'Scotch Game: Dubois Réti, Scotch Gambit, Anderssen Attack'],
+  ['r1bq1rk1/pp2ppbp/2np1np1/2pP4/2P5/2N2NP1/PP2PPBP/R1BQ1RK1 b', 'King\'s Indian Defense: Fianchetto, Yugoslav, Rare, Advance Line'],
+  ['r1bq1rk1/pppn1pbp/3p1np1/3Pp3/2P1P3/2N2N2/PP2BPPP/R1BQ1RK1 b', 'King\'s Indian Defense: Orthodox, Positional Defense, Closed Line'],
+  ['r1b1k2r/pp1n1ppp/2p1pn2/q2p2B1/1bPP4/2N1P3/PPQN1PPP/R3KB1R b', 'Queen\'s Gambit Declined: Cambridge Springs, Bogoljubov Variation'],
+  ['rnbqk2r/pp3ppp/4p3/2Pn4/8/P1P2P2/4P1PP/R1BQKBNR b', 'Nimzo-Indian Defense: Sämisch, Keres Variation'],
+  ['r1bq1rk1/2p1bppp/p1np1n2/1p2p3/4P3/1BP2N2/PP1P1PPP/RNBQR1K1 w', 'Ruy López Opening: Morphy Defense, Closed'],
+  ['r2qkb1r/2p2ppp/p1n1b3/1p1pP3/4n3/1B3N2/PPP2PPP/RNBQ1RK1 w', 'Ruy López Opening: Morphy Defense, Open, Main Line'],
+  ['rnbq1rk1/1p2bppp/p2p1n2/4p3/4P3/1NN5/PPP1BPPP/R1BQ1RK1 w', 'Sicilian Defense: Open, Najdorf, Opočenský, Traditional Line'],
+  ['r1bk1b1r/ppp2ppp/2p5/4Pn2/8/5N2/PPP2PPP/RNB2RK1 w', 'Ruy López Opening: Berlin, l\'Hermet, Berlin Wall Defense'],
+  ['rnb1k2r/1pq1bppp/p2ppn2/6B1/3NPP2/2N2Q2/PPP3PP/R3KB1R w', 'Sicilian Defense: Open, Najdorf, Traditional Line'],
+  ['rnbq1rk1/pp2ppbp/6p1/2p5/2BPP3/2P5/P3NPPP/R1BQK2R w', 'Grünfeld Defense: Exchange, Classical Variation'],
+  ['r2qkb1r/pb1n1ppp/2p1pn2/1p6/3P4/2NBPN2/PP3PPP/R1BQK2R w', 'Semi-Slav Defense: Main Line, Semi-Meran Variation'],
+  ['r1bq1rk1/2p1bppp/p1n2n2/1p1pp3/4P3/1BP2N2/PP1P1PPP/RNBQR1K1 w', 'Ruy López Opening: Marshall Attack'],
+  ['1rbq1rk1/1pp1ppbp/p1np1np1/8/2PPP3/2N1BP2/PP1QN1PP/R3KB1R w', 'King\'s Indian Defense: Sämisch, Yates, Panno, Main Line'],
+  ['r1bq1rk1/p2nbppp/1pp1pn2/3p4/2PP4/5NP1/PPQNPPBP/R1B2RK1 w', 'Catalan Opening: Closed, Traditional Variation'],
+  ['rnbq1rk1/pp3ppp/2pb4/3p4/2PPn3/3B1N2/PP3PPP/RNBQ1RK1 w', 'Petrov\'s Defense: Classical Attack, Marshall Variation, Staunton Variation'],
+  ['r3kb1r/ppqn1ppp/2p2n2/4pb2/P1NP4/2N3P1/1P2PP1P/R1BQKB1R w', 'Slav Defense: Modern, Alapin Variation, Czech, Krause, Carlsbad Variation'],
+  ['rnb1kb1r/1p3ppp/p2ppn2/6B1/3NPP2/2N5/PqPQ2PP/R3KB1R w', 'Sicilian Defense: Open, Najdorf, Poisoned Pawn Variation'],
+  ['r1bq1rk1/pp2ppbp/2n2np1/2p5/2P5/2N2NP1/PP2PPBP/R1BQ1RK1 w', 'King\'s Indian Defense: Fianchetto, Yugoslav, Rare, Exchange Variation'],
+  ['rnbq1rk1/p1p1bpp1/1p2p2p/3n4/3P3B/2N1PN2/PP3PPP/R2QKB1R w', 'Queen\'s Gambit Declined: Tartakower, Makogonov Exchange Variation'],
+  ['r2qkb1r/1p3ppp/p1npbn2/4p1B1/4P3/N1N5/PPP2PPP/R2QKB1R w', 'Sicilian Defense: Open, Pelikán and Sveshnikov, Bird Variation'],
+  ['r1bq1rk1/pp2ppbp/2n2np1/3p4/2PP4/2N2N2/PP2BPPP/R1BQ1RK1 w', 'Caro-Kann Defense: Panov, Fianchetto Defense'],
+  ['rn1qk2r/4ppbp/b2p1np1/2pP4/8/2N2NP1/PP2PP1P/R1BQKB1R w', 'Benko Gambit Fully-Accepted: Fianchetto Defense'],
+  ['r1bq1rk1/pp1n1ppp/4pn2/2p5/1bBP4/2N1PN2/PP3PPP/R1BQ1RK1 w', 'Nimzo-Indian Defense: Gligorić, Bronstein Variation'],
+  ['rn1qk2r/1p2bppp/p2pbn2/4p3/4P3/1NN5/PPP1BPPP/R1BQ1RK1 w', 'Sicilian Defense: Open, Najdorf, Opočenský, Modern Line'],
+  ['r1bq1rk1/2p1bppp/p1np1n2/1p2p3/4P3/1BP2N1P/PP1P1PP1/RNBQR1K1 b', 'Ruy López Opening: Morphy Defense, Keres Variation'],
+  ['r1bqkb1r/5ppp/p1np1n2/1p1Np1B1/4P3/N7/PPP2PPP/R2QKB1R b', 'Sicilian Defense: Open, Pelikán and Sveshnikov, Chelyabinsk Variation'],
+  ['r1bq1rk1/pp2ppbp/2np1np1/8/2BNP3/2N1BP2/PPPQ2PP/R3K2R b', 'Sicilian Defense: Open, Dragon, Main Line'],
+  ['r1bq1rk1/pp2ppbp/2np1np1/8/3NP3/2N1BP2/PPPQ2PP/2KR1B1R b', 'Sicilian Defense: Open, Dragon, Rauzer Variation'],
+  ['r1bq1rk1/ppp1npbp/3p1np1/3Pp3/2P1P3/2N5/PP2BPPP/R1BQNRK1 b', 'King\'s Indian Defense: Classical System'],
+  ['r1bq1rk1/ppp1npbp/3p1np1/3Pp3/1PP1P3/2N2N2/P3BPPP/R1BQ1RK1 b', 'King\'s Indian Defense: Bayonet Attack'],
+  ['r1bq1rk1/2p1bppp/p1np1n2/1p2p3/3PP3/1BP2N2/PP3PPP/RNBQR1K1 b', 'Ruy López Opening: Morphy Defense, Closed, Yates Variation'],
+  ['r1bq1rk1/pp2bppp/2n2n2/2pp2B1/3P4/2N2NP1/PP2PPBP/R2Q1RK1 b', 'Tarrasch Defense: Two Knights, Rubinstein, Prague, Carlsbad Variation'],
+  ['r1bq1rk1/ppp1npbp/3p1np1/3Pp3/2P1P3/2N5/PP1NBPPP/R1BQ1RK1 b', 'King\'s Indian Defense: Orthodox, Modern System'],
+  ['r1bq1rk1/pp3ppp/2n1pn2/2pp4/2PP4/P1PBPN2/5PPP/R1BQ1RK1 b', 'Nimzo-Indian Defense: Gligorić, Bernstein, Exchange Variation'],
+  ['rn1qk2r/4ppbp/b2p1np1/2pP4/8/2N2NP1/PP2PPBP/R1BQK2R b', 'Benko Gambit Fully-Accepted: Fianchetto Attack'],
+  ['rn1q1rk1/pbppbppp/1p2p3/8/2PP4/2Q2NP1/PP2PPBP/R1B2RK1 b', 'Queen\'s Indian Defense: Fianchetto, Main Line'],
+  ['r2qkb1r/2p2ppp/p1n1b3/1p1pP3/4n3/1B3N2/PPPN1PPP/R1BQ1RK1 b', 'Ruy López Opening: Morphy Defense, Open, Bernstein Variation'],
+  ['r1bq1rk1/2p1bppp/p1np1n2/1p2p3/4P3/1BPP1N2/PP3PPP/RNBQR1K1 b', 'Ruy López Opening: Morphy Defense, Closed, Pilnik Variation'],
+  ['rn1q1rk1/pp3ppp/2p1pn2/5b2/PbBP4/2N1PN2/1P2QPPP/R1B2RK1 b', 'Slav Defense: Modern, Alapin Variation, Czech, Dutch, Main Line'],
+  ['r1bq1rk1/pp2ppbp/2np1np1/8/3NP1P1/2N1BP2/PPPQ3P/R3KB1R b', 'Sicilian Defense: Open, Dragon, Panov Variation'],
+  ['r1bqk2r/ppp1bppp/8/3p4/1nPPn3/5N2/PP2BPPP/RNBQ1RK1 b', 'Petrov\'s Defense: Classical Attack, Mason-Showalter Variation'],
+  ['r2qkb1r/2p2ppp/p1n1b3/1p1pP3/4n3/1B3N2/PPP1QPPP/RNB2RK1 b', 'Ruy López Opening: Morphy Defense, Open, Howell Attack'],
+  ['rnbq1rk1/2p1bppp/p2p1n2/1p2p3/4P3/1BP2N1P/PP1P1PP1/RNBQR1K1 w', 'Ruy López Opening: Morphy Defense, Keres, Breyer Defense'],
+  ['r2q1rk1/1bp1bppp/p1np1n2/1p2p3/4P3/1BP2N1P/PP1P1PP1/RNBQR1K1 w', 'Ruy López Opening: Morphy Defense, Keres, Flohr-Zaitsev System'],
+  ['r2q1rk1/2p1bppp/p1np1n2/1p2p3/3PP1b1/1BP2N2/PP3PPP/RNBQR1K1 w', 'Ruy López Opening: Morphy Defense, Closed, Yates, Bogoljubov Variation'],
+  ['r1b1k2r/1pqnbppp/p2ppn2/6B1/3NPP2/2N2Q2/PPP3PP/2KR1B1R w', 'Sicilian Defense: Open, Najdorf, Main Line'],
+  ['r2qk2r/2p2ppp/p1n1b3/1pbpP3/4n3/1BP2N2/PP3PPP/RNBQ1RK1 w', 'Ruy López Opening: Morphy Defense, Open, Italian Variation'],
+  ['rnb1kb1r/1p3ppp/p2ppn2/6B1/3NPP2/q1N5/P1PQ2PP/1R2KB1R w', 'Sicilian Defense: Open, Najdorf, Poisoned Pawn Variation Accepted'],
+  ['r2qk2r/2p1bppp/p1n1b3/1p1pP3/4n3/1BP2N2/PP3PPP/RNBQ1RK1 w', 'Ruy López Opening: Morphy Defense, Open, Classical Defense'],
+  ['r1bq1rk1/2pnbppp/p1np4/1p2p3/4P3/1BP2N1P/PP1P1PP1/RNBQR1K1 w', 'Ruy López Opening: Morphy Defense, Keres Variation'],
+  ['r1bq1rk1/pp2bppp/2n2n2/3p2B1/2pP4/2N2NP1/PP2PPBP/R2Q1RK1 w', 'Tarrasch Defense: Two Knights, Rubinstein, Prague, Carlsbad, Advance Variation'],
+  ['r1bqr1k1/2p1bppp/p1np1n2/1p2p3/4P3/1BP2N1P/PP1P1PP1/RNBQR1K1 w', 'Ruy López Opening: Morphy Defense, Keres Variation'],
+  ['r1bq1rk1/2p1bpp1/p1np1n1p/1p2p3/4P3/1BP2N1P/PP1P1PP1/RNBQR1K1 w', 'Ruy López Opening: Morphy Defense, Keres, Smyslov Defense'],
+  ['r1bq1rk1/pp1nbppp/2p1p3/3n2B1/2BP4/2N1PN2/PP3PPP/2RQK2R w', 'Queen\'s Gambit Declined: Orthodox, Capablanca System'],
+  ['rnbqr1k1/pp3pbp/3p1np1/2pP4/4P3/2N2N2/PP2BPPP/R1BQ1RK1 w', 'Benoni Defense: Modern, Classical, Czerniak Defense'],
+  ['r1bq1rk1/ppp1npbp/3p2p1/3Pp2n/1PP1P3/2N2N2/P3BPPP/R1BQR1K1 b', 'King\'s Indian Defense: Bayonet, Sokolov Line'],
+  ['rnb1k1r1/ppq1np1Q/4p3/3pP3/3p4/P1P5/2P1NPPP/R1B1KB1R b', 'French Defense: Winawer, Advance, Poisoned Pawn, Main Line'],
+  ['r1bq1rk1/pppnnpbp/3p2p1/3Pp3/2P1P3/2N1B3/PP2BPPP/R2QNRK1 b', 'King\'s Indian Defense: Neo-Classical Line'],
+  ['rnbqr1k1/pp3pbp/3p1np1/2pP4/4P3/2N5/PP1NBPPP/R1BQ1RK1 b', 'Benoni Defense: Modern, Classical, Czerniak, Tal Line'],
+  ['r1bqk2r/pp1n1pp1/2pbp2p/8/3PQ3/3B1N2/PPP2PPP/R1B1K2R b', 'Caro-Kann Defense: Karpov, Main Line'],
+  ['r1bq1rk1/2pnbppp/p2p1n2/1p2p3/3PP3/1BP2N1P/PP3PP1/RNBQR1K1 w', 'Ruy López Opening: Morphy Defense, Keres, Breyer, Zaitsev Hybrid Variation'],
+  ['r1bqk2r/5pbp/p1np1p2/1p1Np3/4P3/N7/PPP2PPP/R2QKB1R w', 'Sicilian Defense: Open, Pelikán and Sveshnikov, Novosibirsk Variation'],
+  ['2rq1rk1/pp1bppbp/2np1np1/8/2BNP3/2N1BP2/PPPQ2PP/2KR3R w', 'Sicilian Defense: Open, Dragon, Old Line'],
+  ['r1b1kb1r/1p3ppp/p2qpn2/8/2BN4/8/PPP2PPP/R1BQ1RK1 w', 'French Defense: Tarrasch, Open, Chistyakov, Modern Line'],
+  ['rn1q1rk1/4ppbp/3p1np1/2pP4/4P3/2N2NP1/PP3PKP/R1BQ3R b', 'Benko Gambit Fully-Accepted'],
+  ['r1b2rk1/2q1bppp/p2p1n2/npp1p3/3PP3/2P2N1P/PPB2PP1/RNBQR1K1 w', 'Ruy López Opening: Morphy Defense, Keres, Chigorin Defense'],
+  ['r1bq1rk1/4bppp/p1p5/1p1nR3/8/1BP5/PP1P1PPP/RNBQ2K1 w', 'Ruy López Opening: Marshall Attack, Modern Variation'],
+  ['r1bq1rk1/3nbppp/p2p4/npp1p3/3PP3/2P2N1P/PPB2PP1/RNBQR1K1 w', 'Ruy López Opening: Morphy Defense, Keres Variation'],
+  ['r1bqr1k1/1p1n1pbp/p2p1np1/2pP4/P7/2N3P1/1P1NPPBP/R1BQ1RK1 w', 'Benoni Defense: Modern, Fianchetto, Hastings, Main Line'],
+  ['r1bqr1k1/1pp2pbp/3p1np1/p1n5/2PNP3/2N3PP/PP3PB1/R1BQR1K1 w', 'King\'s Indian Defense: Fianchetto, Debrecen, Classical Main, Long Variation'],
+  ['r1bq1rk1/4bppp/p1p5/1p1nR3/3P4/1BP5/PP3PPP/RNBQ2K1 b', 'Ruy López Opening: Marshall Attack, Modern, Main Line'],
+  ['r2qk2r/pp1nbpp1/2p1pn1p/7P/3P4/3Q1NN1/PPPB1PP1/2KR3R w', 'Caro-Kann Defense: Classical, Spassky, Lobron System'],
+  ['r1b2rk1/2q1bppp/p2p1n2/np2p3/3PP3/5N1P/PPBN1PP1/R1BQR1K1 b', 'Ruy López Opening: Morphy Defense, Keres, Chigorin, Panov System'],
 ]);
 
 export function lookupOpening(fen) {
