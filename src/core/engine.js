@@ -24,6 +24,7 @@ const State = Object.freeze({
 // Reject eval with depth above this threshold until a low-depth eval confirms
 // the fresh analysis has started.
 const STALE_DEPTH_THRESHOLD = 2;
+const MAX_RECOVER_ATTEMPTS = 2;
 
 export class Engine extends Emitter {
   constructor() {
@@ -34,6 +35,8 @@ export class Engine extends Emitter {
     this._pendingFen = null;
     this._recoverTimer = null;
     this._depthGuard = false;
+    this._recoverAttempts = 0;
+    this._recoverFen = null;
   }
 
   get state() { return this._state; }
@@ -144,7 +147,21 @@ export class Engine extends Emitter {
     if (this._recovering) return;
     this._recovering = true;
     const fen = this._currentFen;
-    log.warn('auto-recovering, will re-analyze:', fen);
+
+    if (fen === this._recoverFen) {
+      this._recoverAttempts += 1;
+    } else {
+      this._recoverFen = fen;
+      this._recoverAttempts = 1;
+    }
+
+    if (this._recoverAttempts > MAX_RECOVER_ATTEMPTS) {
+      log.error('giving up recovery after', MAX_RECOVER_ATTEMPTS, 'attempts for:', fen);
+      this._recovering = false;
+      return;
+    }
+
+    log.warn('auto-recovering (attempt', this._recoverAttempts, 'of', MAX_RECOVER_ATTEMPTS, '), will re-analyze:', fen);
     if (this._worker) {
       this._worker.terminate();
       this._worker = null;
@@ -177,7 +194,11 @@ export class Engine extends Emitter {
         }
         this._depthGuard = false;
       }
-      if (msg.complete) this._state = State.READY;
+      if (msg.complete) {
+        this._state = State.READY;
+        this._recoverAttempts = 0;
+        this._recoverFen = null;
+      }
       this.emit(EVT_EVAL, msg);
     } else if (msg.type === MSG_ERROR) {
       log.error('worker error:', msg.message);
