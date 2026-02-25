@@ -27,8 +27,9 @@ const log = createDebug('chee:content');
 
   const { href } = window.location;
   const isPuzzleRush = /chess\.com\/puzzles\/rush/.test(href);
-  const isPuzzleRated = !isPuzzleRush && /chess\.com\/puzzles/.test(href);
-  const isPuzzlePage = isPuzzleRated || isPuzzleRush;
+  const isPuzzleBattle = /chess\.com\/puzzles\/battle/.test(href);
+  const isPuzzleRated = !isPuzzleRush && !isPuzzleBattle && /chess\.com\/puzzles/.test(href);
+  const isPuzzlePage = isPuzzleRated || isPuzzleRush || isPuzzleBattle;
   if (isPuzzleRated && !settings.enablePuzzles) {
     log.info('Puzzle page detected but enablePuzzles is off, exiting');
     return;
@@ -37,8 +38,13 @@ const log = createDebug('chee:content');
     log.info('Puzzle Rush detected but enablePuzzleRush is off, exiting');
     return;
   }
+  if (isPuzzleBattle && !settings.enablePuzzleBattle) {
+    log.info('Puzzle Battle detected but enablePuzzleBattle is off, exiting');
+    return;
+  }
   if (isPuzzlePage) {
     settings.numLines = 1;
+    settings.searchDepth = settings.puzzleDepth;
     settings.showBestMove = true;
     settings.showClassifications = false;
     settings.showChart = false;
@@ -66,7 +72,7 @@ const log = createDebug('chee:content');
 
   window.addEventListener('unload', () => coordinator.destroy());
 
-  const PUZZLE_FORCED_KEYS = ['numLines', 'showBestMove', 'showClassifications', 'showChart', 'showGuard', 'showCrazy'];
+  const PUZZLE_FORCED_KEYS = ['numLines', 'searchDepth', 'showBestMove', 'showClassifications', 'showChart', 'showGuard', 'showCrazy'];
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'sync') return;
     const update = {};

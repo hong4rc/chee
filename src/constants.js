@@ -93,6 +93,8 @@ export const SETTINGS_DEFAULTS = {
   debugMode: false,
   enablePuzzles: false,
   enablePuzzleRush: false,
+  enablePuzzleBattle: false,
+  puzzleDepth: 19,
 };
 
 // ─── Classification ─────────────────────────────────────────
