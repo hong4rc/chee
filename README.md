@@ -31,14 +31,16 @@ localStorage.debug = 'chee:*'
 
 ## Supported Sites
 
-- **chess.com** — `/game/*` and `/play/*` pages
-- **lichess.org** — all game pages
+- **chess.com** — `/game/*` and `/play/*` pages (full analysis panel)
+- **chess.com** — `/puzzles/*` pages: rated, rush, battle (best move arrow only, each togglable separately)
+- **lichess.org** — all game pages (full analysis panel)
 
 ## Features
 
 - Multi-line analysis (configurable 3-5 lines) with per-line eval scores
-- Configurable search depth (19-22)
+- Configurable search depth (19-22, separate puzzle depth 15-21)
 - Arrow overlays showing suggested moves
+- Puzzle mode: best move arrow on chess.com puzzles (rated, rush, battle) with no panel
 - Move classification (Brilliant, Best, Excellent, Good, Inaccuracy, Mistake, Blunder) with board icons and panel badges
 - Insight arrows showing the best move on Mistake/Blunder
 - Pre-move hint arrows for clearly best moves

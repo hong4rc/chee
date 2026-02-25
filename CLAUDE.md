@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Chee is a Chrome extension (Manifest v3) that provides real-time Stockfish analysis on chess.com and lichess.org. It reads the board DOM, generates a FEN, runs Stockfish via WebAssembly in a Web Worker, and renders an analysis panel beside the board.
+Chee is a Chrome extension (Manifest v3) that provides real-time Stockfish analysis on chess.com and lichess.org. It reads the board DOM, generates a FEN, runs Stockfish via WebAssembly in a Web Worker, and renders an analysis panel beside the board. Also supports chess.com puzzle pages (rated, rush, battle) in a lightweight arrow-only mode.
 
 ## Commands
 
@@ -54,8 +54,8 @@ GitHub Secrets required: `EXTENSION_ID`, `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET`, `
 ## Architecture
 
 **Two entry points** bundled by Rollup:
-- `src/content.js` — injected into chess pages, orchestrates board reading → FEN → engine → panel
-- `src/popup.js` — extension popup for settings (lines, depth, theme)
+- `src/content.js` — injected into chess pages, orchestrates board reading → FEN → engine → panel. Detects puzzle pages and applies puzzle mode (no panel, best move arrow only, reduced depth).
+- `src/popup.js` — extension popup with tabbed UI: Settings (lines, depth, theme, toggles) and Puzzles (enable rated/rush/battle, puzzle depth, debug)
 
 **Adapter pattern** for multi-site support:
 - `adapters/base.js` — abstract `BoardAdapter` interface (findBoard, readPieces, detectTurn, etc.)
@@ -64,7 +64,7 @@ GitHub Secrets required: `EXTENSION_ID`, `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET`, `
 - `adapters/factory.js` — hostname-based auto-detection, returns the right adapter
 
 **Core modules:**
-- `core/engine.js` — Stockfish worker lifecycle (state machine: IDLE→INITIALIZING→READY→ANALYZING), UCI protocol
+- `core/engine.js` — Stockfish worker lifecycle (state machine: IDLE→INITIALIZING→READY→ANALYZING), UCI protocol, auto-recovery with max 2 retry attempts per crashing position
 - `core/panel.js` — panel DOM creation and updates (eval display, W/D/L bar, opening name, analysis lines, score chart, accuracy), extends `lib/emitter.js` for events
 - `core/arrow.js` — SVG arrow overlay (analysis arrows, classification badges, hint arrows, insight arrows, guard circles)
 - `core/board-diff.js` — board diff → UCI move detection (`detectMoveFromBoards()`, `boardDiffToUci()`), shared by classifier and PGN plugin
@@ -73,13 +73,13 @@ GitHub Secrets required: `EXTENSION_ID`, `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET`, `
 - `core/move-classifier.js` — classification state machine, accuracy tracking, ply cache
 - `core/openings.js` — 193-entry ECO opening lookup by FEN position
 - `core/fen.js` / `core/san.js` — FEN generation and PV-to-SAN conversion
-- `core/coordinator.js` — mediates between engine, panel, arrow, adapter, and plugins; owns orchestration state
+- `core/coordinator.js` — mediates between engine, panel, arrow, adapter, and plugins; owns orchestration state; highlight-based turn detection fallback for puzzle pages
 - `core/board-state.js` — value object: board array, ply, FEN, turn; diff-based turn detection
 - `core/plugin.js` — base `AnalysisPlugin` class (lifecycle hooks: `onBoardChange`, `onEval`, `onSettingsChange`, `onEngineReset`)
 
 **Plugins** (`core/plugins/`):
 - `classification-plugin.js` — move classification (Brilliant → Blunder), board badge + insight arrow
-- `hint-plugin.js` — pre-move hint arrows (classification-based spread or always-on best move)
+- `hint-plugin.js` — pre-move hint arrows (classification-based spread or always-on best move). In puzzle mode, only draws after engine calculation completes.
 - `pgn-plugin.js` — PGN export with eval comments, classification symbols, NAG codes
 - `guard-plugin.js` — blunder guard: warns when clicked piece isn't in any engine top line
 
@@ -117,7 +117,7 @@ GitHub Secrets required: `EXTENSION_ID`, `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET`, `
 
 Chess sites update DOM elements (clocks, move lists, highlights) at unpredictable times relative to piece positions. This causes:
 
-- **Turn detection wrong**: `detectTurn()` reads clock/move-list DOM, but these may not have updated when the MutationObserver fires on piece movement. Fix: `detectTurnFromDiff()` in `content.js` compares previous board array to current — if a white piece arrived, it's black's turn. Falls back to adapter only for initial position or large jumps (>4 squares changed).
+- **Turn detection wrong**: `detectTurn()` reads clock/move-list DOM, but these may not have updated when the MutationObserver fires on piece movement. Fix: `detectTurnFromDiff()` in `content.js` compares previous board array to current — if a white piece arrived, it's black's turn. Falls back to highlight-based detection (check piece color at the `to` square of the last move highlight), then to adapter `detectTurn()` for initial position or large jumps (>4 squares changed). The highlight fallback is essential for puzzle pages which have no clocks or move list.
 - **Move detection wrong**: Highlight squares (`square-XY` on chess.com, `square.last-move` on lichess) can flicker, producing ghost moves like `e2f7`. Fix: `boardDiffToUci()` in `core/board-diff.js` diffs previous/current board arrays — handles normal moves, captures, castling, en passant, and promotion.
 - **Move count wrong**: Adapter counts all moves in the DOM move list, but during game review the user may be at an earlier position. Fix: find the selected/active move node first, count up to that index. Selector varies by site (chess.com: `.node-highlight-content.selected`; lichess: `kwdb.a1t` / `.tview2 move.active`).
 
@@ -205,6 +205,21 @@ Two modes (can both be active):
 ### Move revert / navigation detection
 
 `detectPly()` in each adapter returns the half-move index from the active move in the DOM move list. The classifier only treats a board diff as a played move when `ply > _prevPly`. Backward navigation restores the cached classification for that ply (panel badge + board icon + insight arrow).
+
+## Puzzle Mode
+
+chess.com puzzle pages (`/puzzles/rated`, `/puzzles/rush`, `/puzzles/battle`) are supported with a lightweight arrow-only mode. Each puzzle type has its own enable toggle (all default off): `enablePuzzles`, `enablePuzzleRush`, `enablePuzzleBattle`.
+
+When a puzzle page is detected and the corresponding toggle is on:
+- **No panel** — the analysis panel is mounted but hidden (`display: none`)
+- **Best move arrow only** — `HintPlugin` draws the best move after engine calculation completes (not during)
+- **Forced overrides**: `numLines=1`, `showBestMove=true`, `showClassifications=false`, `showChart=false`, `showGuard=false`, `showCrazy=false`
+- **Puzzle depth**: separate `puzzleDepth` setting (default 19, range 15-21) used as `searchDepth` on puzzle pages
+- Only `HintPlugin` is registered (no classification, PGN, guard plugins)
+- Turn detection uses highlight-based fallback (`_detectTurnFromHighlights`) since puzzles lack clocks and move lists
+- Storage changes to forced keys are filtered out so popup changes don't override puzzle overrides
+
+The popup has a **Puzzles** tab grouping all puzzle-related settings (toggles, depth, debug logging).
 
 ## Theme System
 
