@@ -4,7 +4,7 @@ It runs Stockfish (one of the strongest chess engines) entirely in your browser 
 
 Features:
 • Multi-line analysis — see the top 3-5 best moves and continuations
-• Adjustable search depth (19-22 ply)
+• Adjustable search depth (19-22 ply) with optional wait-for-full-depth
 • Eval bar showing who's winning at a glance
 • Arrow overlays on the board for suggested moves
 • Move classifications — Brilliant, Crazy, Best, Excellent, Good, Inaccuracy, Mistake, Blunder

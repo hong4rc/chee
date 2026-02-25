@@ -79,7 +79,7 @@ GitHub Secrets required: `EXTENSION_ID`, `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET`, `
 
 **Plugins** (`core/plugins/`):
 - `classification-plugin.js` — move classification (Brilliant → Blunder), board badge + insight arrow
-- `hint-plugin.js` — pre-move hint arrows (classification-based spread or always-on best move). In puzzle mode, only draws after engine calculation completes.
+- `hint-plugin.js` — pre-move hint arrows (classification-based spread or always-on best move). Waits for engine to reach full depth before drawing when `waitForComplete` is enabled (default on) or in puzzle mode.
 - `pgn-plugin.js` — PGN export with eval comments, classification symbols, NAG codes
 - `guard-plugin.js` — blunder guard: warns when clicked piece isn't in any engine top line
 

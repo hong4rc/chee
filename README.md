@@ -39,7 +39,7 @@ localStorage.debug = 'chee:*'
 ## Features
 
 - Multi-line analysis (configurable 3-5 lines) with per-line eval scores
-- Configurable search depth (19-22, separate puzzle depth 15-21)
+- Configurable search depth (19-22, separate puzzle depth 15-21) with optional wait-for-full-depth
 - Arrow overlays showing suggested moves
 - Hint mode: best move arrow on chess.com puzzles (rated, rush, battle, learning) and daily chess
 - Move classification (Brilliant, Best, Excellent, Good, Inaccuracy, Mistake, Blunder) with board icons and panel badges
