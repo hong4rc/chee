@@ -25,6 +25,7 @@
       "matches": [
         "*://www.chess.com/game/*",
         "*://www.chess.com/play/*",
+        "*://www.chess.com/puzzles/*",
         "*://lichess.org/*"
       ],
       "js": [

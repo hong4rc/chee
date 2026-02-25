@@ -22,6 +22,31 @@
       font-weight: 400;
       color: var(--chee-subtext0);
     }
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--chee-surface1);
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 6px 0;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--chee-overlay0);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn:hover { color: var(--chee-text); }
+    .tab-btn.active {
+      color: var(--chee-green);
+      border-bottom-color: var(--chee-green);
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
     label {
       display: block;
       margin-bottom: 6px;
@@ -85,59 +110,73 @@
 <body>
   <h3>Chee <span id="chee-version"></span></h3>
 
-  <label>Theme</label>
-  <select id="theme-select">
-    <option value="site">Match Site</option>
-    <option value="latte">Latte</option>
-    <option value="frappe">Frappé</option>
-    <option value="macchiato">Macchiato</option>
-    <option value="mocha">Mocha</option>
-  </select>
-
-  <label>Lines</label>
-  <div class="btn-group" data-key="numLines">
-    <button data-val="3">3</button>
-    <button data-val="4">4</button>
-    <button data-val="5">5</button>
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="tab-settings">Settings</button>
+    <button class="tab-btn" data-tab="tab-advanced">Advanced</button>
   </div>
 
-  <label class="chee-toggle-row">
-    <input type="checkbox" id="show-classifications">
-    Move classifications
-  </label>
+  <div id="tab-settings" class="tab-content active">
+    <label>Theme</label>
+    <select id="theme-select">
+      <option value="site">Match Site</option>
+      <option value="latte">Latte</option>
+      <option value="frappe">Frappé</option>
+      <option value="macchiato">Macchiato</option>
+      <option value="mocha">Mocha</option>
+    </select>
 
-  <label class="chee-toggle-row">
-    <input type="checkbox" id="show-crazy">
-    Crazy sacrifice detection
-  </label>
+    <label>Lines</label>
+    <div class="btn-group" data-key="numLines">
+      <button data-val="3">3</button>
+      <button data-val="4">4</button>
+      <button data-val="5">5</button>
+    </div>
 
-  <label class="chee-toggle-row">
-    <input type="checkbox" id="show-best-move">
-    Show best move arrow
-  </label>
+    <label class="chee-toggle-row">
+      <input type="checkbox" id="show-classifications">
+      Move classifications
+    </label>
 
-  <label class="chee-toggle-row">
-    <input type="checkbox" id="show-guard">
-    Blunder guard
-  </label>
+    <label class="chee-toggle-row">
+      <input type="checkbox" id="show-crazy">
+      Crazy sacrifice detection
+    </label>
 
-  <label class="chee-toggle-row">
-    <input type="checkbox" id="show-chart">
-    Eval chart
-  </label>
+    <label class="chee-toggle-row">
+      <input type="checkbox" id="show-best-move">
+      Show best move arrow
+    </label>
 
-  <label>Depth</label>
-  <div class="btn-group" data-key="searchDepth">
-    <button data-val="19">19</button>
-    <button data-val="20">20</button>
-    <button data-val="21">21</button>
-    <button data-val="22">22</button>
+    <label class="chee-toggle-row">
+      <input type="checkbox" id="show-guard">
+      Blunder guard
+    </label>
+
+    <label class="chee-toggle-row">
+      <input type="checkbox" id="show-chart">
+      Eval chart
+    </label>
+
+    <label>Depth</label>
+    <div class="btn-group" data-key="searchDepth">
+      <button data-val="19">19</button>
+      <button data-val="20">20</button>
+      <button data-val="21">21</button>
+      <button data-val="22">22</button>
+    </div>
   </div>
 
-  <label class="chee-toggle-row">
-    <input type="checkbox" id="debug-mode">
-    Debug logging
-  </label>
+  <div id="tab-advanced" class="tab-content">
+    <label class="chee-toggle-row">
+      <input type="checkbox" id="enable-puzzles">
+      Enable puzzle analysis
+    </label>
+
+    <label class="chee-toggle-row">
+      <input type="checkbox" id="debug-mode">
+      Debug logging
+    </label>
+  </div>
 
   <script src="popup.js"></script>
 </body>

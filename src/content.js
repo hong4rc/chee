@@ -25,6 +25,20 @@ const log = createDebug('chee:content');
   if (settings.debugMode) { localStorage.debug = 'chee:*'; } // eslint-disable-line no-restricted-globals
   log.info('settings:', settings);
 
+  const isPuzzlePage = /chess\.com\/puzzles/.test(window.location.href);
+  if (isPuzzlePage && !settings.enablePuzzles) {
+    log.info('Puzzle page detected but enablePuzzles is off, exiting');
+    return;
+  }
+  if (isPuzzlePage) {
+    settings.numLines = 1;
+    settings.showBestMove = true;
+    settings.showClassifications = false;
+    settings.showChart = false;
+    settings.showGuard = false;
+    settings.showCrazy = false;
+  }
+
   const adapter = createAdapter();
   const engine = new Engine();
   const panel = new Panel(settings.numLines);
@@ -35,13 +49,16 @@ const log = createDebug('chee:content');
     engine, panel, arrow, adapter, settings, boardState,
   });
 
-  coordinator.registerPlugin(new ClassificationPlugin({ adapter, settings }));
+  if (!isPuzzlePage) {
+    coordinator.registerPlugin(new ClassificationPlugin({ adapter, settings }));
+    coordinator.registerPlugin(new PgnPlugin());
+    coordinator.registerPlugin(new GuardPlugin({ settings }));
+  }
   coordinator.registerPlugin(new HintPlugin({ settings }));
-  coordinator.registerPlugin(new PgnPlugin());
-  coordinator.registerPlugin(new GuardPlugin({ settings }));
 
   window.addEventListener('unload', () => coordinator.destroy());
 
+  const PUZZLE_FORCED_KEYS = ['numLines', 'showBestMove', 'showClassifications', 'showChart', 'showGuard', 'showCrazy'];
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'sync') return;
     const update = {};
@@ -53,6 +70,9 @@ const log = createDebug('chee:content');
     if (changes.showGuard) update.showGuard = changes.showGuard.newValue;
     if (changes.showChart) update.showChart = changes.showChart.newValue;
     if (changes.debugMode) update.debugMode = changes.debugMode.newValue;
+    if (isPuzzlePage) {
+      PUZZLE_FORCED_KEYS.forEach((k) => { delete update[k]; });
+    }
     if (Object.keys(update).length) coordinator.applySettings(update);
   });
 
@@ -66,4 +86,7 @@ const log = createDebug('chee:content');
   }
 
   coordinator.start(boardEl);
+  if (isPuzzlePage && panel.el) {
+    panel.el.style.display = 'none';
+  }
 }());

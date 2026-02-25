@@ -14,6 +14,7 @@ import {
   BOARD_SIZE, LAST_RANK,
   DEBOUNCE_MS, POLL_INTERVAL_MS,
   MAX_PIECE_ATTEMPTS,
+  TURN_WHITE, TURN_BLACK,
   EVT_READY, EVT_EVAL, EVT_ERROR, EVT_LINE_HOVER, EVT_LINE_LEAVE, EVT_PGN_COPY,
   EVT_CLASSIFY_SHOW, EVT_CLASSIFY_CLEAR, EVT_CLASSIFY_LOCK, EVT_ACCURACY_UPDATE,
   HINT_ARROW_OPACITY,
@@ -156,6 +157,15 @@ export class AnalysisCoordinator {
     return this._plugins.find((p) => p.name === PLUGIN_GUARD);
   }
 
+  _detectTurnFromHighlights(board) {
+    const lastMove = this._adapter.detectLastMove(this._boardState.boardEl);
+    if (!lastMove) return null;
+    const piece = board[LAST_RANK - lastMove.to.rank][lastMove.to.file];
+    if (!piece) return null;
+    // Uppercase = white piece moved last → black's turn
+    return piece === piece.toUpperCase() ? TURN_BLACK : TURN_WHITE;
+  }
+
   _readFen() {
     if (!this._boardState.boardEl) return null;
 
@@ -170,7 +180,7 @@ export class AnalysisCoordinator {
     if (this._boardState.boardEquals(board)) return null;
 
     const diffTurn = this._boardState.detectTurnFromDiff(board);
-    const turn = diffTurn || this._adapter.detectTurn();
+    const turn = diffTurn || this._detectTurnFromHighlights(board) || this._adapter.detectTurn();
     const castling = this._adapter.detectCastling(board);
     const enPassant = this._adapter.detectEnPassant(board);
     const moveCount = this._adapter.detectMoveCount();

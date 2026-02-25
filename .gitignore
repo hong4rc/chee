@@ -4,3 +4,5 @@ chee-v*.zip
 .DS_Store
 .env
 client_secret*.json
+fixtures
+

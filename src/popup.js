@@ -55,11 +55,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     chrome.storage.sync.set({ showChart: chartCheckbox.checked });
   });
 
+  // Puzzle toggle
+  const puzzleCheckbox = document.getElementById('enable-puzzles');
+  puzzleCheckbox.checked = settings.enablePuzzles;
+  puzzleCheckbox.addEventListener('change', () => {
+    chrome.storage.sync.set({ enablePuzzles: puzzleCheckbox.checked });
+  });
+
   // Debug toggle
   const debugCheckbox = document.getElementById('debug-mode');
   debugCheckbox.checked = settings.debugMode;
   debugCheckbox.addEventListener('change', () => {
     chrome.storage.sync.set({ debugMode: debugCheckbox.checked });
+  });
+
+  // Tab switching
+  document.querySelectorAll('.tab-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelector('.tab-btn.active').classList.remove('active');
+      document.querySelector('.tab-content.active').classList.remove('active');
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
   });
 
   // Button groups (numLines, searchDepth)
