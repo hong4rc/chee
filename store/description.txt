@@ -24,6 +24,8 @@ Features:
 
 Supported sites:
 • chess.com — live games (/game/*, /play/*)
+• chess.com — puzzles, rush, battle, learning (best move arrow, each togglable)
+• chess.com — daily chess (best move arrow, live-togglable)
 • lichess.org — all game pages
 
 All analysis runs locally in your browser. No data is collected or transmitted.
