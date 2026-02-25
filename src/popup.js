@@ -76,6 +76,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     chrome.storage.sync.set({ enablePuzzleBattle: puzzleBattleCheckbox.checked });
   });
 
+  // Daily toggle
+  const dailyCheckbox = document.getElementById('enable-daily');
+  dailyCheckbox.checked = settings.enableDaily;
+  dailyCheckbox.addEventListener('change', () => {
+    chrome.storage.sync.set({ enableDaily: dailyCheckbox.checked });
+  });
+
   // Debug toggle
   const debugCheckbox = document.getElementById('debug-mode');
   debugCheckbox.checked = settings.debugMode;

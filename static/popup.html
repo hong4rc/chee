@@ -112,7 +112,7 @@
 
   <div class="tab-bar">
     <button class="tab-btn active" data-tab="tab-settings">Settings</button>
-    <button class="tab-btn" data-tab="tab-puzzles">Puzzles</button>
+    <button class="tab-btn" data-tab="tab-puzzles">Hints</button>
   </div>
 
   <div id="tab-settings" class="tab-content active">
@@ -182,7 +182,12 @@
       Puzzle Battle
     </label>
 
-    <label>Puzzle depth</label>
+    <label class="chee-toggle-row">
+      <input type="checkbox" id="enable-daily">
+      Daily chess
+    </label>
+
+    <label>Hint depth</label>
     <div class="btn-group" data-key="puzzleDepth">
       <button data-val="15">15</button>
       <button data-val="17">17</button>

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Chee is a Chrome extension (Manifest v3) that provides real-time Stockfish analysis on chess.com and lichess.org. It reads the board DOM, generates a FEN, runs Stockfish via WebAssembly in a Web Worker, and renders an analysis panel beside the board. Also supports chess.com puzzle pages (rated, rush, battle) in a lightweight arrow-only mode.
+Chee is a Chrome extension (Manifest v3) that provides real-time Stockfish analysis on chess.com and lichess.org. It reads the board DOM, generates a FEN, runs Stockfish via WebAssembly in a Web Worker, and renders an analysis panel beside the board. Also supports chess.com puzzle pages (rated, rush, battle) and daily chess in a lightweight arrow-only hint mode.
 
 ## Commands
 
@@ -54,8 +54,8 @@ GitHub Secrets required: `EXTENSION_ID`, `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET`, `
 ## Architecture
 
 **Two entry points** bundled by Rollup:
-- `src/content.js` — injected into chess pages, orchestrates board reading → FEN → engine → panel. Detects puzzle pages and applies puzzle mode (no panel, best move arrow only, reduced depth).
-- `src/popup.js` — extension popup with tabbed UI: Settings (lines, depth, theme, toggles) and Puzzles (enable rated/rush/battle, puzzle depth, debug)
+- `src/content.js` — injected into chess pages, orchestrates board reading → FEN → engine → panel. Detects hint pages (puzzles + daily) and applies hint mode (no panel, best move arrow only, reduced depth). Daily toggle live-controls the arrow.
+- `src/popup.js` — extension popup with tabbed UI: Settings (lines, depth, theme, toggles) and Hints (enable rated/rush/battle/daily, hint depth, debug)
 
 **Adapter pattern** for multi-site support:
 - `adapters/base.js` — abstract `BoardAdapter` interface (findBoard, readPieces, detectTurn, etc.)
@@ -208,18 +208,21 @@ Two modes (can both be active):
 
 ## Puzzle Mode
 
-chess.com puzzle pages (`/puzzles/rated`, `/puzzles/rush`, `/puzzles/battle`) are supported with a lightweight arrow-only mode. Each puzzle type has its own enable toggle (all default off): `enablePuzzles`, `enablePuzzleRush`, `enablePuzzleBattle`.
+chess.com puzzle pages (`/puzzles/rated`, `/puzzles/rush`, `/puzzles/battle`) and daily chess (`/daily/*`) are supported with a lightweight hint mode. Each page type has its own enable toggle: `enablePuzzles` (default off), `enablePuzzleRush` (default off), `enablePuzzleBattle` (default off), `enableDaily` (default on).
 
-When a puzzle page is detected and the corresponding toggle is on:
+When a hint page is detected and the corresponding toggle is on:
 - **No panel** — the analysis panel is mounted but hidden (`display: none`)
-- **Best move arrow only** — `HintPlugin` draws the best move after engine calculation completes (not during)
 - **Forced overrides**: `numLines=1`, `showBestMove=true`, `showClassifications=false`, `showChart=false`, `showGuard=false`, `showCrazy=false`
-- **Puzzle depth**: separate `puzzleDepth` setting (default 19, range 15-21) used as `searchDepth` on puzzle pages
+- **Hint depth**: separate `puzzleDepth` setting (default 19, range 15-21) used as `searchDepth` on hint pages
 - Only `HintPlugin` is registered (no classification, PGN, guard plugins)
 - Turn detection uses highlight-based fallback (`_detectTurnFromHighlights`) since puzzles lack clocks and move lists
-- Storage changes to forced keys are filtered out so popup changes don't override puzzle overrides
+- Storage changes to forced keys are filtered out so popup changes don't override hint overrides
 
-The popup has a **Puzzles** tab grouping all puzzle-related settings (toggles, depth, debug logging).
+**Puzzle pages** (rated/rush/battle): best move arrow auto-draws after engine calculation completes.
+
+**Daily chess** (`/daily/*`): best move arrow auto-draws after engine calculation completes. The `enableDaily` toggle in the popup live-toggles the arrow: off clears it immediately, on replays the cached eval via `coordinator.replayEval()` so the arrow reappears without re-analysis.
+
+The popup has a **Hints** tab grouping all hint-related settings (toggles, depth, debug logging).
 
 ## Theme System
 

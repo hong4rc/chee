@@ -131,6 +131,12 @@ export class AnalysisCoordinator {
     }
   }
 
+  replayEval() {
+    if (!this._activeFen) return;
+    const cached = this._evalCache.get(this._activeFen);
+    if (cached) this._notifyPlugins('onEval', cached, this._boardState, this._createRenderCtx());
+  }
+
   _createRenderCtx() {
     return {
       panel: this._panel,

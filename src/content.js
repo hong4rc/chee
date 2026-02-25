@@ -29,7 +29,9 @@ const log = createDebug('chee:content');
   const isPuzzleRush = /chess\.com\/puzzles\/rush/.test(href);
   const isPuzzleBattle = /chess\.com\/puzzles\/battle/.test(href);
   const isPuzzleRated = !isPuzzleRush && !isPuzzleBattle && /chess\.com\/puzzles/.test(href);
+  const isDailyPage = /chess\.com\/daily/.test(href);
   const isPuzzlePage = isPuzzleRated || isPuzzleRush || isPuzzleBattle;
+  const isHintPage = isPuzzlePage || isDailyPage;
   if (isPuzzleRated && !settings.enablePuzzles) {
     log.info('Puzzle page detected but enablePuzzles is off, exiting');
     return;
@@ -42,7 +44,11 @@ const log = createDebug('chee:content');
     log.info('Puzzle Battle detected but enablePuzzleBattle is off, exiting');
     return;
   }
-  if (isPuzzlePage) {
+  if (isDailyPage && !settings.enableDaily) {
+    log.info('Daily page detected but enableDaily is off, exiting');
+    return;
+  }
+  if (isHintPage) {
     settings.numLines = 1;
     settings.searchDepth = settings.puzzleDepth;
     settings.showBestMove = true;
@@ -63,7 +69,7 @@ const log = createDebug('chee:content');
     engine, panel, arrow, adapter, settings, boardState,
   });
 
-  if (!isPuzzlePage) {
+  if (!isHintPage) {
     coordinator.registerPlugin(new ClassificationPlugin({ adapter, settings }));
     coordinator.registerPlugin(new PgnPlugin());
     coordinator.registerPlugin(new GuardPlugin({ settings }));
@@ -84,7 +90,15 @@ const log = createDebug('chee:content');
     if (changes.showGuard) update.showGuard = changes.showGuard.newValue;
     if (changes.showChart) update.showChart = changes.showChart.newValue;
     if (changes.debugMode) update.debugMode = changes.debugMode.newValue;
-    if (isPuzzlePage) {
+    if (isDailyPage && changes.enableDaily) {
+      settings.showBestMove = changes.enableDaily.newValue;
+      if (changes.enableDaily.newValue) {
+        coordinator.replayEval();
+      } else {
+        arrow.clearHint();
+      }
+    }
+    if (isHintPage) {
       PUZZLE_FORCED_KEYS.forEach((k) => { delete update[k]; });
     }
     if (Object.keys(update).length) coordinator.applySettings(update);
@@ -100,7 +114,7 @@ const log = createDebug('chee:content');
   }
 
   coordinator.start(boardEl);
-  if (isPuzzlePage && panel.el) {
+  if (isHintPage && panel.el) {
     panel.el.style.display = 'none';
   }
 }());

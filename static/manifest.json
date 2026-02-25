@@ -26,6 +26,7 @@
         "*://www.chess.com/game/*",
         "*://www.chess.com/play/*",
         "*://www.chess.com/puzzles/*",
+        "*://www.chess.com/daily/*",
         "*://lichess.org/*"
       ],
       "js": [
