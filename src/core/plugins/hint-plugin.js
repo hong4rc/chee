@@ -31,6 +31,7 @@ export class HintPlugin extends AnalysisPlugin {
     this._currentHint = null;
 
     if (!data.lines || data.lines.length === 0) return;
+    if (this._settings.puzzleMode && !data.complete) return;
     const line1 = data.lines[0];
     const bestUci = line1.pv && line1.pv[0];
     if (!bestUci) return;

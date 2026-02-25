@@ -62,6 +62,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     chrome.storage.sync.set({ enablePuzzles: puzzleCheckbox.checked });
   });
 
+  // Puzzle Rush toggle
+  const puzzleRushCheckbox = document.getElementById('enable-puzzle-rush');
+  puzzleRushCheckbox.checked = settings.enablePuzzleRush;
+  puzzleRushCheckbox.addEventListener('change', () => {
+    chrome.storage.sync.set({ enablePuzzleRush: puzzleRushCheckbox.checked });
+  });
+
   // Debug toggle
   const debugCheckbox = document.getElementById('debug-mode');
   debugCheckbox.checked = settings.debugMode;

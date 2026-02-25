@@ -92,6 +92,7 @@ export const SETTINGS_DEFAULTS = {
   panelWidth: null,
   debugMode: false,
   enablePuzzles: false,
+  enablePuzzleRush: false,
 };
 
 // ─── Classification ─────────────────────────────────────────

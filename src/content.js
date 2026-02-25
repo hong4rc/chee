@@ -25,9 +25,16 @@ const log = createDebug('chee:content');
   if (settings.debugMode) { localStorage.debug = 'chee:*'; } // eslint-disable-line no-restricted-globals
   log.info('settings:', settings);
 
-  const isPuzzlePage = /chess\.com\/puzzles/.test(window.location.href);
-  if (isPuzzlePage && !settings.enablePuzzles) {
+  const { href } = window.location;
+  const isPuzzleRush = /chess\.com\/puzzles\/rush/.test(href);
+  const isPuzzleRated = !isPuzzleRush && /chess\.com\/puzzles/.test(href);
+  const isPuzzlePage = isPuzzleRated || isPuzzleRush;
+  if (isPuzzleRated && !settings.enablePuzzles) {
     log.info('Puzzle page detected but enablePuzzles is off, exiting');
+    return;
+  }
+  if (isPuzzleRush && !settings.enablePuzzleRush) {
+    log.info('Puzzle Rush detected but enablePuzzleRush is off, exiting');
     return;
   }
   if (isPuzzlePage) {
@@ -37,6 +44,7 @@ const log = createDebug('chee:content');
     settings.showChart = false;
     settings.showGuard = false;
     settings.showCrazy = false;
+    settings.puzzleMode = true;
   }
 
   const adapter = createAdapter();
