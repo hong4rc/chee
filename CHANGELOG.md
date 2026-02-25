@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.5.0](https://github.com/hong4rc/chee/compare/v1.4.0...v1.5.0) (2026-02-25)
+
+### Features
+
+* add chess.com puzzle support with best move arrow ([5dac21e](https://github.com/hong4rc/chee/commit/5dac21ef5b8f434d49e2a718423d1beaaad71e1a))
+* add daily chess support with live-togglable best move arrow ([7f32196](https://github.com/hong4rc/chee/commit/7f321962aeec7fd17cad9d6e0f15b74227b4d5c9))
+* add Puzzle Battle support and puzzle depth setting ([387f625](https://github.com/hong4rc/chee/commit/387f625802f4410fe332f5691c88deb83f869d42))
+* add Puzzle Learning toggle for chess.com/puzzles/learning ([7674563](https://github.com/hong4rc/chee/commit/76745632f09792b95b2683ca1dc8f9c2dfaee24a))
+* add Puzzle Rush support with separate toggle ([22f504d](https://github.com/hong4rc/chee/commit/22f504d39eab5f9e74ce11c6bee8c29aff9228d7))
+* add wait-for-complete option to show arrow only after full depth ([82016a2](https://github.com/hong4rc/chee/commit/82016a23ef49cb5db22165fcfbbf820a12fff423))
+* expand openings database with improved ECO API search strategy ([8573b98](https://github.com/hong4rc/chee/commit/8573b982ba98b0ad990d03aa46fb45a3d38acec4))
+
+### Bug Fixes
+
+* limit engine auto-recovery to 2 attempts per position ([67c5416](https://github.com/hong4rc/chee/commit/67c541617e626a3a21bd5167b7d894040d5187b7))
+
 ## [1.4.0](https://github.com/hong4rc/chee/compare/v1.3.0...v1.4.0) (2026-02-24)
 
 ### Features
