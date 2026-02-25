@@ -28,9 +28,10 @@ const log = createDebug('chee:content');
   const { href } = window.location;
   const isPuzzleRush = /chess\.com\/puzzles\/rush/.test(href);
   const isPuzzleBattle = /chess\.com\/puzzles\/battle/.test(href);
-  const isPuzzleRated = !isPuzzleRush && !isPuzzleBattle && /chess\.com\/puzzles/.test(href);
+  const isPuzzleLearning = /chess\.com\/puzzles\/learning/.test(href);
+  const isPuzzleRated = !isPuzzleRush && !isPuzzleBattle && !isPuzzleLearning && /chess\.com\/puzzles/.test(href);
   const isDailyPage = /chess\.com\/daily/.test(href);
-  const isPuzzlePage = isPuzzleRated || isPuzzleRush || isPuzzleBattle;
+  const isPuzzlePage = isPuzzleRated || isPuzzleRush || isPuzzleBattle || isPuzzleLearning;
   const isHintPage = isPuzzlePage || isDailyPage;
   if (isPuzzleRated && !settings.enablePuzzles) {
     log.info('Puzzle page detected but enablePuzzles is off, exiting');
@@ -42,6 +43,10 @@ const log = createDebug('chee:content');
   }
   if (isPuzzleBattle && !settings.enablePuzzleBattle) {
     log.info('Puzzle Battle detected but enablePuzzleBattle is off, exiting');
+    return;
+  }
+  if (isPuzzleLearning && !settings.enablePuzzleLearning) {
+    log.info('Puzzle Learning detected but enablePuzzleLearning is off, exiting');
     return;
   }
   if (isDailyPage && !settings.enableDaily) {

@@ -94,6 +94,7 @@ export const SETTINGS_DEFAULTS = {
   enablePuzzles: false,
   enablePuzzleRush: false,
   enablePuzzleBattle: false,
+  enablePuzzleLearning: false,
   enableDaily: true,
   puzzleDepth: 19,
 };

@@ -76,6 +76,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     chrome.storage.sync.set({ enablePuzzleBattle: puzzleBattleCheckbox.checked });
   });
 
+  // Puzzle Learning toggle
+  const puzzleLearningCheckbox = document.getElementById('enable-puzzle-learning');
+  puzzleLearningCheckbox.checked = settings.enablePuzzleLearning;
+  puzzleLearningCheckbox.addEventListener('change', () => {
+    chrome.storage.sync.set({ enablePuzzleLearning: puzzleLearningCheckbox.checked });
+  });
+
   // Daily toggle
   const dailyCheckbox = document.getElementById('enable-daily');
   dailyCheckbox.checked = settings.enableDaily;
