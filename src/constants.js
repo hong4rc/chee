@@ -83,6 +83,7 @@ export const SETTINGS_DEFAULTS = {
   showClassifications: false,
   showCrazy: false,
   showBestMove: false,
+  waitForComplete: true,
   showGuard: false,
   showChart: true,
   panelMinimized: false,

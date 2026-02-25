@@ -55,6 +55,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     chrome.storage.sync.set({ showChart: chartCheckbox.checked });
   });
 
+  // Wait for complete toggle
+  const waitCompleteCheckbox = document.getElementById('wait-for-complete');
+  waitCompleteCheckbox.checked = settings.waitForComplete;
+  waitCompleteCheckbox.addEventListener('change', () => {
+    chrome.storage.sync.set({ waitForComplete: waitCompleteCheckbox.checked });
+  });
+
   // Puzzle toggle
   const puzzleCheckbox = document.getElementById('enable-puzzles');
   puzzleCheckbox.checked = settings.enablePuzzles;
