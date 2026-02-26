@@ -42,8 +42,8 @@ export class MoveClassifier extends Emitter {
     this._locked = false;
     this._playedMoveUci = null;
     this._cache = new LruCache(CLASSIFICATION_CACHE_SIZE);
-    this._totalScore = { w: 0, b: 0 };
-    this._moves = { w: 0, b: 0 };
+    this._totalScore = { [TURN_WHITE]: 0, [TURN_BLACK]: 0 };
+    this._moves = { [TURN_WHITE]: 0, [TURN_BLACK]: 0 };
     this._lockedLabel = null;
   }
 
@@ -145,7 +145,7 @@ export class MoveClassifier extends Emitter {
       result, moveUci: this._playedMoveUci, insight, bestUci,
     });
     if (this._settings.showClassifications && result.label !== LABEL_BOOK) {
-      const side = this._prevPly % 2 === 0 ? 'w' : 'b';
+      const side = this._prevPly % 2 === 0 ? TURN_WHITE : TURN_BLACK;
       this._totalScore[side] += ACCURACY_SCORES[result.label] || 0;
       this._moves[side] += 1;
     }
@@ -167,8 +167,10 @@ export class MoveClassifier extends Emitter {
 
   getAccuracy() {
     return {
-      white: this._moves.w > 0 ? Math.round(this._totalScore.w / this._moves.w) : null,
-      black: this._moves.b > 0 ? Math.round(this._totalScore.b / this._moves.b) : null,
+      white: this._moves[TURN_WHITE] > 0
+        ? Math.round(this._totalScore[TURN_WHITE] / this._moves[TURN_WHITE]) : null,
+      black: this._moves[TURN_BLACK] > 0
+        ? Math.round(this._totalScore[TURN_BLACK] / this._moves[TURN_BLACK]) : null,
     };
   }
 
@@ -254,8 +256,8 @@ export class MoveClassifier extends Emitter {
     this._locked = false;
     this._playedMoveUci = null;
     this._cache.clear();
-    this._totalScore = { w: 0, b: 0 };
-    this._moves = { w: 0, b: 0 };
+    this._totalScore = { [TURN_WHITE]: 0, [TURN_BLACK]: 0 };
+    this._moves = { [TURN_WHITE]: 0, [TURN_BLACK]: 0 };
     this.removeAllListeners();
   }
 }

@@ -3,7 +3,7 @@
 
 import { AnalysisPlugin } from '../plugin.js';
 import { parseUci } from '../../lib/uci.js';
-import { PLUGIN_GUARD, TURN_WHITE } from '../../constants.js';
+import { PLUGIN_GUARD, LAST_RANK, TURN_WHITE } from '../../constants.js';
 
 export class GuardPlugin extends AnalysisPlugin {
   constructor({ settings } = {}) {
@@ -27,8 +27,8 @@ export class GuardPlugin extends AnalysisPlugin {
   // Returns true if the square should show a warning (piece not in any engine line).
   checkSquare(file, rank, board, turn) {
     if (!this._settings.showGuard) return false;
-    // board is row-major: board[7 - rank][file]
-    const piece = board[7 - rank][file];
+    // board is row-major: board[LAST_RANK - rank][file]
+    const piece = board[LAST_RANK - rank][file];
     if (!piece) return false;
 
     // Only warn for the side to move

@@ -3,6 +3,8 @@
 import { find } from 'lodash-es';
 import {
   LAST_RANK,
+  WHITE_PAWN, WHITE_KNIGHT, WHITE_BISHOP, WHITE_ROOK, WHITE_QUEEN, WHITE_KING,
+  BLACK_PAWN, BLACK_KNIGHT, BLACK_BISHOP, BLACK_ROOK, BLACK_QUEEN, BLACK_KING,
   CLASSIFICATION_MATE_LOSS,
   CLASSIFICATION_THRESHOLDS,
   CLASSIFICATION_BLUNDER,
@@ -67,18 +69,18 @@ export function classify(prevEval, currLine, playedUci) {
 
 // ─── Sacrifice detection ────────────────────────────────────
 const PIECE_VALUE = {
-  P: 1,
-  N: 3,
-  B: 3,
-  R: 5,
-  Q: 9,
-  K: 0,
-  p: 1,
-  n: 3,
-  b: 3,
-  r: 5,
-  q: 9,
-  k: 0,
+  [WHITE_PAWN]: 1,
+  [WHITE_KNIGHT]: 3,
+  [WHITE_BISHOP]: 3,
+  [WHITE_ROOK]: 5,
+  [WHITE_QUEEN]: 9,
+  [WHITE_KING]: 0,
+  [BLACK_PAWN]: 1,
+  [BLACK_KNIGHT]: 3,
+  [BLACK_BISHOP]: 3,
+  [BLACK_ROOK]: 5,
+  [BLACK_QUEEN]: 9,
+  [BLACK_KING]: 0,
 };
 
 const SACRIFICE_PV_DEPTH = 6; // half-moves to simulate (3 opponent moves)
