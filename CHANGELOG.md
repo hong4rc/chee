@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.6.0](https://github.com/hong4rc/chee/compare/v1.5.0...v1.6.0) (2026-02-26)
+
+### Features
+
+* add book move classification and continuation arrows ([afbecf4](https://github.com/hong4rc/chee/commit/afbecf448514d23c30ec48445a5a8f815b2b4857))
+* add trapboy plugin with trap tracking, validation, and status display ([4b200a4](https://github.com/hong4rc/chee/commit/4b200a48de825d404189ebf743442441c664464f))
+* reconfigure engine via UCI instead of destroying and recreating ([24e2619](https://github.com/hong4rc/chee/commit/24e26195b9cfb25f111909ef7326186655acba64))
+* split accuracy by side with classification-based scoring ([6d4ec68](https://github.com/hong4rc/chee/commit/6d4ec68716ba8550c47a3026a11a5c6f881e0f4b))
+* wire trapboy into coordinator, engine, popup, and content ([0a75726](https://github.com/hong4rc/chee/commit/0a75726a112099e2e275dd7b2485e5810090d7e1))
+
+### Bug Fixes
+
+* live-toggle book continuation arrows on settings change ([c8d015a](https://github.com/hong4rc/chee/commit/c8d015a4f3dc8bad0fd487adbe819954db08fb6b))
+* validate book continuation moves and update book color ([953968d](https://github.com/hong4rc/chee/commit/953968dfc19e94e886d6fb10e650eb9504b97576)), closes [#9ca8ce](https://github.com/hong4rc/chee/issues/9ca8ce) [#7a4a1e](https://github.com/hong4rc/chee/issues/7a4a1e)
+
 ## [1.5.0](https://github.com/hong4rc/chee/compare/v1.4.0...v1.5.0) (2026-02-25)
 
 ### Features
