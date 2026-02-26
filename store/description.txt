@@ -15,7 +15,8 @@ Features:
 • Accuracy tracker — running accuracy percentage in the status bar
 • Tactical insights — dashed arrows show the best move after Mistakes and Blunders
 • Pre-move hints — see the engine's best move or classification-based hint arrows
-• Opening name display — 850-entry ECO opening database
+• Trap detection (Trapboy) — finds sacrifice traps: offer material, opponent captures greedily, you punish. Tracks the sequence step by step as you play
+• Opening name display — 193-entry ECO opening database
 • Copy FEN to clipboard with one click
 • Draggable panel — drag the header to reposition anywhere, double-click to reset
 • Resizable panel — drag the bottom-right grip to adjust width

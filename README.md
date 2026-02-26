@@ -46,6 +46,8 @@ localStorage.debug = 'chee:*'
 - Insight arrows showing the best move on Mistake/Blunder
 - Pre-move hint arrows for clearly best moves
 - Best move arrow toggle (always-on option)
+- Trap detection (Trapboy) — finds sacrifice-based traps where offering material leads to a winning punishment if the opponent captures greedily, with step-by-step tracking
+- Blunder guard — warns when you click a piece not in any top engine line
 - W/D/L bar with win/draw/loss percentages
 - Eval score chart showing game progress over time
 - Opening name display (193-entry ECO database)

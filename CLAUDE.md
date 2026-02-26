@@ -65,9 +65,10 @@ GitHub Secrets required: `EXTENSION_ID`, `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET`, `
 
 **Core modules:**
 - `core/engine.js` — Stockfish worker lifecycle (state machine: IDLE→INITIALIZING→READY→ANALYZING), UCI protocol, auto-recovery with max 2 retry attempts per crashing position
-- `core/panel.js` — panel DOM creation and updates (eval display, W/D/L bar, opening name, analysis lines, score chart, accuracy), extends `lib/emitter.js` for events
-- `core/arrow.js` — SVG arrow overlay (analysis arrows, classification badges, hint arrows, insight arrows, guard circles)
-- `core/board-diff.js` — board diff → UCI move detection (`detectMoveFromBoards()`, `boardDiffToUci()`), shared by classifier and PGN plugin
+- `core/panel.js` — panel DOM creation and updates (eval display, W/D/L bar, opening name, analysis lines, score chart, accuracy, trap status), extends `lib/emitter.js` for events
+- `core/arrow.js` — SVG arrow overlay (analysis arrows, classification badges, hint arrows, insight arrows, guard circles, trap arrows)
+- `core/board-diff.js` — board diff → UCI move detection (`detectMoveFromBoards()`, `boardDiffToUci()`), shared by classifier, PGN plugin, and trapboy
+- `core/attacks.js` — pure utility: `isSquareAttacked(board, file, rank, byColor)` checks if a square is attacked by a given color
 - `core/classify.js` — pure classification logic: `computeCpLoss()` and `classify()`
 - `core/insight.js` — tactical insight detection for Mistake/Blunder (right piece, right square, delayed move)
 - `core/move-classifier.js` — classification state machine, accuracy tracking, ply cache
@@ -82,6 +83,7 @@ GitHub Secrets required: `EXTENSION_ID`, `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET`, `
 - `hint-plugin.js` — pre-move hint arrows (classification-based spread or always-on best move). Waits for engine to reach full depth before drawing when `waitForComplete` is enabled (default on) or in puzzle mode.
 - `pgn-plugin.js` — PGN export with eval comments, classification symbols, NAG codes
 - `guard-plugin.js` — blunder guard: warns when clicked piece isn't in any engine top line
+- `trapboy-plugin.js` — sacrifice-based trap detection with step tracking (see Trapboy section below)
 
 **Shared utilities** (`lib/`):
 - `lib/dom.js` — DOM helpers: `el()`, `svgEl()`, `indexOfNode()`, `eventToSquare(e, boardEl, isFlipped)` (mouse event → `{ file, rank }`, works on both sites)
@@ -145,7 +147,7 @@ Chess sites update DOM elements (clocks, move lists, highlights) at unpredictabl
 
 ## Panel Features
 
-The analysis panel displays (top to bottom): header (classification badge, eval score, depth), opening name, insight text, W/D/L bar with percentages, analysis lines, eval chart, status bar (accuracy, PGN button, FEN button).
+The analysis panel displays (top to bottom): header (classification badge, eval score, depth), opening name, insight text, trapboy slot (trap status/steps), W/D/L bar with percentages, analysis lines, eval chart, status bar (accuracy, PGN button, FEN button).
 
 ### W/D/L bar
 
@@ -201,6 +203,31 @@ Two modes (can both be active):
 ### Blunder guard (piece selection warning)
 
 `core/plugins/guard-plugin.js` — warns when a user clicks a piece that isn't in any of the engine's top analysis lines. Togglable via popup (`showGuard`, default off). Mousedown on the board → `eventToSquare()` from `lib/dom.js` converts coords to `{ file, rank }` → `checkSquare()` tests if any line's PV[0] starts from that square → if none match, `arrow.drawGuard()` renders a semi-transparent red circle (`.chee-guard-el`). Cleared on mouseup, board change, or next mousedown.
+
+### Trapboy (sacrifice-based trap detection)
+
+`core/plugins/trapboy-plugin.js` — detects positions where offering material leads to a winning punishment if the opponent captures greedily. Togglable via popup (`showTrapboy`, default off).
+
+**Two-phase detection:**
+1. **Phase 1 (depth ≥ 12):** Scans engine PV lines for sacrifice candidates. For each line, applies the first move (`sacrificeUci`) and checks if the destination piece is attacked by the opponent. Filters require:
+   - Bait piece value ≥ `TRAPBOY_MIN_SACRIFICE_VALUE` (1)
+   - Bait value ≥ capturer value (capture must be tempting — no human trades a knight for a pawn)
+   - Opponent's best response (`godModeUci`) is NOT the greedy capture (otherwise it's not a trap)
+2. **Phase 2 (depth 4):** Requests secondary analysis of the position after sacrifice + greedy capture. If the score ≥ `TRAPBOY_TRAP_THRESHOLD` (200cp), and the first punishment move doesn't recapture on the bait square (must be non-obvious), the trap is confirmed.
+
+**Move validation:** Before confirming, `validateMoveSequence()` simulates the full step sequence with `applyUciMove()`, checking each source square has a piece.
+
+**Trap tracking:** Once confirmed, `_trapData` stores the full step sequence (`steps[]` with `uci` + `label`, `stepIndex`, `godUci`, `startPly`). On each `onBoardChange`:
+- Forward move matching `steps[stepIndex].uci` → advance `stepIndex`, redraw arrows/panel
+- Forward move not matching → clear trap (player deviated)
+- Backward navigation within trap range → revert `stepIndex` (take-back friendly)
+- Navigation before trap start → clear trap
+
+**Panel display:** Shows status throughout: "Searching..." → "Verifying..." → "No trap" or trap steps. Steps show with `.chee-trapboy-done` (dimmed/strikethrough) for completed steps and `.chee-trapboy-active` (bold/underline) for the current step.
+
+**Arrow layers:** Three persistent layers: `trapboy-bait` (magenta), `trapboy-greed` (red, punishment moves), `trapboy-god` (green dashed, opponent's safe escape). Layers update as steps advance.
+
+**Key utility:** `core/attacks.js` provides `isSquareAttacked()` for checking if a piece is hanging after a move.
 
 ### Move revert / navigation detection
 
