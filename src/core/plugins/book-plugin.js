@@ -12,9 +12,12 @@ export class BookPlugin extends AnalysisPlugin {
     super(PLUGIN_BOOK);
     this._settings = settings;
     this._currentHints = null;
+    this._boardState = null;
+    this._getRenderCtx = null;
   }
 
   onBoardChange(boardState, renderCtx) {
+    this._boardState = boardState;
     renderCtx.arrow.clearLayer('book');
     this._currentHints = null;
 
@@ -33,12 +36,31 @@ export class BookPlugin extends AnalysisPlugin {
   }
 
   onSettingsChange(settings) {
-    if ('showBookMoves' in settings) {
-      this._settings.showBookMoves = settings.showBookMoves;
+    if (!('showBookMoves' in settings) || !this._getRenderCtx) return;
+    const { arrow, isFlipped } = this._getRenderCtx();
+
+    if (!settings.showBookMoves) {
+      arrow.clearLayer('book');
+      this._currentHints = null;
+      return;
+    }
+
+    // Toggled on — recompute and draw
+    if (!this._boardState || !this._boardState.board) return;
+    const hints = findBookContinuations(this._boardState.board, this._boardState.turn);
+    this._currentHints = hints && hints.length > 0 ? hints : null;
+    if (this._currentHints) {
+      arrow.drawLayer(
+        'book',
+        this._currentHints.map((h) => h.uci),
+        isFlipped(),
+        { color: CLASSIFICATION_BOOK.color, opacity: BOOK_ARROW_OPACITY },
+      );
     }
   }
 
   getPersistentLayer(getRenderCtx) {
+    this._getRenderCtx = getRenderCtx;
     return {
       clear: () => {
         getRenderCtx().arrow.clearLayer('book');
@@ -58,5 +80,7 @@ export class BookPlugin extends AnalysisPlugin {
 
   destroy() {
     this._currentHints = null;
+    this._boardState = null;
+    this._getRenderCtx = null;
   }
 }
