@@ -127,7 +127,7 @@ export const CLASSIFICATION_BEST = { label: LABEL_BEST, symbol: '\u2605', color:
 export const CLASSIFICATION_CRAZY = { label: LABEL_CRAZY, symbol: '!?', color: '#d946ef' };
 export const CLASSIFICATION_BLUNDER = { label: LABEL_BLUNDER, symbol: '??', color: '#ca3431' };
 export const CLASSIFICATION_BOOK = {
-  label: LABEL_BOOK, symbol: '\u{1F4D6}', color: '#9ca8ce', cpLoss: 0,
+  label: LABEL_BOOK, symbol: '\u{1F4D6}', color: '#7a4a1e', cpLoss: 0,
 };
 export const CLASSIFICATION_THRESHOLDS = [
   {

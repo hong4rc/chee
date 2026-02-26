@@ -1,7 +1,10 @@
 // ECO opening names — compact lookup by position + turn
 // Auto-generated from chess.com ECO database
 import { boardDiffToUci } from './board-diff.js';
-import { toggleTurn } from '../constants.js';
+import {
+  LAST_RANK, CHAR_CODE_A, TURN_WHITE,
+  toggleTurn,
+} from '../constants.js';
 
 export const STARTING_POSITION = 'Starting Position';
 
@@ -1000,6 +1003,52 @@ function fenPositionToBoard(fenPlacement) {
   });
 }
 
+function isPlausibleMove(board, uci, turn) {
+  const fromFile = uci.charCodeAt(0) - CHAR_CODE_A;
+  const fromRank = parseInt(uci[1], 10) - 1;
+  const toFile = uci.charCodeAt(2) - CHAR_CODE_A;
+  const toRank = parseInt(uci[3], 10) - 1;
+
+  const piece = board[LAST_RANK - fromRank][fromFile];
+  if (!piece) return false;
+
+  // Piece must belong to the side making the move
+  const isWhitePiece = piece === piece.toUpperCase();
+  if (turn === TURN_WHITE ? !isWhitePiece : isWhitePiece) return false;
+
+  // Pawn-specific checks
+  if (piece.toLowerCase() === 'p') {
+    // Pawns can't move backward
+    if (isWhitePiece && toRank <= fromRank) return false;
+    if (!isWhitePiece && toRank >= fromRank) return false;
+
+    const fileDiff = Math.abs(toFile - fromFile);
+    const rankDiff = Math.abs(toRank - fromRank);
+
+    if (fileDiff === 0) {
+      // Straight: only 1 or 2 squares forward
+      if (rankDiff > 2) return false;
+      if (rankDiff === 2) {
+        const startRank = isWhitePiece ? 1 : 6;
+        if (fromRank !== startRank) return false;
+        const midRank = (fromRank + toRank) / 2;
+        if (board[LAST_RANK - midRank][fromFile] !== null) return false;
+      }
+      // Pawns can't capture straight ahead — target must be empty
+      if (board[LAST_RANK - toRank][toFile] !== null) return false;
+    } else {
+      // Diagonal: exactly 1 square, must be a capture
+      if (fileDiff !== 1 || rankDiff !== 1) return false;
+      const target = board[LAST_RANK - toRank][toFile];
+      if (!target) return false;
+      const targetIsWhite = target === target.toUpperCase();
+      if (isWhitePiece === targetIsWhite) return false;
+    }
+  }
+
+  return true;
+}
+
 export function findBookContinuations(board, turn) {
   const targetTurn = toggleTurn(turn);
   const results = [];
@@ -1008,7 +1057,7 @@ export function findBookContinuations(board, turn) {
     if (entryTurn !== targetTurn) continue;
     const targetBoard = fenPositionToBoard(placement);
     const uci = boardDiffToUci(board, targetBoard);
-    if (uci) results.push({ uci, name });
+    if (uci && isPlausibleMove(board, uci, turn)) results.push({ uci, name });
   }
   return results;
 }
