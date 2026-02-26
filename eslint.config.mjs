@@ -46,6 +46,13 @@ export default [
     },
   },
   {
+    files: ['test/**/*.test.js', 'test/**/*.js'],
+    rules: {
+      'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
+      'no-unused-expressions': 'off',
+    },
+  },
+  {
     ignores: ['dist/', 'node_modules/', 'static/stockfish.js', 'static/stockfish.wasm'],
   },
 ];
