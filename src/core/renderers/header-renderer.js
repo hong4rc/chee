@@ -41,6 +41,7 @@ export class HeaderRenderer {
     this._openingSlot = null;
     this._classSlot = null;
     this._insightSlot = null;
+    this._trapboySlot = null;
     this._accuracyEl = null;
     this._wdl = null;
     this._wdlPct = null;
@@ -86,7 +87,9 @@ export class HeaderRenderer {
       el('span', 'chee-wdl-l-pct', '50%'),
     );
 
-    header.append(topRow, openingSlot, insightSlot, bar, wdlText);
+    const trapboySlot = el('div', 'chee-trapboy-slot');
+
+    header.append(topRow, openingSlot, insightSlot, trapboySlot, bar, wdlText);
     return header;
   }
 
@@ -96,6 +99,7 @@ export class HeaderRenderer {
     this._openingSlot = panelEl.querySelector('.chee-opening-slot');
     this._classSlot = panelEl.querySelector('.chee-classification-slot');
     this._insightSlot = panelEl.querySelector('.chee-insight-slot');
+    this._trapboySlot = panelEl.querySelector('.chee-trapboy-slot');
     this._accuracyEl = panelEl.querySelector('.chee-accuracy');
     this._wdl = {
       w: panelEl.querySelector('.chee-wdl-w'),
@@ -189,12 +193,48 @@ export class HeaderRenderer {
     if (this._insightSlot) { this._insightSlot.innerHTML = ''; }
   }
 
+  showTrap(steps, stepIndex, godUci) {
+    this.clearTrap();
+    if (!this._trapboySlot) return;
+    const wrap = el('div', 'chee-trapboy');
+    const title = el('span', 'chee-trapboy-title', 'TRAP');
+    wrap.appendChild(title);
+
+    for (let i = 0; i < steps.length; i++) {
+      const { uci, label } = steps[i];
+      const readable = uci && uci.length >= 4 ? `${uci.slice(0, 2)}-${uci.slice(2, 4)}` : uci;
+      let cls = 'chee-trapboy-greed';
+      if (label === 'Bait') cls = 'chee-trapboy-bait';
+      const span = el('span', cls, `${label} ${readable}`);
+      if (i < stepIndex) span.classList.add('chee-trapboy-done');
+      if (i === stepIndex) span.classList.add('chee-trapboy-active');
+      wrap.appendChild(span);
+    }
+
+    const godReadable = godUci && godUci.length >= 4 ? `${godUci.slice(0, 2)}-${godUci.slice(2, 4)}` : godUci;
+    const godEl = el('span', 'chee-trapboy-god', `Escape ${godReadable}`);
+    wrap.appendChild(godEl);
+    this._trapboySlot.appendChild(wrap);
+  }
+
+  showTrapStatus(text) {
+    this.clearTrap();
+    if (!this._trapboySlot) return;
+    const status = el('div', 'chee-trapboy chee-trapboy-status', text);
+    this._trapboySlot.appendChild(status);
+  }
+
+  clearTrap() {
+    if (this._trapboySlot) { this._trapboySlot.innerHTML = ''; }
+  }
+
   destroy() {
     this._scoreEl = null;
     this._depthEl = null;
     this._openingSlot = null;
     this._classSlot = null;
     this._insightSlot = null;
+    this._trapboySlot = null;
     this._accuracyEl = null;
     this._wdl = null;
     this._wdlPct = null;

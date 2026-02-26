@@ -347,6 +347,56 @@ body.chee-dragging {
   color: var(--chee-overlay0);
 }
 
+/* Trapboy slot (trap detection info) */
+#chee-analysis-panel .chee-trapboy-slot:empty {
+  display: none;
+}
+
+#chee-analysis-panel .chee-trapboy {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 4px;
+  font-size: 9px;
+  font-weight: 600;
+  flex-wrap: wrap;
+}
+
+#chee-analysis-panel .chee-trapboy-title {
+  color: #d946ef;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+#chee-analysis-panel .chee-trapboy-bait {
+  color: #d946ef;
+}
+
+#chee-analysis-panel .chee-trapboy-greed {
+  color: #ca3431;
+}
+
+#chee-analysis-panel .chee-trapboy-god {
+  color: #96bc4b;
+}
+
+#chee-analysis-panel .chee-trapboy-status {
+  color: var(--chee-overlay0);
+  font-weight: 400;
+  font-style: italic;
+}
+
+#chee-analysis-panel .chee-trapboy-done {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+#chee-analysis-panel .chee-trapboy-active {
+  font-weight: 800;
+  text-decoration: underline;
+}
+
 #chee-analysis-panel .chee-classification-badge {
   font-size: 10px;
   font-weight: 700;

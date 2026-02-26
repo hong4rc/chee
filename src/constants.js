@@ -64,6 +64,7 @@ export const PLUGIN_HINT = 'hint';
 export const PLUGIN_PGN = 'pgn';
 export const PLUGIN_GUARD = 'guard';
 export const PLUGIN_BOOK = 'book';
+export const PLUGIN_TRAPBOY = 'trapboy';
 
 export const EVT_PGN_COPY = 'pgn:copy';
 
@@ -87,6 +88,7 @@ export const SETTINGS_DEFAULTS = {
   showBestMove: false,
   waitForComplete: true,
   showGuard: false,
+  showTrapboy: false,
   showBookMoves: true,
   showChart: true,
   panelMinimized: false,
@@ -209,6 +211,19 @@ export const UCI_PROMO_LEN = 5;
 export const GUARD_CIRCLE_RADIUS = 0.38;
 export const GUARD_OPACITY = 0.35;
 export const GUARD_COLOR = '#ca3431';
+
+// ─── Trapboy (sacrifice-based trap detection) ───────────────
+export const TRAPBOY_MIN_DEPTH = 12;
+export const TRAPBOY_GREED_DEPTH = 4;
+export const TRAPBOY_MIN_SACRIFICE_VALUE = 1;
+export const TRAPBOY_TRAP_THRESHOLD = 200;
+export const TRAPBOY_BAIT_COLOR = '#d946ef';
+export const TRAPBOY_GREED_COLOR = '#ca3431';
+export const TRAPBOY_GOD_COLOR = '#96bc4b';
+export const TRAPBOY_ARROW_OPACITY = 0.65;
+export const TRAPBOY_GREED_ARROW_OPACITY = 0.5;
+export const TRAPBOY_GOD_ARROW_OPACITY = 0.5;
+export const TRAPBOY_GOD_DASH = '6,4';
 
 // ─── Insight arrow (best move after mistake/blunder) ────────
 export const INSIGHT_ARROW_OPACITY = 0.55;

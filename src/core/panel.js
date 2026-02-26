@@ -126,6 +126,21 @@ export class Panel extends Emitter {
     this._header.clearClassification();
   }
 
+  showTrap(steps, stepIndex, godUci) {
+    if (!this._el) return;
+    this._header.showTrap(steps, stepIndex, godUci);
+  }
+
+  showTrapStatus(text) {
+    if (!this._el) return;
+    this._header.showTrapStatus(text);
+  }
+
+  clearTrap() {
+    if (!this._el) return;
+    this._header.clearTrap();
+  }
+
   recordScore(ply, data) {
     this._chart.recordScore(ply, data, this._header.turn);
   }
