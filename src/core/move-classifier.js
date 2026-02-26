@@ -9,13 +9,15 @@ import { parseUci } from '../lib/uci.js';
 import { classify, detectSacrifice } from './classify.js';
 import { detectInsight } from './insight.js';
 import { boardDiffToUci } from './board-diff.js';
+import { lookupOpening, findBookContinuations, STARTING_POSITION } from './openings.js';
 import {
   LAST_RANK,
   CLASSIFICATION_MIN_DEPTH, CLASSIFICATION_LOCK_DEPTH,
-  CLASSIFICATION_CRAZY, CRAZY_MIN_SACRIFICE, CRAZY_MAX_CP_LOSS,
-  LABEL_CRAZY, LABEL_MISTAKE, LABEL_BLUNDER,
+  CLASSIFICATION_CRAZY, CLASSIFICATION_BOOK, CRAZY_MIN_SACRIFICE, CRAZY_MAX_CP_LOSS,
+  LABEL_CRAZY, LABEL_MISTAKE, LABEL_BLUNDER, LABEL_BOOK,
   TURN_WHITE, TURN_BLACK,
   EVT_CLASSIFY_SHOW, EVT_CLASSIFY_CLEAR, EVT_CLASSIFY_LOCK, EVT_ACCURACY_UPDATE,
+  EVT_BOOK_HINTS,
   ACCURACY_SCORES,
 } from '../constants.js';
 
@@ -54,6 +56,7 @@ export class MoveClassifier extends Emitter {
     this._prevBoard = board || null;
     this._prevPly = ply || 0;
     log('initFen:', fen, 'ply:', this._prevPly);
+    this._emitBookContinuations(board, fen);
   }
 
   onEval(data) {
@@ -107,6 +110,16 @@ export class MoveClassifier extends Emitter {
     }
   }
 
+  _emitBookContinuations(board, fen) {
+    if (!this._settings.showBookMoves || !board) {
+      this.emit(EVT_BOOK_HINTS, []);
+      return;
+    }
+    const turn = fen.split(' ')[1];
+    const hints = findBookContinuations(board, turn);
+    this.emit(EVT_BOOK_HINTS, hints);
+  }
+
   _detectInsight(result) {
     if (result.label !== LABEL_MISTAKE && result.label !== LABEL_BLUNDER) return null;
     if (!this._boardBeforeMove || !this._prevEval.pv || this._prevEval.pv.length === 0) return null;
@@ -131,7 +144,7 @@ export class MoveClassifier extends Emitter {
     this._cache.set(this._prevPly, {
       result, moveUci: this._playedMoveUci, insight, bestUci,
     });
-    if (this._settings.showClassifications) {
+    if (this._settings.showClassifications && result.label !== LABEL_BOOK) {
       const side = this._prevPly % 2 === 0 ? 'w' : 'b';
       this._totalScore[side] += ACCURACY_SCORES[result.label] || 0;
       this._moves[side] += 1;
@@ -176,10 +189,33 @@ export class MoveClassifier extends Emitter {
     this._prevBoard = board || null;
     this._prevPly = ply || 0;
 
+    this._emitBookContinuations(board, fen);
+
+    // Book move: if the resulting position is a known opening, lock immediately
+    if (this._settings.showBookMoves) {
+      const opening = lookupOpening(fen);
+      if (opening && opening !== STARTING_POSITION) {
+        const moveUci = this._playedMoveUci || null;
+        const result = { ...CLASSIFICATION_BOOK };
+        this._cache.set(this._prevPly, {
+          result, moveUci, insight: null, bestUci: null,
+        });
+        this._locked = true;
+        this._lockedLabel = result.label;
+        log.info('book move:', moveUci, opening);
+        this.emit(EVT_CLASSIFY_LOCK, {
+          result, moveUci, insight: null, bestUci: null,
+        });
+        return;
+      }
+    }
+
     // Restore cached classification when navigating (revert/forward through history)
-    if (!isForward && (this._settings.showClassifications || this._settings.showCrazy)) {
+    if (!isForward && (this._settings.showClassifications || this._settings.showCrazy
+      || this._settings.showBookMoves)) {
       const cached = this._getCachedClassification(ply);
-      if (cached && (this._settings.showClassifications || cached.result.label === LABEL_CRAZY)) {
+      if (cached && (this._settings.showClassifications || cached.result.label === LABEL_CRAZY
+        || cached.result.label === LABEL_BOOK)) {
         this.emit(EVT_CLASSIFY_LOCK, cached);
         this._locked = true;
         log.info('restored cached classification for ply:', ply, cached.result.label);

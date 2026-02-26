@@ -86,6 +86,7 @@ export const SETTINGS_DEFAULTS = {
   showBestMove: false,
   waitForComplete: true,
   showGuard: false,
+  showBookMoves: true,
   showChart: true,
   panelMinimized: false,
   panelHidden: false,
@@ -118,11 +119,15 @@ export const LABEL_INACCURACY = 'Inaccuracy';
 export const LABEL_MISTAKE = 'Mistake';
 export const LABEL_CRAZY = 'Crazy';
 export const LABEL_BLUNDER = 'Blunder';
+export const LABEL_BOOK = 'Book';
 
 export const CLASSIFICATION_BRILLIANT = { label: LABEL_BRILLIANT, symbol: '!!', color: '#1baca6' };
 export const CLASSIFICATION_BEST = { label: LABEL_BEST, symbol: '\u2605', color: '#96bc4b' };
 export const CLASSIFICATION_CRAZY = { label: LABEL_CRAZY, symbol: '!?', color: '#d946ef' };
 export const CLASSIFICATION_BLUNDER = { label: LABEL_BLUNDER, symbol: '??', color: '#ca3431' };
+export const CLASSIFICATION_BOOK = {
+  label: LABEL_BOOK, symbol: '\u{1F4D6}', color: '#9ca8ce', cpLoss: 0,
+};
 export const CLASSIFICATION_THRESHOLDS = [
   {
     max: 10, label: LABEL_EXCELLENT, symbol: '\u2713', color: '#96bc4b',
@@ -160,6 +165,10 @@ export const PGN_NAGS = {
   [LABEL_MISTAKE]: '$2',
   [LABEL_BLUNDER]: '$4',
 };
+
+// ─── Book continuation arrows ────────────────────────────────
+export const EVT_BOOK_HINTS = 'book:hints';
+export const BOOK_ARROW_OPACITY = 0.4;
 
 // ─── Pre-move hints (spread = score gap between line 1 and 2) ─
 export const HINT_MIN_DEPTH = 14;

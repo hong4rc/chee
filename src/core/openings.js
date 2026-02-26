@@ -1,5 +1,8 @@
 // ECO opening names — compact lookup by position + turn
 // Auto-generated from chess.com ECO database
+import { boardDiffToUci } from './board-diff.js';
+import { toggleTurn } from '../constants.js';
+
 export const STARTING_POSITION = 'Starting Position';
 
 const OPENINGS = new Map([
@@ -981,4 +984,31 @@ const OPENINGS = new Map([
 export function lookupOpening(fen) {
   const key = fen.split(' ').slice(0, 2).join(' ');
   return OPENINGS.get(key) || null;
+}
+
+function fenPositionToBoard(fenPlacement) {
+  return fenPlacement.split('/').map((rank) => {
+    const row = [];
+    for (const ch of rank) {
+      if (ch >= '1' && ch <= '8') {
+        for (let i = 0; i < Number(ch); i++) row.push(null);
+      } else {
+        row.push(ch);
+      }
+    }
+    return row;
+  });
+}
+
+export function findBookContinuations(board, turn) {
+  const targetTurn = toggleTurn(turn);
+  const results = [];
+  for (const [key, name] of OPENINGS) {
+    const [placement, entryTurn] = key.split(' ');
+    if (entryTurn !== targetTurn) continue;
+    const targetBoard = fenPositionToBoard(placement);
+    const uci = boardDiffToUci(board, targetBoard);
+    if (uci) results.push({ uci, name });
+  }
+  return results;
 }

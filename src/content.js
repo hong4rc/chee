@@ -91,6 +91,7 @@ const log = createDebug('chee:content');
     if (changes.searchDepth) update.searchDepth = changes.searchDepth.newValue;
     if (changes.theme) update.theme = changes.theme.newValue;
     if (changes.showClassifications) update.showClassifications = changes.showClassifications.newValue;
+    if (changes.showBookMoves) update.showBookMoves = changes.showBookMoves.newValue;
     if (changes.showBestMove) update.showBestMove = changes.showBestMove.newValue;
     if (changes.showGuard) update.showGuard = changes.showGuard.newValue;
     if (changes.showChart) update.showChart = changes.showChart.newValue;
