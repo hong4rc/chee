@@ -24,11 +24,13 @@ const MSG_EVAL = 'eval';
 const MSG_ERROR = 'error';
 const MSG_POSITION = 'position';
 const MSG_STOP = 'stop';
+const MSG_RECONFIGURE = 'reconfigure';
 
 // ─── State ───────────────────────────────────────────────────
 let currentLines = Array(NUM_LINES).fill(null);
 let currentDepth = 0;
 let analyzing = false;
+let reconfiguring = false;
 let isReady = false;
 let sfOnMessage = null;
 let pendingFen = null;
@@ -123,6 +125,7 @@ function onStockfishMessage(line) {
       realPostMessage({ type: MSG_READY });
     }
 
+    reconfiguring = false;
     if (awaitingReady && pendingFen) {
       awaitingReady = false;
       const readyFen = pendingFen;
@@ -137,11 +140,12 @@ function onStockfishMessage(line) {
   }
 
   if (line.indexOf(UCI_INFO) === 0 && line.indexOf(UCI_MULTIPV) !== -1 && line.indexOf(UCI_PV) !== -1) {
-    parseInfoLine(line);
+    if (!reconfiguring) parseInfoLine(line);
     return;
   }
 
   if (line.indexOf(UCI_BESTMOVE) === 0) {
+    if (reconfiguring) return;
     analyzing = false;
     realPostMessage({
       type: MSG_EVAL,
@@ -266,6 +270,19 @@ function bootstrapStockfish() {
       analyzePosition(msg.fen);
     } else if (msg.type === MSG_STOP) {
       stopAnalysis();
+    } else if (msg.type === MSG_RECONFIGURE) {
+      reconfiguring = true;
+      if (analyzing) sendUCI('stop');
+      const linesChanged = msg.numLines != null && msg.numLines !== NUM_LINES;
+      if (msg.numLines != null) NUM_LINES = msg.numLines;
+      if (msg.searchDepth != null) SEARCH_DEPTH = msg.searchDepth;
+      currentLines = Array(NUM_LINES).fill(null);
+      currentDepth = 0;
+      analyzing = false;
+      awaitingReady = false;
+      pendingFen = null;
+      if (linesChanged) sendUCI(`setoption name MultiPV value ${NUM_LINES}`);
+      sendUCI('isready');
     }
   };
 

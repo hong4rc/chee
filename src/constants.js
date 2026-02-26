@@ -73,6 +73,7 @@ export const MSG_EVAL = EVT_EVAL;
 export const MSG_ERROR = EVT_ERROR;
 export const MSG_POSITION = 'position';
 export const MSG_STOP = 'stop';
+export const MSG_RECONFIGURE = 'reconfigure';
 
 // ─── Engine config ───────────────────────────────────────────
 export const SEARCH_DEPTH = 22;

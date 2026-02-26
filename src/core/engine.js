@@ -5,7 +5,7 @@ import { Emitter } from '../lib/emitter.js';
 import {
   WORKER_FILE, STOCKFISH_JS_FILE, STOCKFISH_WASM_FILE,
   EVT_READY, EVT_EVAL, EVT_ERROR,
-  MSG_SETUP, MSG_READY, MSG_EVAL, MSG_ERROR, MSG_POSITION, MSG_STOP,
+  MSG_SETUP, MSG_READY, MSG_EVAL, MSG_ERROR, MSG_POSITION, MSG_STOP, MSG_RECONFIGURE,
 } from '../constants.js';
 
 const log = createDebug('chee:engine');
@@ -128,6 +128,19 @@ export class Engine extends Emitter {
         this._state = State.READY;
       }
     }
+  }
+
+  reconfigure(settings) {
+    if (!this._worker || this._state === State.IDLE || this._state === State.INITIALIZING
+      || this._state === State.ERROR) return;
+    log.info('reconfiguring engine:', { numLines: settings.numLines, searchDepth: settings.searchDepth });
+    this._worker.postMessage({
+      type: MSG_RECONFIGURE,
+      numLines: settings.numLines,
+      searchDepth: settings.searchDepth,
+    });
+    this._currentFen = null;
+    this._depthGuard = true;
   }
 
   destroy() {

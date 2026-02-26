@@ -9,7 +9,6 @@ import { LruCache } from '../lib/lru.js';
 import { applyTheme } from '../lib/themes.js';
 import { eventToSquare } from '../lib/dom.js';
 import { boardToFen } from './fen.js';
-import { Engine } from './engine.js';
 import {
   BOARD_SIZE, LAST_RANK,
   DEBOUNCE_MS, POLL_INTERVAL_MS,
@@ -34,10 +33,20 @@ export class AnalysisCoordinator {
     this._settings = settings;
     this._boardState = boardState;
 
-    this._evalCache = new LruCache(256);
+    this._evalCache = new LruCache(1024);
     this._debounceTimer = null;
     this._activeFen = null;
     this._plugins = [];
+  }
+
+  _cacheKey(fen, depth) {
+    return `${fen}|${depth}`;
+  }
+
+  _cacheLookup(fen) {
+    const cached = this._evalCache.get(this._cacheKey(fen, this._settings.searchDepth));
+    if (cached && cached.lines && cached.lines.length >= this._settings.numLines) return cached;
+    return null;
   }
 
   registerPlugin(plugin) {
@@ -110,30 +119,25 @@ export class AnalysisCoordinator {
     const engineChanged = 'numLines' in newSettings || 'searchDepth' in newSettings;
     if (!engineChanged) return;
 
-    this._panel.reconfigure(this._settings.numLines);
-    this._panel.clearScores();
-    this._evalCache.clear();
+    if ('numLines' in newSettings) this._panel.reconfigure(this._settings.numLines);
 
-    this._notifyPlugins('onEngineReset');
-
-    this._engine.destroy();
-    this._engine = new Engine();
-    this._bindEngineListeners();
-
-    if (!this._boardState.boardEl) return;
-    this._engine.init(this._settings);
-
-    const fen = this._readFen();
-    if (fen) {
-      this._notifyPlugins('onBoardChange', this._boardState, this._createRenderCtx());
-      this._activeFen = fen;
-      this._engine.analyze(fen);
+    if (this._activeFen) {
+      const cached = this._cacheLookup(this._activeFen);
+      if (cached) {
+        this._applyEval(cached);
+        return;
+      }
     }
+
+    // Cache miss — need engine work (more lines or different depth)
+    this._notifyPlugins('onEngineReset');
+    this._engine.reconfigure(this._settings);
+    if (this._activeFen) this._engine.analyze(this._activeFen);
   }
 
   replayEval() {
     if (!this._activeFen) return;
-    const cached = this._evalCache.get(this._activeFen);
+    const cached = this._cacheLookup(this._activeFen);
     if (cached) this._notifyPlugins('onEval', cached, this._boardState, this._createRenderCtx());
   }
 
@@ -207,7 +211,7 @@ export class AnalysisCoordinator {
   _onEvalData(data) {
     if (this._engine.currentFen !== this._activeFen) return;
     this._applyEval(data);
-    this._evalCache.set(this._activeFen, data);
+    this._evalCache.set(this._cacheKey(this._activeFen, data.depth), data);
   }
 
   _onBoardChange() {
@@ -218,7 +222,7 @@ export class AnalysisCoordinator {
       this._notifyPlugins('onBoardChange', this._boardState, this._createRenderCtx());
       this._activeFen = fen;
 
-      const cached = this._evalCache.get(fen);
+      const cached = this._cacheLookup(fen);
       if (cached) {
         this._engine.stop();
         this._applyEval(cached);
