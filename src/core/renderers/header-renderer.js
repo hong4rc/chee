@@ -173,9 +173,15 @@ export class HeaderRenderer {
     }
   }
 
-  showAccuracy(pct) {
+  showAccuracy({ white, black }) {
     if (!this._accuracyEl) return;
-    this._accuracyEl.textContent = pct !== null ? `Acc: ${pct}%` : '';
+    if (white === null && black === null) {
+      this._accuracyEl.textContent = '';
+      return;
+    }
+    const w = white !== null ? `${white}%` : '-';
+    const b = black !== null ? `${black}%` : '-';
+    this._accuracyEl.textContent = `Acc: ${w}|${b}`;
   }
 
   clearClassification() {

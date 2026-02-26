@@ -138,6 +138,18 @@ export const CLASSIFICATION_THRESHOLDS = [
   },
 ];
 
+// ─── Accuracy scores per classification ─────────────────────
+export const ACCURACY_SCORES = {
+  [LABEL_BRILLIANT]: 100,
+  [LABEL_BEST]: 100,
+  [LABEL_CRAZY]: 100,
+  [LABEL_EXCELLENT]: 90,
+  [LABEL_GOOD]: 70,
+  [LABEL_INACCURACY]: 30,
+  [LABEL_MISTAKE]: 10,
+  [LABEL_BLUNDER]: 0,
+};
+
 // ─── PGN NAG codes (Numeric Annotation Glyphs) ─────────────
 export const PGN_NAGS = {
   [LABEL_BRILLIANT]: '$3',

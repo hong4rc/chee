@@ -16,6 +16,7 @@ import {
   LABEL_CRAZY, LABEL_MISTAKE, LABEL_BLUNDER,
   TURN_WHITE, TURN_BLACK,
   EVT_CLASSIFY_SHOW, EVT_CLASSIFY_CLEAR, EVT_CLASSIFY_LOCK, EVT_ACCURACY_UPDATE,
+  ACCURACY_SCORES,
 } from '../constants.js';
 
 const CLASSIFICATION_CACHE_SIZE = 512;
@@ -39,8 +40,8 @@ export class MoveClassifier extends Emitter {
     this._locked = false;
     this._playedMoveUci = null;
     this._cache = new LruCache(CLASSIFICATION_CACHE_SIZE);
-    this._totalCpLoss = 0;
-    this._moveCount = 0;
+    this._totalScore = { w: 0, b: 0 };
+    this._moves = { w: 0, b: 0 };
     this._lockedLabel = null;
   }
 
@@ -131,8 +132,9 @@ export class MoveClassifier extends Emitter {
       result, moveUci: this._playedMoveUci, insight, bestUci,
     });
     if (this._settings.showClassifications) {
-      this._totalCpLoss += Math.max(0, result.cpLoss);
-      this._moveCount += 1;
+      const side = this._prevPly % 2 === 0 ? 'w' : 'b';
+      this._totalScore[side] += ACCURACY_SCORES[result.label] || 0;
+      this._moves[side] += 1;
     }
     this._lockedLabel = result.label;
     log.info('locked at depth', depth, 'cached ply:', this._prevPly);
@@ -150,12 +152,11 @@ export class MoveClassifier extends Emitter {
     return this._cache.get(ply);
   }
 
-  // Accuracy formula: chess.com ACPL model
   getAccuracy() {
-    if (this._moveCount === 0) return null;
-    const acpl = this._totalCpLoss / this._moveCount;
-    const raw = 103.1668 * Math.exp(-0.04354 * acpl) - 3.1668;
-    return Math.round(Math.min(100, Math.max(0, raw)));
+    return {
+      white: this._moves.w > 0 ? Math.round(this._totalScore.w / this._moves.w) : null,
+      black: this._moves.b > 0 ? Math.round(this._totalScore.b / this._moves.b) : null,
+    };
   }
 
   onBoardChange(fen, board, ply) {
@@ -217,8 +218,8 @@ export class MoveClassifier extends Emitter {
     this._locked = false;
     this._playedMoveUci = null;
     this._cache.clear();
-    this._totalCpLoss = 0;
-    this._moveCount = 0;
+    this._totalScore = { w: 0, b: 0 };
+    this._moves = { w: 0, b: 0 };
     this.removeAllListeners();
   }
 }
