@@ -55,6 +55,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     chrome.storage.sync.set({ showGuard: guardCheckbox.checked });
   });
 
+  // Trapboy toggle
+  const trapboyCheckbox = document.getElementById('show-trapboy');
+  trapboyCheckbox.checked = settings.showTrapboy;
+  trapboyCheckbox.addEventListener('change', () => {
+    chrome.storage.sync.set({ showTrapboy: trapboyCheckbox.checked });
+  });
+
   // Chart toggle
   const chartCheckbox = document.getElementById('show-chart');
   chartCheckbox.checked = settings.showChart;

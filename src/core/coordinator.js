@@ -37,6 +37,7 @@ export class AnalysisCoordinator {
     this._activeFen = null;
     this._plugins = [];
     this._persistentLayers = [];
+    this._secondaryAnalysis = null;
   }
 
   _cacheKey(fen, depth) {
@@ -146,6 +147,14 @@ export class AnalysisCoordinator {
     if (cached) this._notifyPlugins('onEval', cached, this._boardState, this._createRenderCtx());
   }
 
+  requestSecondaryAnalysis(fen, targetDepth, callback) {
+    if (this._secondaryAnalysis) return;
+    this._secondaryAnalysis = {
+      fen, targetDepth, callback, originalFen: this._activeFen,
+    };
+    this._engine.forceAnalyze(fen);
+  }
+
   _createRenderCtx() {
     return {
       panel: this._panel,
@@ -210,6 +219,20 @@ export class AnalysisCoordinator {
   }
 
   _onEvalData(data) {
+    if (this._secondaryAnalysis) {
+      const sa = this._secondaryAnalysis;
+      if (this._engine.currentFen === sa.fen) {
+        sa.callback(data);
+        if (data.complete || data.depth >= sa.targetDepth) {
+          this._secondaryAnalysis = null;
+          // Don't resume original FEN — main analysis was already complete
+        }
+        return;
+      }
+      // Board changed during secondary — abort silently
+      this._secondaryAnalysis = null;
+    }
+
     if (this._engine.currentFen !== this._activeFen) return;
     this._applyEval(data);
     this._evalCache.set(this._cacheKey(this._activeFen, data.depth), data);
@@ -218,6 +241,7 @@ export class AnalysisCoordinator {
   _onBoardChange() {
     clearTimeout(this._debounceTimer);
     this._debounceTimer = setTimeout(() => {
+      this._secondaryAnalysis = null;
       const fen = this._readFen();
       if (!fen) return;
       this._notifyPlugins('onBoardChange', this._boardState, this._createRenderCtx());

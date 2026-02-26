@@ -14,6 +14,7 @@ import { ClassificationPlugin } from './core/plugins/classification-plugin.js';
 import { HintPlugin } from './core/plugins/hint-plugin.js';
 import { PgnPlugin } from './core/plugins/pgn-plugin.js';
 import { GuardPlugin } from './core/plugins/guard-plugin.js';
+import { TrapboyPlugin } from './core/plugins/trapboy-plugin.js';
 import { BookPlugin } from './core/plugins/book-plugin.js';
 import { POLL_INTERVAL_MS, BOARD_TIMEOUT_MS } from './constants.js';
 
@@ -80,6 +81,7 @@ const log = createDebug('chee:content');
     coordinator.registerPlugin(new BookPlugin({ settings }));
     coordinator.registerPlugin(new PgnPlugin());
     coordinator.registerPlugin(new GuardPlugin({ settings }));
+    coordinator.registerPlugin(new TrapboyPlugin({ settings, coordinator }));
   }
   coordinator.registerPlugin(new HintPlugin({ settings }));
 
@@ -96,6 +98,7 @@ const log = createDebug('chee:content');
     if (changes.showBookMoves) update.showBookMoves = changes.showBookMoves.newValue;
     if (changes.showBestMove) update.showBestMove = changes.showBestMove.newValue;
     if (changes.showGuard) update.showGuard = changes.showGuard.newValue;
+    if (changes.showTrapboy) update.showTrapboy = changes.showTrapboy.newValue;
     if (changes.showChart) update.showChart = changes.showChart.newValue;
     if (changes.waitForComplete) update.waitForComplete = changes.waitForComplete.newValue;
     if (changes.debugMode) update.debugMode = changes.debugMode.newValue;

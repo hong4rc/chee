@@ -121,6 +121,11 @@ export class Engine extends Emitter {
     this._worker.postMessage({ type: MSG_POSITION, fen });
   }
 
+  forceAnalyze(fen) {
+    this._currentFen = null;
+    this.analyze(fen);
+  }
+
   stop() {
     if (this._worker) {
       this._worker.postMessage({ type: MSG_STOP });
