@@ -358,17 +358,21 @@ export class ArrowOverlay {
     forEach(this._svg.querySelectorAll('.chee-guard-el'), (el) => el.remove());
   }
 
-  drawBookMoves(uciMoves, isFlipped, color, opacity) {
+  drawLayer(name, uciMoves, isFlipped, opts = {}) {
     if (!this._svg || !this._boardEl) return;
-    this.clearBookMoves();
+    this.clearLayer(name);
     if (!uciMoves || uciMoves.length === 0) return;
 
     const {
       sqW, sqH, strokeWidth, headSize, originRadius,
     } = this._getBoardMetrics();
 
-    const markerId = 'chee-book-arrowhead';
-    this._createMarker(markerId, color, 'chee-book-el');
+    const elClass = `chee-layer-${name}`;
+    const markerId = `chee-layer-${name}-arrowhead`;
+    const color = opts.color || ARROW_COLOR_WHITE;
+    const opacity = opts.opacity || ARROW_OPACITY_MAX;
+    const scale = opts.scale || HINT_SCALE;
+    this._createMarker(markerId, color, elClass);
 
     forEach(uciMoves, (uciMove) => {
       if (!uciMove || uciMove.length < UCI_MIN_LEN) return;
@@ -381,16 +385,17 @@ export class ArrowOverlay {
       appendArrow(this._svg, from, to, {
         color,
         opacity,
-        strokeWidth: strokeWidth * HINT_SCALE,
-        originRadius: originRadius * HINT_SCALE,
-        elClass: 'chee-book-el',
+        strokeWidth: strokeWidth * scale,
+        originRadius: originRadius * scale,
+        elClass,
         markerEnd: `url(#${markerId})`,
+        dashArray: opts.dashArray,
       });
     });
   }
 
-  clearBookMoves() {
+  clearLayer(name) {
     if (!this._svg) return;
-    forEach(this._svg.querySelectorAll('.chee-book-el'), (el) => el.remove());
+    forEach(this._svg.querySelectorAll(`.chee-layer-${name}`), (el) => el.remove());
   }
 }

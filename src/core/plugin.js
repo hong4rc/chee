@@ -20,5 +20,9 @@ export class AnalysisPlugin {
   // Called when the engine is rebuilt (depth/lines changed). Clear caches and reset state.
   onEngineReset() {}
 
+  // Return a persistent visual layer { clear(), restore() } or null.
+  // getRenderCtx is a thunk returning { panel, arrow, isFlipped() }.
+  getPersistentLayer(getRenderCtx) { return null; } // eslint-disable-line no-unused-vars
+
   destroy() {}
 }

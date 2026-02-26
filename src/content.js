@@ -14,6 +14,7 @@ import { ClassificationPlugin } from './core/plugins/classification-plugin.js';
 import { HintPlugin } from './core/plugins/hint-plugin.js';
 import { PgnPlugin } from './core/plugins/pgn-plugin.js';
 import { GuardPlugin } from './core/plugins/guard-plugin.js';
+import { BookPlugin } from './core/plugins/book-plugin.js';
 import { POLL_INTERVAL_MS, BOARD_TIMEOUT_MS } from './constants.js';
 
 const log = createDebug('chee:content');
@@ -76,6 +77,7 @@ const log = createDebug('chee:content');
 
   if (!isHintPage) {
     coordinator.registerPlugin(new ClassificationPlugin({ adapter, settings }));
+    coordinator.registerPlugin(new BookPlugin({ settings }));
     coordinator.registerPlugin(new PgnPlugin());
     coordinator.registerPlugin(new GuardPlugin({ settings }));
   }

@@ -63,6 +63,7 @@ export const PLUGIN_CLASSIFICATION = 'classification';
 export const PLUGIN_HINT = 'hint';
 export const PLUGIN_PGN = 'pgn';
 export const PLUGIN_GUARD = 'guard';
+export const PLUGIN_BOOK = 'book';
 
 export const EVT_PGN_COPY = 'pgn:copy';
 
@@ -167,7 +168,6 @@ export const PGN_NAGS = {
 };
 
 // ─── Book continuation arrows ────────────────────────────────
-export const EVT_BOOK_HINTS = 'book:hints';
 export const BOOK_ARROW_OPACITY = 0.4;
 
 // ─── Pre-move hints (spread = score gap between line 1 and 2) ─

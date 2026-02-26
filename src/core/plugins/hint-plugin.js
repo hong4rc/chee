@@ -65,6 +65,25 @@ export class HintPlugin extends AnalysisPlugin {
     }
   }
 
+  getPersistentLayer(getRenderCtx) {
+    return {
+      clear: () => {
+        getRenderCtx().arrow.clearHint();
+      },
+      restore: () => {
+        if (!this._currentHint) return;
+        const { arrow, isFlipped } = getRenderCtx();
+        arrow.drawHint(
+          this._currentHint.uci,
+          isFlipped(),
+          this._currentHint.color,
+          this._currentHint.symbol,
+          HINT_ARROW_OPACITY,
+        );
+      },
+    };
+  }
+
   destroy() {
     this._currentHint = null;
   }

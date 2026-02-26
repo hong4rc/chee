@@ -16,9 +16,7 @@ import {
   TURN_WHITE, TURN_BLACK,
   EVT_READY, EVT_EVAL, EVT_ERROR, EVT_LINE_HOVER, EVT_LINE_LEAVE, EVT_PGN_COPY,
   EVT_CLASSIFY_SHOW, EVT_CLASSIFY_CLEAR, EVT_CLASSIFY_LOCK, EVT_ACCURACY_UPDATE,
-  EVT_BOOK_HINTS, BOOK_ARROW_OPACITY, CLASSIFICATION_BOOK,
-  HINT_ARROW_OPACITY,
-  PLUGIN_CLASSIFICATION, PLUGIN_HINT, PLUGIN_PGN, PLUGIN_GUARD,
+  PLUGIN_CLASSIFICATION, PLUGIN_PGN, PLUGIN_GUARD,
 } from '../constants.js';
 
 const log = createDebug('chee:coordinator');
@@ -37,8 +35,8 @@ export class AnalysisCoordinator {
     this._evalCache = new LruCache(1024);
     this._debounceTimer = null;
     this._activeFen = null;
-    this._currentBookHints = null;
     this._plugins = [];
+    this._persistentLayers = [];
   }
 
   _cacheKey(fen, depth) {
@@ -72,6 +70,11 @@ export class AnalysisCoordinator {
     this._arrow.mount(boardEl);
     this._setupListeners(boardEl);
     this._bindPluginClassifierListeners();
+
+    forEach(this._plugins, (p) => {
+      const layer = p.getPersistentLayer(() => this._createRenderCtx());
+      if (layer) this._persistentLayers.push(layer);
+    });
 
     this._engine.init(this._settings);
     this._adapter.observe(boardEl, () => this._onBoardChange());
@@ -155,10 +158,6 @@ export class AnalysisCoordinator {
     forEach(this._plugins, (p) => {
       if (typeof p[hook] === 'function') p[hook](...args);
     });
-  }
-
-  _getHintPlugin() {
-    return this._plugins.find((p) => p.name === PLUGIN_HINT);
   }
 
   _getPgnPlugin() {
@@ -251,7 +250,6 @@ export class AnalysisCoordinator {
       this._panel.clearClassification();
       this._arrow.clearClassification();
       this._arrow.clearInsight();
-      this._arrow.clearBookMoves();
     });
 
     classifier.on(EVT_CLASSIFY_SHOW, ({ result, insight }) => {
@@ -274,51 +272,16 @@ export class AnalysisCoordinator {
     classifier.on(EVT_ACCURACY_UPDATE, (pct) => {
       this._panel.showAccuracy(pct);
     });
-
-    classifier.on(EVT_BOOK_HINTS, (hints) => {
-      this._currentBookHints = hints && hints.length > 0 ? hints : null;
-      if (this._currentBookHints) {
-        const isFlipped = this._adapter.isFlipped(this._boardState.boardEl);
-        this._arrow.drawBookMoves(
-          hints.map((h) => h.uci),
-          isFlipped,
-          CLASSIFICATION_BOOK.color,
-          BOOK_ARROW_OPACITY,
-        );
-      } else {
-        this._arrow.clearBookMoves();
-      }
-    });
   }
 
   _setupListeners(boardEl) {
     this._panel.on(EVT_LINE_HOVER, (moves, turn) => {
-      this._arrow.clearHint();
-      this._arrow.clearBookMoves();
+      forEach(this._persistentLayers, (l) => l.clear());
       this._arrow.draw(moves, turn, this._adapter.isFlipped(boardEl));
     });
     this._panel.on(EVT_LINE_LEAVE, () => {
       this._arrow.clear();
-      const hintPlugin = this._getHintPlugin();
-      const currentHint = hintPlugin && hintPlugin.currentHint;
-      if (currentHint) {
-        this._arrow.drawHint(
-          currentHint.uci,
-          this._adapter.isFlipped(this._boardState.boardEl),
-          currentHint.color,
-          currentHint.symbol,
-          HINT_ARROW_OPACITY,
-        );
-      }
-      if (this._currentBookHints) {
-        const isFlipped = this._adapter.isFlipped(this._boardState.boardEl);
-        this._arrow.drawBookMoves(
-          this._currentBookHints.map((h) => h.uci),
-          isFlipped,
-          CLASSIFICATION_BOOK.color,
-          BOOK_ARROW_OPACITY,
-        );
-      }
+      forEach(this._persistentLayers, (l) => l.restore());
     });
     this._panel.on(EVT_PGN_COPY, () => {
       const pgnPlugin = this._getPgnPlugin();

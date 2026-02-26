@@ -9,7 +9,7 @@ import { parseUci } from '../lib/uci.js';
 import { classify, detectSacrifice } from './classify.js';
 import { detectInsight } from './insight.js';
 import { boardDiffToUci } from './board-diff.js';
-import { lookupOpening, findBookContinuations, STARTING_POSITION } from './openings.js';
+import { lookupOpening, STARTING_POSITION } from './openings.js';
 import {
   LAST_RANK,
   CLASSIFICATION_MIN_DEPTH, CLASSIFICATION_LOCK_DEPTH,
@@ -17,7 +17,6 @@ import {
   LABEL_CRAZY, LABEL_MISTAKE, LABEL_BLUNDER, LABEL_BOOK,
   TURN_WHITE, TURN_BLACK,
   EVT_CLASSIFY_SHOW, EVT_CLASSIFY_CLEAR, EVT_CLASSIFY_LOCK, EVT_ACCURACY_UPDATE,
-  EVT_BOOK_HINTS,
   ACCURACY_SCORES,
 } from '../constants.js';
 
@@ -56,7 +55,6 @@ export class MoveClassifier extends Emitter {
     this._prevBoard = board || null;
     this._prevPly = ply || 0;
     log('initFen:', fen, 'ply:', this._prevPly);
-    this._emitBookContinuations(board, fen);
   }
 
   onEval(data) {
@@ -108,16 +106,6 @@ export class MoveClassifier extends Emitter {
     if (data.depth >= CLASSIFICATION_LOCK_DEPTH) {
       this._lockClassification(result, insight, data.depth);
     }
-  }
-
-  _emitBookContinuations(board, fen) {
-    if (!this._settings.showBookMoves || !board) {
-      this.emit(EVT_BOOK_HINTS, []);
-      return;
-    }
-    const turn = fen.split(' ')[1];
-    const hints = findBookContinuations(board, turn);
-    this.emit(EVT_BOOK_HINTS, hints);
   }
 
   _detectInsight(result) {
@@ -190,8 +178,6 @@ export class MoveClassifier extends Emitter {
     this._prevFen = fen;
     this._prevBoard = board || null;
     this._prevPly = ply || 0;
-
-    this._emitBookContinuations(board, fen);
 
     // Book move: if the resulting position is a known opening, lock immediately
     if (this._settings.showBookMoves) {
