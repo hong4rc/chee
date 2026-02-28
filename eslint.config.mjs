@@ -53,6 +53,13 @@ export default [
     },
   },
   {
-    ignores: ['dist/', 'node_modules/', 'static/stockfish.js', 'static/stockfish.wasm', 'scripts/'],
+    files: ['*.config.mjs', 'scripts/**/*.js'],
+    rules: {
+      'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
+      'no-console': 'off',
+    },
+  },
+  {
+    ignores: ['dist/', 'node_modules/', 'static/stockfish.js', 'static/stockfish.wasm'],
   },
 ];
