@@ -19,6 +19,7 @@
     "lint": "eslint src/ static/stockfish-worker.js",
     "lint:fix": "eslint src/ static/stockfish-worker.js --fix",
     "test": "vitest run",
+    "posttest": "git rev-parse HEAD > .test-passed",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "clean": "rm -rf dist",
@@ -26,9 +27,12 @@
     "release:minor": "release-it minor",
     "release:major": "release-it major",
     "pack": "npm run build && cd dist && zip -r ../chee-v$(node -p \"require('../package.json').version\").zip . -x '.*'",
-    "publish:cws": "npm run pack && chrome-webstore-upload upload --source chee-v$(node -p \"require('./package.json').version\").zip --auto-publish"
+    "publish:cws": "npm run pack && chrome-webstore-upload upload --source chee-v$(node -p \"require('./package.json').version\").zip --auto-publish",
+    "postinstall": "lefthook install"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.4.2",
+    "@commitlint/config-conventional": "^20.4.2",
     "@eslint/eslintrc": "^3.3.3",
     "@release-it/conventional-changelog": "^10.0.5",
     "@rollup/plugin-node-resolve": "^16.0.0",
@@ -40,6 +44,7 @@
     "eslint-plugin-import": "^2.32.0",
     "globals": "^17.3.0",
     "jsdom": "^28.1.0",
+    "lefthook": "^2.1.1",
     "release-it": "^19.2.4",
     "rollup": "^4.0.0",
     "rollup-plugin-copy": "^3.5.0",

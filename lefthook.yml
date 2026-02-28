@@ -1,0 +1,20 @@
+pre-commit:
+  commands:
+    lint:
+      glob: "*.{js,mjs}"
+      run: npx eslint {staged_files}
+
+commit-msg:
+  commands:
+    conventional:
+      run: npx commitlint --edit {1}
+
+pre-push:
+  commands:
+    test:
+      run: |
+        if [ -f .test-passed ] && [ "$(cat .test-passed)" = "$(git rev-parse HEAD)" ]; then
+          echo "Tests already passed for this commit, skipping"
+        else
+          npm test
+        fi

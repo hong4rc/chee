@@ -6,4 +6,5 @@ chee-v*.zip
 .env
 client_secret*.json
 fixtures
+.test-passed
 
