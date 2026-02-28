@@ -37,10 +37,11 @@ What `npm run release` does:
 
 ## CI/CD
 
-Two GitHub Actions workflows (`.github/workflows/`):
+Three GitHub Actions workflows (`.github/workflows/`):
 
-1. **`release.yml`** — triggered on `v*` tag push. Creates a GitHub Release with changelog body extracted from `CHANGELOG.md`.
-2. **`publish.yml`** — triggered when a GitHub Release is published. Builds, zips, uploads zip to the release, and publishes to Chrome Web Store.
+1. **`ci.yml`** — triggered on push to `main` and PRs. Runs ESLint on changed files (with inline PR annotations via `add-matcher`) and Vitest test suite.
+2. **`release.yml`** — triggered on `v*` tag push. Creates a GitHub Release with changelog body extracted from `CHANGELOG.md`.
+3. **`publish.yml`** — triggered when a GitHub Release is published. Builds, zips, uploads zip to the release, and publishes to Chrome Web Store.
 
 Release flow:
 ```bash
@@ -50,6 +51,16 @@ git push origin main --tags # triggers release.yml → publish.yml
 ```
 
 GitHub Secrets required: `EXTENSION_ID`, `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET`, `CWS_REFRESH_TOKEN`.
+
+## Git Hooks (lefthook)
+
+Hooks are auto-installed via `postinstall`. Configured in `lefthook.yml`:
+
+- **pre-commit** — ESLint on staged `.js`/`.mjs` files
+- **commit-msg** — Conventional Commits validation via commitlint
+- **pre-push** — runs `npm test`, skips if tests already passed for current HEAD (`.test-passed` marker)
+
+Line endings are enforced as LF on all platforms via `.gitattributes`.
 
 ## Architecture
 

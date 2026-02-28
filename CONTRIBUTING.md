@@ -20,6 +20,14 @@ npm run lint:fix # auto-fix lint issues
 npm run test     # run tests
 ```
 
+## Git hooks
+
+Git hooks are managed by [lefthook](https://github.com/evilmartians/lefthook) and auto-installed on `npm install`:
+
+- **pre-commit** — lints staged JS files
+- **commit-msg** — validates Conventional Commits format via [commitlint](https://commitlint.js.org/)
+- **pre-push** — runs tests (skipped if you already ran `npm test` after your last commit)
+
 ## Code conventions
 
 - **ES6 modules** with explicit `.js` extensions in all imports
@@ -43,11 +51,12 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ## Pull requests
 
-1. Create a feature branch from `main`
-2. Make your changes with conventional commits
-3. Ensure `npm run lint` and `npm run test` pass
-4. Open a PR against `main` — the template checklist will guide you
-5. CI runs ESLint (with inline annotations) and tests automatically
+1. Create an issue first to discuss the change
+2. Create a feature branch from `main`
+3. Make your changes with conventional commits
+4. Ensure `npm run lint` and `npm run test` pass (hooks enforce this automatically)
+5. Open a PR against `main` — the template checklist will guide you
+6. CI runs ESLint (with inline annotations on changed files) and tests automatically
 
 ## Architecture overview
 
