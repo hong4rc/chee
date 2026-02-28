@@ -69,6 +69,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     chrome.storage.sync.set({ showChart: chartCheckbox.checked });
   });
 
+  // Move list toggle
+  const moveListCheckbox = document.getElementById('show-move-list');
+  moveListCheckbox.checked = settings.showMoveList;
+  moveListCheckbox.addEventListener('change', () => {
+    chrome.storage.sync.set({ showMoveList: moveListCheckbox.checked });
+  });
+
   // Wait for complete toggle
   const waitCompleteCheckbox = document.getElementById('wait-for-complete');
   waitCompleteCheckbox.checked = settings.waitForComplete;
