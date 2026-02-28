@@ -53,6 +53,6 @@ export default [
     },
   },
   {
-    ignores: ['dist/', 'node_modules/', 'static/stockfish.js', 'static/stockfish.wasm'],
+    ignores: ['dist/', 'node_modules/', 'static/stockfish.js', 'static/stockfish.wasm', 'scripts/'],
   },
 ];

@@ -28,7 +28,7 @@
     "release:major": "release-it major",
     "pack": "npm run build && cd dist && zip -r ../chee-v$(node -p \"require('../package.json').version\").zip . -x '.*'",
     "publish:cws": "npm run pack && chrome-webstore-upload upload --source chee-v$(node -p \"require('./package.json').version\").zip --auto-publish",
-    "postinstall": "lefthook install"
+    "prepare": "lefthook install"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.4.2",
