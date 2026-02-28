@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: ESLint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: npm ci
+
+      - name: Get changed JS files
+        id: changed
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            FILES=$(git diff --name-only --diff-filter=ACMR ${{ github.event.pull_request.base.sha }}...${{ github.sha }} -- '*.js' '*.mjs' | xargs)
+          else
+            FILES=$(git diff --name-only --diff-filter=ACMR HEAD~1...HEAD -- '*.js' '*.mjs' | xargs)
+          fi
+          echo "files=$FILES" >> "$GITHUB_OUTPUT"
+
+      - name: Lint changed files
+        if: steps.changed.outputs.files != ''
+        run: |
+          echo "::add-matcher::.github/matchers/eslint.json"
+          npx eslint --format compact ${{ steps.changed.outputs.files }}
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: npm ci
+      - run: npm test
