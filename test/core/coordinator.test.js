@@ -3,10 +3,8 @@ import {
 } from 'vitest';
 import { AnalysisCoordinator } from '../../src/core/coordinator.js';
 import { AnalysisPlugin } from '../../src/core/plugin.js';
-import { STARTING_BOARD, boardFromFen } from '../helpers.js';
 import {
-  TURN_WHITE, TURN_BLACK,
-  EVT_READY, EVT_EVAL, EVT_ERROR, EVT_LINE_HOVER, EVT_LINE_LEAVE, EVT_PGN_COPY,
+  TURN_WHITE,
 } from '../../src/constants.js';
 
 // Mock globals needed by coordinator dependencies
@@ -281,7 +279,9 @@ describe('AnalysisCoordinator', () => {
       ]);
 
       const boardEl = {
-        tagName: 'DIV', id: 'board', className: 'board',
+        tagName: 'DIV',
+        id: 'board',
+        className: 'board',
         addEventListener: vi.fn(),
         removeEventListener: vi.fn(),
       };
@@ -304,7 +304,9 @@ describe('AnalysisCoordinator', () => {
       adapter.readPieces.mockReturnValue([]);
 
       const boardEl = {
-        tagName: 'DIV', id: 'board', className: 'board',
+        tagName: 'DIV',
+        id: 'board',
+        className: 'board',
         addEventListener: vi.fn(),
         removeEventListener: vi.fn(),
       };

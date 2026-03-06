@@ -78,13 +78,13 @@ describe('applyUciMove', () => {
   it('applies a normal pawn move', () => {
     const after = applyUciMove(STARTING_BOARD, 'e2e4');
     expect(after[6][4]).toBeNull(); // e2 is now empty
-    expect(after[4][4]).toBe('P');  // e4 has the pawn
+    expect(after[4][4]).toBe('P'); // e4 has the pawn
   });
 
   it('applies a capture move', () => {
     const board = boardFromFen('rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR');
     const after = applyUciMove(board, 'e4d5');
-    expect(after[3][3]).toBe('P');  // White pawn captured on d5
+    expect(after[3][3]).toBe('P'); // White pawn captured on d5
     expect(after[4][4]).toBeNull(); // e4 is now empty
   });
 
@@ -92,7 +92,7 @@ describe('applyUciMove', () => {
     // White pawn on e5, black pawn on d5 (just double-moved)
     const board = boardFromFen('rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR');
     const after = applyUciMove(board, 'e5d6');
-    expect(after[2][3]).toBe('P');  // White pawn on d6
+    expect(after[2][3]).toBe('P'); // White pawn on d6
     expect(after[3][4]).toBeNull(); // e5 now empty
     expect(after[3][3]).toBeNull(); // d5 captured pawn removed
   });
@@ -100,8 +100,8 @@ describe('applyUciMove', () => {
   it('applies kingside castling', () => {
     const board = boardFromFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R');
     const after = applyUciMove(board, 'e1g1');
-    expect(after[7][6]).toBe('K');  // King on g1
-    expect(after[7][5]).toBe('R');  // Rook on f1
+    expect(after[7][6]).toBe('K'); // King on g1
+    expect(after[7][5]).toBe('R'); // Rook on f1
     expect(after[7][4]).toBeNull(); // e1 empty
     expect(after[7][7]).toBeNull(); // h1 empty
   });
@@ -109,8 +109,8 @@ describe('applyUciMove', () => {
   it('applies queenside castling', () => {
     const board = boardFromFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R3KBNR');
     const after = applyUciMove(board, 'e1c1');
-    expect(after[7][2]).toBe('K');  // King on c1
-    expect(after[7][3]).toBe('R');  // Rook on d1
+    expect(after[7][2]).toBe('K'); // King on c1
+    expect(after[7][3]).toBe('R'); // Rook on d1
     expect(after[7][4]).toBeNull(); // e1 empty
     expect(after[7][0]).toBeNull(); // a1 empty
   });
@@ -118,14 +118,14 @@ describe('applyUciMove', () => {
   it('applies pawn promotion', () => {
     const board = boardFromFen('8/4P3/8/8/8/8/8/4K2k');
     const after = applyUciMove(board, 'e7e8q');
-    expect(after[0][4]).toBe('Q');  // Promoted to queen
+    expect(after[0][4]).toBe('Q'); // Promoted to queen
     expect(after[1][4]).toBeNull(); // e7 now empty
   });
 
   it('applies black pawn promotion', () => {
     const board = boardFromFen('4k2K/8/8/8/8/8/4p3/8');
     const after = applyUciMove(board, 'e2e1q');
-    expect(after[7][4]).toBe('q');  // Black promoted queen
+    expect(after[7][4]).toBe('q'); // Black promoted queen
   });
 
   it('does not mutate original board', () => {

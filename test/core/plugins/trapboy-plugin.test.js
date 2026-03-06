@@ -5,7 +5,7 @@ import { TrapboyPlugin } from '../../../src/core/plugins/trapboy-plugin.js';
 import { boardFromFen } from '../../helpers.js';
 import { applyUciMove } from '../../../src/core/san.js';
 import {
-  TURN_WHITE, TURN_BLACK,
+  TURN_WHITE,
   TRAPBOY_MIN_DEPTH, TRAPBOY_GREED_DEPTH,
   PLUGIN_TRAPBOY,
 } from '../../../src/constants.js';
@@ -320,7 +320,7 @@ describe('TrapboyPlugin', () => {
     });
 
     it('advances stepIndex when bait move is played', () => {
-      const { plugin, ctx, board } = setupConfirmedTrap();
+      const { plugin, board } = setupConfirmedTrap();
 
       // Simulate playing the bait move: Nf3-e5
       const boardAfterBait = applyUciMove(board, 'f3e5');
@@ -337,7 +337,7 @@ describe('TrapboyPlugin', () => {
     });
 
     it('clears trap when a different move is played', () => {
-      const { plugin, ctx, board } = setupConfirmedTrap();
+      const { plugin, board } = setupConfirmedTrap();
 
       // Simulate playing a different move: e4-e5 (not the bait)
       const boardAfterDeviation = applyUciMove(board, 'e4e5');
@@ -353,7 +353,7 @@ describe('TrapboyPlugin', () => {
     });
 
     it('clears trap when navigating before trap start', () => {
-      const { plugin, ctx, board } = setupConfirmedTrap();
+      const { plugin, board } = setupConfirmedTrap();
 
       // Simulate backward navigation before trap start: ply decreases below startPly
       const newCtx = makeRenderCtx();
@@ -367,7 +367,7 @@ describe('TrapboyPlugin', () => {
     });
 
     it('reverts stepIndex on take-back within trap', () => {
-      const { plugin, ctx, board } = setupConfirmedTrap();
+      const { plugin, board } = setupConfirmedTrap();
 
       // Play bait move to advance to step 1
       const boardAfterBait = applyUciMove(board, 'f3e5');
@@ -386,8 +386,8 @@ describe('TrapboyPlugin', () => {
     });
 
     it('clears trap when all steps are completed', () => {
-      const { plugin, ctx, board } = setupConfirmedTrap();
-      const steps = plugin._trapData.steps;
+      const { plugin, board } = setupConfirmedTrap();
+      const { steps } = plugin._trapData;
 
       // Walk through each step
       let currentBoard = board;

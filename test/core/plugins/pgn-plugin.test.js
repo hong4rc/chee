@@ -5,7 +5,7 @@ import { PgnPlugin } from '../../../src/core/plugins/pgn-plugin.js';
 import { boardFromFen, STARTING_BOARD } from '../../helpers.js';
 import {
   TURN_WHITE, TURN_BLACK,
-  LABEL_BEST, LABEL_BLUNDER, LABEL_BRILLIANT, LABEL_INACCURACY,
+  LABEL_BLUNDER, LABEL_BRILLIANT, LABEL_INACCURACY,
 } from '../../../src/constants.js';
 
 function makeBoardState(board, fen, ply, turn) {

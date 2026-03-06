@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { isSquareAttacked } from '../../src/core/attacks.js';
-import { STARTING_BOARD, emptyBoard, boardFromFen } from '../helpers.js';
+import { STARTING_BOARD, emptyBoard } from '../helpers.js';
 import { TURN_WHITE, TURN_BLACK } from '../../src/constants.js';
 
 describe('isSquareAttacked', () => {

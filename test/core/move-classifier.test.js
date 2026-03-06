@@ -1,15 +1,19 @@
-import { describe, it, expect, vi } from 'vitest';
+import {
+  describe, it, expect, vi,
+} from 'vitest';
 import { MoveClassifier } from '../../src/core/move-classifier.js';
 import { boardFromFen, STARTING_BOARD } from '../helpers.js';
 import {
   EVT_CLASSIFY_SHOW, EVT_CLASSIFY_CLEAR, EVT_CLASSIFY_LOCK, EVT_ACCURACY_UPDATE,
-  TURN_WHITE, TURN_BLACK, LABEL_BEST, LABEL_BOOK, LABEL_CRAZY,
+  LABEL_BEST, LABEL_BOOK,
 } from '../../src/constants.js';
 
 function makeClassifier(settings = {}) {
   return new MoveClassifier({
     adapter: {},
-    settings: { showClassifications: true, showCrazy: false, showBookMoves: false, ...settings },
+    settings: {
+      showClassifications: true, showCrazy: false, showBookMoves: false, ...settings,
+    },
   });
 }
 
@@ -186,7 +190,8 @@ describe('MoveClassifier', () => {
     mc.onEval({
       depth: 12,
       lines: [{
-        score: -20, mate: null,
+        score: -20,
+        mate: null,
         pv: ['d7d5', 'e4d5', 'c8g4', 'f1e2'],
       }],
     });

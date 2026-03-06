@@ -107,9 +107,7 @@ describe('HintPlugin', () => {
         lines: [{ score: 30, mate: null, pv: ['e2e4'] }],
       }, {}, ctx);
 
-      expect(ctx.arrow.drawHint).toHaveBeenCalledWith(
-        'e2e4', false, ARROW_COLOR_WHITE, null, HINT_ARROW_OPACITY,
-      );
+      expect(ctx.arrow.drawHint).toHaveBeenCalledWith('e2e4', false, ARROW_COLOR_WHITE, null, HINT_ARROW_OPACITY);
     });
 
     it('draws best move arrow with team color (black)', () => {
@@ -122,9 +120,7 @@ describe('HintPlugin', () => {
         lines: [{ score: -30, mate: null, pv: ['e7e5'] }],
       }, {}, ctx);
 
-      expect(ctx.arrow.drawHint).toHaveBeenCalledWith(
-        'e7e5', false, ARROW_COLOR_BLACK, null, HINT_ARROW_OPACITY,
-      );
+      expect(ctx.arrow.drawHint).toHaveBeenCalledWith('e7e5', false, ARROW_COLOR_BLACK, null, HINT_ARROW_OPACITY);
     });
 
     it('skips when waitForComplete=true and data.complete=false', () => {

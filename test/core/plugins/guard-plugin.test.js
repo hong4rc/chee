@@ -1,7 +1,9 @@
-import { describe, it, expect, vi } from 'vitest';
+import {
+  describe, it, expect, vi,
+} from 'vitest';
 import { GuardPlugin } from '../../../src/core/plugins/guard-plugin.js';
 import { STARTING_BOARD } from '../../helpers.js';
-import { TURN_WHITE, TURN_BLACK } from '../../../src/constants.js';
+import { TURN_WHITE } from '../../../src/constants.js';
 
 function makeGuard(showGuard = true) {
   const g = new GuardPlugin({ settings: { showGuard } });

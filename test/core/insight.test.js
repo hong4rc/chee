@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { detectInsight } from '../../src/core/insight.js';
 import { boardFromFen, STARTING_BOARD } from '../helpers.js';
-import { TURN_WHITE, TURN_BLACK } from '../../src/constants.js';
+import { TURN_WHITE } from '../../src/constants.js';
 
 describe('detectInsight', () => {
   it('detects right piece, wrong square', () => {

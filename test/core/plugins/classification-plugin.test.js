@@ -3,7 +3,7 @@ import {
 } from 'vitest';
 import { ClassificationPlugin } from '../../../src/core/plugins/classification-plugin.js';
 import { STARTING_BOARD, boardFromFen } from '../../helpers.js';
-import { EVT_CLASSIFY_CLEAR, EVT_CLASSIFY_LOCK } from '../../../src/constants.js';
+// constants imported for potential future use
 
 function makePlugin(overrides = {}) {
   return new ClassificationPlugin({

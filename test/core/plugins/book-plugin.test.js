@@ -3,7 +3,7 @@ import {
 } from 'vitest';
 import { BookPlugin } from '../../../src/core/plugins/book-plugin.js';
 import { STARTING_BOARD, boardFromFen } from '../../helpers.js';
-import { TURN_WHITE, TURN_BLACK } from '../../../src/constants.js';
+import { TURN_WHITE } from '../../../src/constants.js';
 
 function makeRenderCtx() {
   return {
