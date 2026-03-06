@@ -5,6 +5,7 @@ import { Emitter } from '../lib/emitter.js';
 import { HeaderRenderer } from './renderers/header-renderer.js';
 import { ChartRenderer } from './renderers/chart-renderer.js';
 import { LineRenderer } from './renderers/line-renderer.js';
+import { MoveListRenderer } from './renderers/move-list-renderer.js';
 import {
   PANEL_ID, NUM_LINES as DEFAULT_NUM_LINES,
   EVT_LINE_HOVER, EVT_LINE_LEAVE, EVT_PGN_COPY,
@@ -41,6 +42,7 @@ export class Panel extends Emitter {
     this._header = new HeaderRenderer();
     this._chart = new ChartRenderer();
     this._lineRenderer = new LineRenderer(numLines);
+    this._moveList = new MoveListRenderer();
   }
 
   mount(anchor) {
@@ -59,6 +61,7 @@ export class Panel extends Emitter {
       this._header.createDOM(),
       this._lineRenderer.createDOM(),
       this._chart.createDOM(),
+      this._moveList.createDOM(),
       createStatus(),
       resizeHandle,
     );
@@ -72,6 +75,7 @@ export class Panel extends Emitter {
     this._header.bind(this._el);
     this._chart.bind(this._el);
     this._lineRenderer.bind(this._el);
+    this._moveList.bind(this._el);
     this._attachListeners();
     this._positionDefault();
     this._startPositionTracking();
@@ -89,6 +93,7 @@ export class Panel extends Emitter {
     this._header.destroy();
     this._chart.destroy();
     this._lineRenderer.destroy();
+    this._moveList.destroy();
     this._toggleEl = null;
     this._copyFenEl = null;
     this._copyPgnEl = null;
@@ -147,6 +152,15 @@ export class Panel extends Emitter {
 
   clearScores() {
     this._chart.clearScores();
+  }
+
+  updateMoveList(moves, classifications, currentPly) {
+    if (!this._el) return;
+    this._moveList.updateMoves(moves, classifications, currentPly);
+  }
+
+  setShowMoveList(show) {
+    this._moveList.setVisible(show);
   }
 
   setShowChart(show) {

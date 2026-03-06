@@ -90,6 +90,7 @@ export const SETTINGS_DEFAULTS = {
   showGuard: false,
   showTrapboy: false,
   showBookMoves: true,
+  showMoveList: false,
   showChart: true,
   panelMinimized: false,
   panelHidden: false,

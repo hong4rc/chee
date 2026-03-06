@@ -100,6 +100,7 @@ const log = createDebug('chee:content');
     if (changes.showGuard) update.showGuard = changes.showGuard.newValue;
     if (changes.showTrapboy) update.showTrapboy = changes.showTrapboy.newValue;
     if (changes.showChart) update.showChart = changes.showChart.newValue;
+    if (changes.showMoveList) update.showMoveList = changes.showMoveList.newValue;
     if (changes.waitForComplete) update.waitForComplete = changes.waitForComplete.newValue;
     if (changes.debugMode) update.debugMode = changes.debugMode.newValue;
     if (isDailyPage && changes.enableDaily) {

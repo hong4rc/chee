@@ -38,6 +38,7 @@ export class AnalysisCoordinator {
     this._plugins = [];
     this._persistentLayers = [];
     this._secondaryAnalysis = null;
+    this._piecesFingerprint = null;
   }
 
   _cacheKey(fen, depth) {
@@ -61,6 +62,7 @@ export class AnalysisCoordinator {
     this._panel.mount(this._adapter.getPanelAnchor(boardEl));
     applyTheme(this._panel.el, this._settings.theme);
     this._panel.setShowChart(this._settings.showChart);
+    this._panel.setShowMoveList(this._settings.showMoveList);
     this._panel.restoreState(
       this._settings.panelMinimized,
       this._settings.panelHidden,
@@ -119,6 +121,7 @@ export class AnalysisCoordinator {
 
     if (newSettings.theme && this._panel.el) applyTheme(this._panel.el, this._settings.theme);
     if ('showChart' in newSettings) this._panel.setShowChart(newSettings.showChart);
+    if ('showMoveList' in newSettings) this._panel.setShowMoveList(newSettings.showMoveList);
 
     this._notifyPlugins('onSettingsChange', newSettings);
 
@@ -177,6 +180,13 @@ export class AnalysisCoordinator {
     return this._plugins.find((p) => p.name === PLUGIN_GUARD);
   }
 
+  _updateMoveList() {
+    const pgnPlugin = this._getPgnPlugin();
+    if (!pgnPlugin) return;
+    const { moves, classifications } = pgnPlugin.getMoveList();
+    this._panel.updateMoveList(moves, classifications, this._boardState.ply);
+  }
+
   _detectTurnFromHighlights(board) {
     const lastMove = this._adapter.detectLastMove(this._boardState.boardEl);
     if (!lastMove) return null;
@@ -186,11 +196,26 @@ export class AnalysisCoordinator {
     return piece === piece.toUpperCase() ? TURN_BLACK : TURN_WHITE;
   }
 
+  _buildPiecesFingerprint(pieces) {
+    let fp = '';
+    for (let i = 0; i < pieces.length; i++) {
+      const p = pieces[i];
+      fp += p.piece;
+      fp += p.file;
+      fp += p.rank;
+    }
+    return fp;
+  }
+
   _readFen() {
     if (!this._boardState.boardEl) return null;
 
     const pieces = this._adapter.readPieces(this._boardState.boardEl);
     if (pieces.length === 0) return null;
+
+    const fingerprint = this._buildPiecesFingerprint(pieces);
+    if (fingerprint === this._piecesFingerprint) return null;
+    this._piecesFingerprint = fingerprint;
 
     const board = times(BOARD_SIZE, () => times(BOARD_SIZE, constant(null)));
     forEach(pieces, (p) => {
@@ -245,6 +270,7 @@ export class AnalysisCoordinator {
       const fen = this._readFen();
       if (!fen) return;
       this._notifyPlugins('onBoardChange', this._boardState, this._createRenderCtx());
+      this._updateMoveList();
       this._activeFen = fen;
 
       const cached = this._cacheLookup(fen);
@@ -291,6 +317,7 @@ export class AnalysisCoordinator {
       }
       const pgnPlugin = this._getPgnPlugin();
       if (pgnPlugin) pgnPlugin.receiveClassification(this._boardState.ply, result);
+      this._updateMoveList();
     });
 
     classifier.on(EVT_ACCURACY_UPDATE, (pct) => {

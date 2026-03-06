@@ -79,7 +79,16 @@ export class PgnPlugin extends AnalysisPlugin {
   }
 
   receiveClassification(ply, result) {
-    this._classifications.set(ply, { label: result.label, symbol: result.symbol });
+    const lastMove = this._moves[this._moves.length - 1];
+    const key = lastMove ? lastMove.ply : ply;
+    this._classifications.set(key, { label: result.label, symbol: result.symbol });
+  }
+
+  getMoveList() {
+    return {
+      moves: this._moves,
+      classifications: this._classifications,
+    };
   }
 
   onEngineReset() {
