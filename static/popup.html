@@ -105,6 +105,28 @@
       accent-color: var(--chee-green);
       cursor: pointer;
     }
+    .chee-toggle-row .icon {
+      font-size: 13px;
+      width: 16px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .puzzle-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 12px;
+    }
+    .puzzle-col-header {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--chee-overlay0);
+      margin-bottom: 6px;
+      padding-bottom: 3px;
+      border-bottom: 1px solid var(--chee-surface1);
+    }
+    .puzzle-grid .chee-toggle-row {
+      margin-bottom: 6px;
+    }
   </style>
 </head>
 <body>
@@ -134,37 +156,37 @@
 
     <label class="chee-toggle-row">
       <input type="checkbox" data-key="showClassifications">
-      Move classifications
+      <span class="icon">&#9733;</span> Classifications
     </label>
 
     <label class="chee-toggle-row">
       <input type="checkbox" data-key="showBookMoves">
-      Book moves
+      <span class="icon">&#128214;</span> Book moves
     </label>
 
     <label class="chee-toggle-row">
       <input type="checkbox" data-key="showCrazy">
-      Crazy sacrifice detection
+      <span class="icon">&#9889;</span> Crazy sacrifice
     </label>
 
     <label class="chee-toggle-row">
       <input type="checkbox" data-key="showBestMove">
-      Show best move arrow
+      <span class="icon">&#10132;</span> Best move arrow
     </label>
 
     <label class="chee-toggle-row">
       <input type="checkbox" data-key="showGuard">
-      Blunder guard
+      <span class="icon">&#128737;</span> Blunder guard
     </label>
 
     <!-- <label class="chee-toggle-row">
       <input type="checkbox" data-key="showTrapboy">
-      Trapboy mode
+      <span class="icon">&#129683;</span> Trapboy mode
     </label> -->
 
     <label class="chee-toggle-row">
       <input type="checkbox" data-key="showChart">
-      Eval chart
+      <span class="icon">&#128200;</span> Eval chart
     </label>
 
     <label class="chee-toggle-row">
@@ -176,46 +198,50 @@
       <button data-val="21">21</button>
       <button data-val="22">22</button>
     </div>
-  </div>
-
-  <div id="tab-puzzles" class="tab-content">
-    <label class="chee-toggle-row">
-      <input type="checkbox" data-key="enablePuzzles">
-      Puzzles
-    </label>
-
-    <label class="chee-toggle-row">
-      <input type="checkbox" data-key="enablePuzzleRush">
-      Rush
-    </label>
-
-    <label class="chee-toggle-row">
-      <input type="checkbox" data-key="enablePuzzleBattle">
-      Battle
-    </label>
-
-    <label class="chee-toggle-row">
-      <input type="checkbox" data-key="enablePuzzleLearning">
-      Learning
-    </label>
-
-    <label class="chee-toggle-row">
-      <input type="checkbox" data-key="enableDaily">
-      Daily
-    </label>
-
-    <label>Hint depth</label>
-    <div class="btn-group" data-key="puzzleDepth">
-      <button data-val="15">15</button>
-      <button data-val="17">17</button>
-      <button data-val="19">19</button>
-      <button data-val="21">21</button>
-    </div>
 
     <label class="chee-toggle-row">
       <input type="checkbox" data-key="debugMode">
-      Debug logging
+      <span class="icon">&#128736;</span> Debug logging
     </label>
+  </div>
+
+  <div id="tab-puzzles" class="tab-content">
+    <div class="puzzle-grid">
+      <div>
+        <div class="puzzle-col-header">chess.com</div>
+        <label class="chee-toggle-row">
+          <input type="checkbox" data-key="enablePuzzles"> Puzzles
+        </label>
+        <label class="chee-toggle-row">
+          <input type="checkbox" data-key="enablePuzzleRush"> Rush
+        </label>
+        <label class="chee-toggle-row">
+          <input type="checkbox" data-key="enablePuzzleBattle"> Battle
+        </label>
+        <label class="chee-toggle-row">
+          <input type="checkbox" data-key="enablePuzzleLearning"> Learning
+        </label>
+        <label class="chee-toggle-row">
+          <input type="checkbox" data-key="enableDaily"> Daily
+        </label>
+      </div>
+      <div>
+        <div class="puzzle-col-header">lichess</div>
+        <label class="chee-toggle-row">
+          <input type="checkbox" data-key="enableLichessTraining"> Training
+        </label>
+        <label class="chee-toggle-row">
+          <input type="checkbox" data-key="enableLichessStorm"> Storm
+        </label>
+        <label class="chee-toggle-row">
+          <input type="checkbox" data-key="enableLichessRacer"> Racer
+        </label>
+        <label class="chee-toggle-row">
+          <input type="checkbox" data-key="enableLichessStreak"> Streak
+        </label>
+      </div>
+    </div>
+
   </div>
 
   <script src="popup.js"></script>

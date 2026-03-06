@@ -102,7 +102,10 @@ export const SETTINGS_DEFAULTS = {
   enablePuzzleBattle: false,
   enablePuzzleLearning: false,
   enableDaily: true,
-  puzzleDepth: 19,
+  enableLichessTraining: false,
+  enableLichessStorm: false,
+  enableLichessRacer: false,
+  enableLichessStreak: false,
 };
 
 // ─── Classification ─────────────────────────────────────────

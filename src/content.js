@@ -28,36 +28,35 @@ const log = createDebug('chee:content');
   log.info('settings:', settings);
 
   const { href } = window.location;
-  const isPuzzleRush = /chess\.com\/puzzles\/rush/.test(href);
-  const isPuzzleBattle = /chess\.com\/puzzles\/battle/.test(href);
-  const isPuzzleLearning = /chess\.com\/puzzles\/learning/.test(href);
-  const isPuzzleRated = !isPuzzleRush && !isPuzzleBattle && !isPuzzleLearning && /chess\.com\/puzzles/.test(href);
-  const isDailyPage = /chess\.com\/daily/.test(href);
-  const isPuzzlePage = isPuzzleRated || isPuzzleRush || isPuzzleBattle || isPuzzleLearning;
-  const isHintPage = isPuzzlePage || isDailyPage;
-  if (isPuzzleRated && !settings.enablePuzzles) {
-    log.info('Puzzle page detected but enablePuzzles is off, exiting');
-    return;
-  }
-  if (isPuzzleRush && !settings.enablePuzzleRush) {
-    log.info('Puzzle Rush detected but enablePuzzleRush is off, exiting');
-    return;
-  }
-  if (isPuzzleBattle && !settings.enablePuzzleBattle) {
-    log.info('Puzzle Battle detected but enablePuzzleBattle is off, exiting');
-    return;
-  }
-  if (isPuzzleLearning && !settings.enablePuzzleLearning) {
-    log.info('Puzzle Learning detected but enablePuzzleLearning is off, exiting');
-    return;
-  }
-  if (isDailyPage && !settings.enableDaily) {
-    log.info('Daily page detected but enableDaily is off, exiting');
+
+  // Hint pages: each entry defines a URL pattern, settings key, and label.
+  // To add a new hint page, just add an entry here + a toggle in popup.html + default in constants.js.
+  const HINT_PAGES = [
+    { pattern: /chess\.com\/puzzles\/rush/, key: 'enablePuzzleRush', label: 'Puzzle Rush' },
+    { pattern: /chess\.com\/puzzles\/battle/, key: 'enablePuzzleBattle', label: 'Puzzle Battle' },
+    { pattern: /chess\.com\/puzzles\/learning/, key: 'enablePuzzleLearning', label: 'Puzzle Learning' },
+    { pattern: /chess\.com\/puzzles/, key: 'enablePuzzles', label: 'Puzzle page' },
+    {
+      pattern: /chess\.com\/daily/, key: 'enableDaily', label: 'Daily page', daily: true,
+    },
+    { pattern: /lichess\.org\/training/, key: 'enableLichessTraining', label: 'Lichess Training' },
+    { pattern: /lichess\.org\/storm/, key: 'enableLichessStorm', label: 'Lichess Storm' },
+    { pattern: /lichess\.org\/racer/, key: 'enableLichessRacer', label: 'Lichess Racer' },
+    { pattern: /lichess\.org\/streak/, key: 'enableLichessStreak', label: 'Lichess Streak' },
+  ];
+
+  // First match wins (specific patterns before general ones)
+  const hintMatch = HINT_PAGES.find((p) => p.pattern.test(href));
+  const isHintPage = !!hintMatch;
+  const isDailyPage = !!hintMatch?.daily;
+
+  if (hintMatch && !settings[hintMatch.key]) {
+    log.info(`${hintMatch.label} detected but ${hintMatch.key} is off, exiting`);
     return;
   }
   if (isHintPage) {
     settings.numLines = 1;
-    settings.searchDepth = settings.puzzleDepth;
+    settings.searchDepth = 15;
     settings.showBestMove = true;
     settings.showClassifications = false;
     settings.showChart = false;
