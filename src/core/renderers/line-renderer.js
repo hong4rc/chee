@@ -2,6 +2,7 @@
 
 import { forEach, times, take } from 'lodash-es';
 import { el } from '../../lib/dom.js';
+import { advantageCls, formatMate, formatCp } from '../../lib/format.js';
 import { Emitter } from '../../lib/emitter.js';
 import { pvToSan } from '../san.js';
 import {
@@ -9,21 +10,6 @@ import {
   TURN_BLACK,
   EVT_LINE_HOVER, EVT_LINE_LEAVE,
 } from '../../constants.js';
-
-const CLS_WHITE_ADV = 'white-advantage';
-const CLS_BLACK_ADV = 'black-advantage';
-
-function advantageCls(isWhite) {
-  return isWhite ? CLS_WHITE_ADV : CLS_BLACK_ADV;
-}
-
-function formatMate(wMate) {
-  return (wMate > 0 ? 'M' : '-M') + Math.abs(wMate);
-}
-
-function formatCp(cp) {
-  return (cp >= 0 ? '+' : '') + cp.toFixed(1);
-}
 
 function createLine(rank) {
   const line = el('div', 'chee-line');

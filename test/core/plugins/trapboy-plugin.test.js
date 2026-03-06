@@ -16,6 +16,16 @@ beforeEach(() => {
     setItem: vi.fn(),
     removeItem: vi.fn(),
   });
+  vi.stubGlobal('document', {
+    createElement: vi.fn((tag) => ({
+      tagName: tag,
+      className: '',
+      textContent: '',
+      classList: { add: vi.fn() },
+      appendChild: vi.fn(),
+      append: vi.fn(),
+    })),
+  });
 });
 
 function makeArrow() {
@@ -27,9 +37,8 @@ function makeArrow() {
 
 function makePanel() {
   return {
-    showTrap: vi.fn(),
-    showTrapStatus: vi.fn(),
-    clearTrap: vi.fn(),
+    setSlot: vi.fn(),
+    clearSlot: vi.fn(),
   };
 }
 
@@ -41,17 +50,12 @@ function makeRenderCtx() {
   };
 }
 
-function makeCoordinator() {
-  return {
-    requestSecondaryAnalysis: vi.fn(),
-  };
-}
-
 function makePlugin(overrides = {}) {
-  const coordinator = makeCoordinator();
+  const requestSecondaryAnalysis = vi.fn();
   const settings = { showTrapboy: true, ...overrides };
-  const plugin = new TrapboyPlugin({ settings, coordinator });
-  return { plugin, coordinator, settings };
+  const plugin = new TrapboyPlugin({ settings });
+  plugin.setup({ requestSecondaryAnalysis });
+  return { plugin, requestSecondaryAnalysis, settings };
 }
 
 function makeBoardState(opts = {}) {
@@ -77,7 +81,7 @@ describe('TrapboyPlugin', () => {
       expect(ctx.arrow.clearLayer).toHaveBeenCalledWith('trapboy-bait');
       expect(ctx.arrow.clearLayer).toHaveBeenCalledWith('trapboy-greed');
       expect(ctx.arrow.clearLayer).toHaveBeenCalledWith('trapboy-god');
-      expect(ctx.panel.clearTrap).toHaveBeenCalled();
+      expect(ctx.panel.clearSlot).toHaveBeenCalledWith('trapboy');
     });
 
     it('stores prevBoard and prevPly', () => {
@@ -92,7 +96,7 @@ describe('TrapboyPlugin', () => {
 
   describe('onEval', () => {
     it('does nothing when showTrapboy is false', () => {
-      const { plugin, coordinator } = makePlugin({ showTrapboy: false });
+      const { plugin, requestSecondaryAnalysis } = makePlugin({ showTrapboy: false });
       const ctx = makeRenderCtx();
 
       plugin.onEval({
@@ -101,11 +105,11 @@ describe('TrapboyPlugin', () => {
         lines: [{ score: 100, mate: null, pv: ['e2e4', 'd7d5'] }],
       }, makeBoardState(), ctx);
 
-      expect(coordinator.requestSecondaryAnalysis).not.toHaveBeenCalled();
+      expect(requestSecondaryAnalysis).not.toHaveBeenCalled();
     });
 
     it('scans even when data is not complete (no wait for full depth)', () => {
-      const { plugin, coordinator } = makePlugin();
+      const { plugin, requestSecondaryAnalysis } = makePlugin();
       const ctx = makeRenderCtx();
 
       // At sufficient depth, scans regardless of complete flag
@@ -126,11 +130,11 @@ describe('TrapboyPlugin', () => {
         }],
       }, bs, ctx);
 
-      expect(coordinator.requestSecondaryAnalysis).toHaveBeenCalled();
+      expect(requestSecondaryAnalysis).toHaveBeenCalled();
     });
 
     it('shows searching status when depth is below minimum', () => {
-      const { plugin, coordinator } = makePlugin();
+      const { plugin, requestSecondaryAnalysis } = makePlugin();
       const ctx = makeRenderCtx();
 
       plugin.onEval({
@@ -139,12 +143,12 @@ describe('TrapboyPlugin', () => {
         lines: [{ score: 100, mate: null, pv: ['e2e4', 'd7d5'] }],
       }, makeBoardState(), ctx);
 
-      expect(coordinator.requestSecondaryAnalysis).not.toHaveBeenCalled();
-      expect(ctx.panel.showTrapStatus).toHaveBeenCalledWith('Searching...');
+      expect(requestSecondaryAnalysis).not.toHaveBeenCalled();
+      expect(ctx.panel.setSlot).toHaveBeenCalledWith('trapboy', expect.any(Object));
     });
 
     it('skips scan when phase2 is pending', () => {
-      const { plugin, coordinator } = makePlugin();
+      const { plugin, requestSecondaryAnalysis } = makePlugin();
       const ctx = makeRenderCtx();
 
       plugin._phase2Pending = true;
@@ -155,11 +159,11 @@ describe('TrapboyPlugin', () => {
         lines: [{ score: 100, mate: null, pv: ['e2e4', 'd7d5'] }],
       }, makeBoardState(), ctx);
 
-      expect(coordinator.requestSecondaryAnalysis).not.toHaveBeenCalled();
+      expect(requestSecondaryAnalysis).not.toHaveBeenCalled();
     });
 
     it('requests secondary analysis when sacrifice is detected', () => {
-      const { plugin, coordinator } = makePlugin();
+      const { plugin, requestSecondaryAnalysis } = makePlugin();
       const ctx = makeRenderCtx();
 
       // White knight on f3, black pawn on d6 attacks e5 after Nf3-e5
@@ -180,14 +184,14 @@ describe('TrapboyPlugin', () => {
         }],
       }, bs, ctx);
 
-      expect(coordinator.requestSecondaryAnalysis).toHaveBeenCalled();
-      const call = coordinator.requestSecondaryAnalysis.mock.calls[0];
+      expect(requestSecondaryAnalysis).toHaveBeenCalled();
+      const call = requestSecondaryAnalysis.mock.calls[0];
       expect(call[1]).toBe(TRAPBOY_GREED_DEPTH);
       expect(typeof call[2]).toBe('function');
     });
 
     it('skips when god-mode equals greedy capture', () => {
-      const { plugin, coordinator } = makePlugin();
+      const { plugin, requestSecondaryAnalysis } = makePlugin();
       const ctx = makeRenderCtx();
 
       const customBoard = boardFromFen('rnbqkb1r/ppp1pppp/3p4/8/4P3/5N2/PPPP1PPP/RNBQKB1R');
@@ -207,11 +211,11 @@ describe('TrapboyPlugin', () => {
         }],
       }, bs, ctx);
 
-      expect(coordinator.requestSecondaryAnalysis).not.toHaveBeenCalled();
+      expect(requestSecondaryAnalysis).not.toHaveBeenCalled();
     });
 
     it('does nothing when no lines have enough PV moves', () => {
-      const { plugin, coordinator } = makePlugin();
+      const { plugin, requestSecondaryAnalysis } = makePlugin();
       const ctx = makeRenderCtx();
 
       plugin.onEval({
@@ -220,11 +224,11 @@ describe('TrapboyPlugin', () => {
         lines: [{ score: 100, mate: null, pv: ['e2e4'] }],
       }, makeBoardState(), ctx);
 
-      expect(coordinator.requestSecondaryAnalysis).not.toHaveBeenCalled();
+      expect(requestSecondaryAnalysis).not.toHaveBeenCalled();
     });
 
     it('skips detection when mid-trap tracking', () => {
-      const { plugin, coordinator } = makePlugin();
+      const { plugin, requestSecondaryAnalysis } = makePlugin();
       const ctx = makeRenderCtx();
 
       // Set up existing trap data
@@ -252,13 +256,13 @@ describe('TrapboyPlugin', () => {
         }],
       }, bs, ctx);
 
-      expect(coordinator.requestSecondaryAnalysis).not.toHaveBeenCalled();
+      expect(requestSecondaryAnalysis).not.toHaveBeenCalled();
     });
   });
 
   describe('trap tracking', () => {
     function setupConfirmedTrap() {
-      const { plugin, coordinator } = makePlugin();
+      const { plugin, requestSecondaryAnalysis } = makePlugin();
       const ctx = makeRenderCtx();
 
       // Board: white knight on f3, black pawn on d6
@@ -285,7 +289,7 @@ describe('TrapboyPlugin', () => {
       }, bs, ctx);
 
       // Get the phase2 callback and invoke it with a winning score
-      const phase2Callback = coordinator.requestSecondaryAnalysis.mock.calls[0][2];
+      const phase2Callback = requestSecondaryAnalysis.mock.calls[0][2];
       phase2Callback({
         complete: true,
         depth: TRAPBOY_GREED_DEPTH,
@@ -309,14 +313,10 @@ describe('TrapboyPlugin', () => {
       expect(plugin._trapData.steps.length).toBeGreaterThanOrEqual(2);
     });
 
-    it('calls panel.showTrap with steps array', () => {
-      const { plugin, ctx } = setupConfirmedTrap();
+    it('calls panel.setSlot with trapboy content', () => {
+      const { ctx } = setupConfirmedTrap();
 
-      expect(ctx.panel.showTrap).toHaveBeenCalled();
-      const call = ctx.panel.showTrap.mock.calls[0];
-      expect(Array.isArray(call[0])).toBe(true); // steps
-      expect(call[1]).toBe(0); // stepIndex
-      expect(typeof call[2]).toBe('string'); // godUci
+      expect(ctx.panel.setSlot).toHaveBeenCalledWith('trapboy', expect.any(Object));
     });
 
     it('advances stepIndex when bait move is played', () => {
@@ -333,7 +333,7 @@ describe('TrapboyPlugin', () => {
 
       expect(plugin._trapData).not.toBeNull();
       expect(plugin._trapData.stepIndex).toBe(1);
-      expect(newCtx.panel.showTrap).toHaveBeenCalled();
+      expect(newCtx.panel.setSlot).toHaveBeenCalledWith('trapboy', expect.any(Object));
     });
 
     it('clears trap when a different move is played', () => {
@@ -349,7 +349,7 @@ describe('TrapboyPlugin', () => {
       }, newCtx);
 
       expect(plugin._trapData).toBeNull();
-      expect(newCtx.panel.clearTrap).toHaveBeenCalled();
+      expect(newCtx.panel.clearSlot).toHaveBeenCalledWith('trapboy');
     });
 
     it('clears trap when navigating before trap start', () => {
@@ -363,7 +363,7 @@ describe('TrapboyPlugin', () => {
       }, newCtx);
 
       expect(plugin._trapData).toBeNull();
-      expect(newCtx.panel.clearTrap).toHaveBeenCalled();
+      expect(newCtx.panel.clearSlot).toHaveBeenCalledWith('trapboy');
     });
 
     it('reverts stepIndex on take-back within trap', () => {
@@ -382,7 +382,7 @@ describe('TrapboyPlugin', () => {
       // Should revert to step 0, not clear
       expect(plugin._trapData).not.toBeNull();
       expect(plugin._trapData.stepIndex).toBe(0);
-      expect(ctx3.panel.showTrap).toHaveBeenCalled();
+      expect(ctx3.panel.setSlot).toHaveBeenCalledWith('trapboy', expect.any(Object));
     });
 
     it('clears trap when all steps are completed', () => {

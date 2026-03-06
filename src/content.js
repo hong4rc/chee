@@ -81,7 +81,7 @@ const log = createDebug('chee:content');
     coordinator.registerPlugin(new BookPlugin({ settings }));
     coordinator.registerPlugin(new PgnPlugin());
     coordinator.registerPlugin(new GuardPlugin({ settings }));
-    // coordinator.registerPlugin(new TrapboyPlugin({ settings, coordinator }));
+    // coordinator.registerPlugin(new TrapboyPlugin({ settings }));
   }
   coordinator.registerPlugin(new HintPlugin({ settings }));
 

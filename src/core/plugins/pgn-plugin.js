@@ -1,12 +1,12 @@
 // PGN export plugin: accumulates moves, evals, and classifications during analysis.
-// Exports an annotated PGN string on demand.
+// Self-contained — handles PGN copy via onPanelEvent, receives classifications via onPluginEvent.
 
 import createDebug from '../../lib/debug.js';
 import { AnalysisPlugin } from '../plugin.js';
 import { boardDiffToUci } from '../board-diff.js';
 import { uciToSan } from '../san.js';
 import {
-  PLUGIN_PGN, TURN_WHITE, CENTIPAWN_DIVISOR, PGN_NAGS,
+  PLUGIN_PGN, TURN_WHITE, CENTIPAWN_DIVISOR, PGN_NAGS, EVT_PGN_COPY,
 } from '../../constants.js';
 
 const log = createDebug('chee:pgn');
@@ -40,6 +40,11 @@ export class PgnPlugin extends AnalysisPlugin {
     this._prevPly = 0;
     this._startFen = null;
     this._initialised = false;
+    this._panel = null;
+  }
+
+  setup({ panel }) {
+    this._panel = panel;
   }
 
   onBoardChange(boardState) {
@@ -78,8 +83,22 @@ export class PgnPlugin extends AnalysisPlugin {
     }
   }
 
-  receiveClassification(ply, result) {
-    this._classifications.set(ply, { label: result.label, symbol: result.symbol });
+  onPluginEvent(eventName, data) {
+    if (eventName === 'classification:lock') {
+      this._classifications.set(data.ply, { label: data.result.label, symbol: data.result.symbol });
+    }
+  }
+
+  onPanelEvent(eventName) {
+    if (eventName !== EVT_PGN_COPY) return;
+    const pgn = this.exportPgn();
+    const btn = this._panel && this._panel.el && this._panel.el.querySelector('.chee-copy-pgn');
+    navigator.clipboard.writeText(pgn).then(() => {
+      if (btn) {
+        btn.textContent = '\u2713';
+        setTimeout(() => { btn.textContent = 'PGN'; }, 1000);
+      }
+    });
   }
 
   onEngineReset() {

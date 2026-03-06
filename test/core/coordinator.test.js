@@ -7,7 +7,6 @@ import { STARTING_BOARD, boardFromFen } from '../helpers.js';
 import {
   TURN_WHITE, TURN_BLACK,
   EVT_READY, EVT_EVAL, EVT_ERROR, EVT_LINE_HOVER, EVT_LINE_LEAVE, EVT_PGN_COPY,
-  PLUGIN_PGN, PLUGIN_GUARD, PLUGIN_CLASSIFICATION,
 } from '../../src/constants.js';
 
 // Mock globals needed by coordinator dependencies

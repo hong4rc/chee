@@ -95,14 +95,14 @@ describe('PgnPlugin', () => {
     });
   });
 
-  describe('receiveClassification', () => {
+  describe('onPluginEvent classification:lock', () => {
     it('stores classification for ply', () => {
       const pgn = new PgnPlugin();
       pgn.onBoardChange(makeBoardState(STARTING_BOARD, 'startFen', 0, TURN_WHITE));
       const afterE4 = boardFromFen('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR');
       pgn.onBoardChange(makeBoardState(afterE4, 'e4Fen', 1, TURN_BLACK));
 
-      pgn.receiveClassification(0, { label: LABEL_BLUNDER, symbol: '??' });
+      pgn.onPluginEvent('classification:lock', { ply: 0, result: { label: LABEL_BLUNDER, symbol: '??' } });
 
       const result = pgn.exportPgn();
       expect(result).toContain('e4??');
@@ -179,7 +179,7 @@ describe('PgnPlugin', () => {
       const afterE4 = boardFromFen('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR');
       pgn.onBoardChange(makeBoardState(afterE4, 'e4Fen', 1, TURN_BLACK));
 
-      pgn.receiveClassification(0, { label: LABEL_BRILLIANT, symbol: '!!' });
+      pgn.onPluginEvent('classification:lock', { ply: 0, result: { label: LABEL_BRILLIANT, symbol: '!!' } });
       const result = pgn.exportPgn();
       expect(result).toContain('e4!!');
       expect(result).toContain('$3');
@@ -191,7 +191,7 @@ describe('PgnPlugin', () => {
       const afterE4 = boardFromFen('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR');
       pgn.onBoardChange(makeBoardState(afterE4, 'e4Fen', 1, TURN_BLACK));
 
-      pgn.receiveClassification(0, { label: LABEL_INACCURACY, symbol: '?!' });
+      pgn.onPluginEvent('classification:lock', { ply: 0, result: { label: LABEL_INACCURACY, symbol: '?!' } });
       const result = pgn.exportPgn();
       expect(result).toContain('e4?!');
       expect(result).toContain('$6');
@@ -203,7 +203,7 @@ describe('PgnPlugin', () => {
       const afterE4 = boardFromFen('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR');
       pgn.onBoardChange(makeBoardState(afterE4, 'e4Fen', 1, TURN_BLACK));
 
-      pgn.receiveClassification(0, { label: 'Good', symbol: '' });
+      pgn.onPluginEvent('classification:lock', { ply: 0, result: { label: 'Good', symbol: '' } });
       const result = pgn.exportPgn();
       // No symbol appended, no NAG
       expect(result).toContain('1. e4 ');

@@ -4,6 +4,7 @@
 // Tracks the trap sequence: if you play the bait, advances to show the next step.
 
 import createDebug from '../../lib/debug.js';
+import { el } from '../../lib/dom.js';
 import { parseUci } from '../../lib/uci.js';
 import { AnalysisPlugin } from '../plugin.js';
 import { applyUciMove } from '../san.js';
@@ -90,15 +91,19 @@ function validateMoveSequence(board, moves) {
 }
 
 export class TrapboyPlugin extends AnalysisPlugin {
-  constructor({ settings, coordinator }) {
+  constructor({ settings }) {
     super(PLUGIN_TRAPBOY);
     this._settings = settings;
-    this._coordinator = coordinator;
+    this._requestSecondaryAnalysis = null;
     this._phase2Pending = false;
     this._activeFen = null;
     this._trapData = null;
     this._prevBoard = null;
     this._prevPly = null;
+  }
+
+  setup({ requestSecondaryAnalysis }) {
+    this._requestSecondaryAnalysis = requestSecondaryAnalysis;
   }
 
   onBoardChange(boardState, renderCtx) {
@@ -124,14 +129,14 @@ export class TrapboyPlugin extends AnalysisPlugin {
             this._trapData = null;
             this._phase2Pending = false;
             this._clearAllLayers(renderCtx.arrow);
-            renderCtx.panel.clearTrap();
+            this._clearTrapPanel(renderCtx.panel);
             return;
           }
 
           // Redraw with updated step index
           const isFlipped = renderCtx.isFlipped();
           this._drawTrap(renderCtx.arrow, isFlipped);
-          renderCtx.panel.showTrap(this._trapData.steps, this._trapData.stepIndex, this._trapData.godUci);
+          this._showTrapPanel(renderCtx.panel, this._trapData.steps, this._trapData.stepIndex, this._trapData.godUci);
           return;
         }
       }
@@ -147,7 +152,7 @@ export class TrapboyPlugin extends AnalysisPlugin {
           this._prevPly = currentPly;
           const isFlipped = renderCtx.isFlipped();
           this._drawTrap(renderCtx.arrow, isFlipped);
-          renderCtx.panel.showTrap(this._trapData.steps, this._trapData.stepIndex, this._trapData.godUci);
+          this._showTrapPanel(renderCtx.panel, this._trapData.steps, this._trapData.stepIndex, this._trapData.godUci);
           return;
         }
       }
@@ -161,7 +166,7 @@ export class TrapboyPlugin extends AnalysisPlugin {
     this._prevBoard = boardState.board;
     this._prevPly = currentPly;
     this._clearAllLayers(renderCtx.arrow);
-    renderCtx.panel.clearTrap();
+    this._clearTrapPanel(renderCtx.panel);
   }
 
   onEval(data, boardState, renderCtx) {
@@ -173,7 +178,7 @@ export class TrapboyPlugin extends AnalysisPlugin {
 
     // Scan as soon as depth is sufficient — don't wait for engine to complete
     if (data.depth < TRAPBOY_MIN_DEPTH) {
-      renderCtx.panel.showTrapStatus('Searching...');
+      this._showTrapStatus(renderCtx.panel, 'Searching...');
       return;
     }
     if (!data.lines || data.lines.length === 0) return;
@@ -222,9 +227,9 @@ export class TrapboyPlugin extends AnalysisPlugin {
       const greedFen = boardToFen(boardAfterGreed, turn, '-', '-', 1);
 
       this._phase2Pending = true;
-      renderCtx.panel.showTrapStatus('Verifying...');
+      this._showTrapStatus(renderCtx.panel, 'Verifying...');
       const capturedFen = this._activeFen;
-      this._coordinator.requestSecondaryAnalysis(
+      this._requestSecondaryAnalysis(
         greedFen,
         TRAPBOY_GREED_DEPTH,
         (evalData) => this._onGreedEval(evalData, {
@@ -235,7 +240,7 @@ export class TrapboyPlugin extends AnalysisPlugin {
     }
 
     // No sacrifice found in any line
-    renderCtx.panel.showTrapStatus('No trap');
+    this._showTrapStatus(renderCtx.panel, 'No trap');
   }
 
   _onGreedEval(data, trapInfo, renderCtx) {
@@ -249,7 +254,7 @@ export class TrapboyPlugin extends AnalysisPlugin {
     this._phase2Pending = false;
 
     if (!data.lines || data.lines.length === 0) {
-      renderCtx.panel.showTrapStatus('No trap');
+      this._showTrapStatus(renderCtx.panel, 'No trap');
       return;
     }
     const line1 = data.lines[0];
@@ -261,7 +266,7 @@ export class TrapboyPlugin extends AnalysisPlugin {
     }
     if (score < TRAPBOY_TRAP_THRESHOLD) {
       log('Greed line score', score, '< threshold', TRAPBOY_TRAP_THRESHOLD, '— not a trap');
-      renderCtx.panel.showTrapStatus('No trap');
+      this._showTrapStatus(renderCtx.panel, 'No trap');
       return;
     }
 
@@ -274,7 +279,7 @@ export class TrapboyPlugin extends AnalysisPlugin {
       const punishDest = parseUci(greedMoves[0]);
       if (punishDest.toFile === baitDest.toFile && punishDest.toRank === baitDest.toRank) {
         log('Punishment is a recapture on bait square — too obvious');
-        renderCtx.panel.showTrapStatus('No trap');
+        this._showTrapStatus(renderCtx.panel, 'No trap');
         return;
       }
     }
@@ -290,7 +295,7 @@ export class TrapboyPlugin extends AnalysisPlugin {
     const allMoves = steps.map((s) => s.uci);
     if (!validateMoveSequence(trapInfo.board, allMoves)) {
       log('Trap validation failed — invalid move in sequence');
-      renderCtx.panel.showTrapStatus('No trap');
+      this._showTrapStatus(renderCtx.panel, 'No trap');
       return;
     }
 
@@ -305,7 +310,36 @@ export class TrapboyPlugin extends AnalysisPlugin {
 
     const isFlipped = renderCtx.isFlipped();
     this._drawTrap(renderCtx.arrow, isFlipped);
-    renderCtx.panel.showTrap(this._trapData.steps, this._trapData.stepIndex, this._trapData.godUci);
+    this._showTrapPanel(renderCtx.panel, this._trapData.steps, this._trapData.stepIndex, this._trapData.godUci);
+  }
+
+  _showTrapPanel(panel, steps, stepIndex, godUci) {
+    const wrap = el('div', 'chee-trapboy');
+    const title = el('span', 'chee-trapboy-title', 'TRAP');
+    wrap.appendChild(title);
+
+    for (let i = 0; i < steps.length; i++) {
+      const { uci, label } = steps[i];
+      const readable = uci && uci.length >= 4 ? `${uci.slice(0, 2)}-${uci.slice(2, 4)}` : uci;
+      let cls = 'chee-trapboy-greed';
+      if (label === 'Bait') cls = 'chee-trapboy-bait';
+      const span = el('span', cls, `${label} ${readable}`);
+      if (i < stepIndex) span.classList.add('chee-trapboy-done');
+      if (i === stepIndex) span.classList.add('chee-trapboy-active');
+      wrap.appendChild(span);
+    }
+
+    const godReadable = godUci && godUci.length >= 4 ? `${godUci.slice(0, 2)}-${godUci.slice(2, 4)}` : godUci;
+    wrap.appendChild(el('span', 'chee-trapboy-god', `Escape ${godReadable}`));
+    panel.setSlot('trapboy', wrap);
+  }
+
+  _showTrapStatus(panel, text) {
+    panel.setSlot('trapboy', el('div', 'chee-trapboy chee-trapboy-status', text));
+  }
+
+  _clearTrapPanel(panel) {
+    panel.clearSlot('trapboy');
   }
 
   _drawTrap(arrow, isFlipped) {

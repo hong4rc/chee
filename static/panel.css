@@ -347,10 +347,12 @@ body.chee-dragging {
   color: var(--chee-overlay0);
 }
 
-/* Trapboy slot (trap detection info) */
-#chee-analysis-panel .chee-trapboy-slot:empty {
+/* Plugin slots container */
+#chee-analysis-panel .chee-plugin-slots:empty {
   display: none;
 }
+
+/* Trapboy slot (trap detection info) */
 
 #chee-analysis-panel .chee-trapboy {
   display: flex;

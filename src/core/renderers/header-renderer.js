@@ -2,26 +2,13 @@
 // insight text, accuracy, minimize/hide/show controls.
 
 import { el } from '../../lib/dom.js';
+import {
+  advantageCls, formatMate, formatCp, CLS_MATE,
+} from '../../lib/format.js';
 import { lookupOpening, STARTING_POSITION } from '../openings.js';
 import {
   TURN_BLACK, CENTIPAWN_DIVISOR,
 } from '../../constants.js';
-
-const CLS_WHITE_ADV = 'white-advantage';
-const CLS_BLACK_ADV = 'black-advantage';
-const CLS_MATE = 'mate-score';
-
-function advantageCls(isWhite) {
-  return isWhite ? CLS_WHITE_ADV : CLS_BLACK_ADV;
-}
-
-function formatMate(wMate) {
-  return (wMate > 0 ? 'M' : '-M') + Math.abs(wMate);
-}
-
-function formatCp(cp) {
-  return (cp >= 0 ? '+' : '') + cp.toFixed(1);
-}
 
 function cpToWdl(cp) {
   const winRaw = 1 / (1 + Math.exp(-0.00368208 * cp));
@@ -41,7 +28,7 @@ export class HeaderRenderer {
     this._openingSlot = null;
     this._classSlot = null;
     this._insightSlot = null;
-    this._trapboySlot = null;
+    this._pluginSlots = new Map();
     this._accuracyEl = null;
     this._wdl = null;
     this._wdlPct = null;
@@ -87,9 +74,9 @@ export class HeaderRenderer {
       el('span', 'chee-wdl-l-pct', '50%'),
     );
 
-    const trapboySlot = el('div', 'chee-trapboy-slot');
+    const pluginSlotContainer = el('div', 'chee-plugin-slots');
 
-    header.append(topRow, openingSlot, insightSlot, trapboySlot, bar, wdlText);
+    header.append(topRow, openingSlot, insightSlot, pluginSlotContainer, bar, wdlText);
     return header;
   }
 
@@ -99,7 +86,7 @@ export class HeaderRenderer {
     this._openingSlot = panelEl.querySelector('.chee-opening-slot');
     this._classSlot = panelEl.querySelector('.chee-classification-slot');
     this._insightSlot = panelEl.querySelector('.chee-insight-slot');
-    this._trapboySlot = panelEl.querySelector('.chee-trapboy-slot');
+    this._pluginSlotContainer = panelEl.querySelector('.chee-plugin-slots');
     this._accuracyEl = panelEl.querySelector('.chee-accuracy');
     this._wdl = {
       w: panelEl.querySelector('.chee-wdl-w'),
@@ -193,39 +180,21 @@ export class HeaderRenderer {
     if (this._insightSlot) { this._insightSlot.innerHTML = ''; }
   }
 
-  showTrap(steps, stepIndex, godUci) {
-    this.clearTrap();
-    if (!this._trapboySlot) return;
-    const wrap = el('div', 'chee-trapboy');
-    const title = el('span', 'chee-trapboy-title', 'TRAP');
-    wrap.appendChild(title);
-
-    for (let i = 0; i < steps.length; i++) {
-      const { uci, label } = steps[i];
-      const readable = uci && uci.length >= 4 ? `${uci.slice(0, 2)}-${uci.slice(2, 4)}` : uci;
-      let cls = 'chee-trapboy-greed';
-      if (label === 'Bait') cls = 'chee-trapboy-bait';
-      const span = el('span', cls, `${label} ${readable}`);
-      if (i < stepIndex) span.classList.add('chee-trapboy-done');
-      if (i === stepIndex) span.classList.add('chee-trapboy-active');
-      wrap.appendChild(span);
+  setSlot(name, element) {
+    this.clearSlot(name);
+    if (!this._pluginSlotContainer) return;
+    let slot = this._pluginSlots.get(name);
+    if (!slot) {
+      slot = el('div', `chee-slot-${name}`);
+      this._pluginSlotContainer.appendChild(slot);
+      this._pluginSlots.set(name, slot);
     }
-
-    const godReadable = godUci && godUci.length >= 4 ? `${godUci.slice(0, 2)}-${godUci.slice(2, 4)}` : godUci;
-    const godEl = el('span', 'chee-trapboy-god', `Escape ${godReadable}`);
-    wrap.appendChild(godEl);
-    this._trapboySlot.appendChild(wrap);
+    slot.appendChild(element);
   }
 
-  showTrapStatus(text) {
-    this.clearTrap();
-    if (!this._trapboySlot) return;
-    const status = el('div', 'chee-trapboy chee-trapboy-status', text);
-    this._trapboySlot.appendChild(status);
-  }
-
-  clearTrap() {
-    if (this._trapboySlot) { this._trapboySlot.innerHTML = ''; }
+  clearSlot(name) {
+    const slot = this._pluginSlots.get(name);
+    if (slot) { slot.innerHTML = ''; }
   }
 
   destroy() {
@@ -234,7 +203,8 @@ export class HeaderRenderer {
     this._openingSlot = null;
     this._classSlot = null;
     this._insightSlot = null;
-    this._trapboySlot = null;
+    this._pluginSlotContainer = null;
+    this._pluginSlots.clear();
     this._accuracyEl = null;
     this._wdl = null;
     this._wdlPct = null;

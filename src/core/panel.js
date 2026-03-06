@@ -126,19 +126,14 @@ export class Panel extends Emitter {
     this._header.clearClassification();
   }
 
-  showTrap(steps, stepIndex, godUci) {
+  setSlot(name, element) {
     if (!this._el) return;
-    this._header.showTrap(steps, stepIndex, godUci);
+    this._header.setSlot(name, element);
   }
 
-  showTrapStatus(text) {
+  clearSlot(name) {
     if (!this._el) return;
-    this._header.showTrapStatus(text);
-  }
-
-  clearTrap() {
-    if (!this._el) return;
-    this._header.clearTrap();
+    this._header.clearSlot(name);
   }
 
   recordScore(ply, data) {

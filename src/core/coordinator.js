@@ -15,8 +15,6 @@ import {
   MAX_PIECE_ATTEMPTS,
   TURN_WHITE, TURN_BLACK,
   EVT_READY, EVT_EVAL, EVT_ERROR, EVT_LINE_HOVER, EVT_LINE_LEAVE, EVT_PGN_COPY,
-  EVT_CLASSIFY_SHOW, EVT_CLASSIFY_CLEAR, EVT_CLASSIFY_LOCK, EVT_ACCURACY_UPDATE,
-  PLUGIN_CLASSIFICATION, PLUGIN_PGN, PLUGIN_GUARD,
 } from '../constants.js';
 
 const log = createDebug('chee:coordinator');
@@ -54,6 +52,10 @@ export class AnalysisCoordinator {
     this._plugins.push(plugin);
   }
 
+  broadcastToPlugins(eventName, data) {
+    forEach(this._plugins, (p) => p.onPluginEvent(eventName, data));
+  }
+
   start(boardEl) {
     this._boardState.setBoardEl(boardEl);
     log.info('Board found:', boardEl.tagName, boardEl.id, boardEl.className);
@@ -69,8 +71,19 @@ export class AnalysisCoordinator {
       this._settings.panelWidth,
     );
     this._arrow.mount(boardEl);
+
+    // Give plugins access to shared context before any lifecycle hooks fire
+    const setupCtx = {
+      getRenderCtx: () => this._createRenderCtx(),
+      panel: this._panel,
+      adapter: this._adapter,
+      boardState: this._boardState,
+      requestSecondaryAnalysis: (fen, depth, cb) => this.requestSecondaryAnalysis(fen, depth, cb),
+      broadcastToPlugins: (name, data) => this.broadcastToPlugins(name, data),
+    };
+    forEach(this._plugins, (p) => p.setup(setupCtx));
+
     this._setupListeners(boardEl);
-    this._bindPluginClassifierListeners();
 
     forEach(this._plugins, (p) => {
       const layer = p.getPersistentLayer(() => this._createRenderCtx());
@@ -169,14 +182,6 @@ export class AnalysisCoordinator {
     });
   }
 
-  _getPgnPlugin() {
-    return this._plugins.find((p) => p.name === PLUGIN_PGN);
-  }
-
-  _getGuardPlugin() {
-    return this._plugins.find((p) => p.name === PLUGIN_GUARD);
-  }
-
   _detectTurnFromHighlights(board) {
     const lastMove = this._adapter.detectLastMove(this._boardState.boardEl);
     if (!lastMove) return null;
@@ -263,41 +268,6 @@ export class AnalysisCoordinator {
     this._engine.on(EVT_ERROR, (msg) => { log.error('Engine error:', msg); });
   }
 
-  _bindPluginClassifierListeners() {
-    // Find classification plugin and wire its classifier events to panel/arrow
-    const classPlugin = this._plugins.find((p) => p.name === PLUGIN_CLASSIFICATION);
-    if (!classPlugin || !classPlugin.classifier) return;
-
-    const { classifier } = classPlugin;
-
-    classifier.on(EVT_CLASSIFY_CLEAR, () => {
-      this._panel.clearClassification();
-      this._arrow.clearClassification();
-      this._arrow.clearInsight();
-    });
-
-    classifier.on(EVT_CLASSIFY_SHOW, ({ result, insight }) => {
-      this._panel.showClassification(result, insight);
-    });
-
-    classifier.on(EVT_CLASSIFY_LOCK, ({
-      result, moveUci, insight, bestUci,
-    }) => {
-      const isFlipped = this._adapter.isFlipped(this._boardState.boardEl);
-      this._panel.showClassification(result, insight);
-      this._arrow.drawClassification(moveUci, isFlipped, result.color, result.symbol);
-      if (bestUci) {
-        this._arrow.drawInsight(bestUci, isFlipped, result.color);
-      }
-      const pgnPlugin = this._getPgnPlugin();
-      if (pgnPlugin) pgnPlugin.receiveClassification(this._boardState.ply, result);
-    });
-
-    classifier.on(EVT_ACCURACY_UPDATE, (pct) => {
-      this._panel.showAccuracy(pct);
-    });
-  }
-
   _setupListeners(boardEl) {
     this._panel.on(EVT_LINE_HOVER, (moves, turn) => {
       forEach(this._persistentLayers, (l) => l.clear());
@@ -308,33 +278,24 @@ export class AnalysisCoordinator {
       forEach(this._persistentLayers, (l) => l.restore());
     });
     this._panel.on(EVT_PGN_COPY, () => {
-      const pgnPlugin = this._getPgnPlugin();
-      if (!pgnPlugin) return;
-      const pgn = pgnPlugin.exportPgn();
-      const btn = this._panel.el && this._panel.el.querySelector('.chee-copy-pgn');
-      navigator.clipboard.writeText(pgn).then(() => {
-        if (btn) {
-          btn.textContent = '\u2713';
-          setTimeout(() => { btn.textContent = 'PGN'; }, 1000);
-        }
-      });
+      const renderCtx = this._createRenderCtx();
+      forEach(this._plugins, (p) => p.onPanelEvent(EVT_PGN_COPY, renderCtx));
     });
     this._bindEngineListeners();
 
     this._onMouseDown = (e) => {
-      this._arrow.clearGuard();
-      const guard = this._getGuardPlugin();
-      if (!guard || !this._boardState.board || !this._boardState.turn) return;
-
       const isFlipped = this._adapter.isFlipped(boardEl);
       const sq = eventToSquare(e, boardEl, isFlipped);
       if (!sq) return;
-
-      if (guard.checkSquare(sq.file, sq.rank, this._boardState.board, this._boardState.turn)) {
-        this._arrow.drawGuard(sq.file, sq.rank, isFlipped);
-      }
+      const { board, turn } = this._boardState;
+      if (!board || !turn) return;
+      const renderCtx = this._createRenderCtx();
+      forEach(this._plugins, (p) => p.onBoardMouseDown(sq, board, turn, renderCtx));
     };
-    this._onMouseUp = () => { this._arrow.clearGuard(); };
+    this._onMouseUp = () => {
+      const renderCtx = this._createRenderCtx();
+      forEach(this._plugins, (p) => p.onBoardMouseUp(renderCtx));
+    };
 
     boardEl.addEventListener('mousedown', this._onMouseDown);
     document.addEventListener('mouseup', this._onMouseUp);
