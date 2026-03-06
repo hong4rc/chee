@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Chee is a Chrome extension (Manifest v3) that provides real-time Stockfish analysis on chess.com and lichess.org. It reads the board DOM, generates a FEN, runs Stockfish via WebAssembly in a Web Worker, and renders an analysis panel beside the board. Also supports chess.com puzzle pages (rated, rush, battle, learning) and daily chess in a lightweight arrow-only hint mode.
+Chee is a Chrome extension (Manifest v3) that provides real-time Stockfish analysis on chess.com and lichess.org. It reads the board DOM, generates a FEN, runs Stockfish via WebAssembly in a Web Worker, and renders an analysis panel beside the board. Also supports puzzle/hint pages on both sites (chess.com: rated, rush, battle, learning, daily; lichess: training, storm, racer, streak) in a lightweight arrow-only hint mode.
 
 ## Commands
 
@@ -65,8 +65,8 @@ Line endings are enforced as LF on all platforms via `.gitattributes`.
 ## Architecture
 
 **Two entry points** bundled by Rollup:
-- `src/content.js` — injected into chess pages, orchestrates board reading → FEN → engine → panel. Detects hint pages (puzzles + daily) and applies hint mode (no panel, best move arrow only, reduced depth). Daily toggle live-controls the arrow.
-- `src/popup.js` — extension popup with tabbed UI: Settings (lines, depth, theme, toggles) and Hints (enable rated/rush/battle/learning/daily, hint depth, debug)
+- `src/content.js` — injected into chess pages, orchestrates board reading → FEN → engine → panel. Uses a data-driven `HINT_PAGES` config array to detect hint pages (chess.com puzzles/daily + lichess training/storm/racer/streak). First-match-wins URL matching, hint mode applies fixed depth 15, no panel, best move arrow only. Daily toggle live-controls the arrow.
+- `src/popup.js` — extension popup with tabbed UI: Settings (lines, depth, theme, toggles with icons, debug) and Puzzles (two-column grid: chess.com + lichess toggles). Checkboxes auto-wired via `data-key` attributes to `chrome.storage`.
 
 **Adapter pattern** for multi-site support:
 - `adapters/base.js` — abstract `BoardAdapter` interface (findBoard, readPieces, detectTurn, etc.)
@@ -85,22 +85,25 @@ Line endings are enforced as LF on all platforms via `.gitattributes`.
 - `core/move-classifier.js` — classification state machine, accuracy tracking, ply cache
 - `core/openings.js` — 193-entry ECO opening lookup by FEN position
 - `core/fen.js` / `core/san.js` — FEN generation and PV-to-SAN conversion
-- `core/coordinator.js` — mediates between engine, panel, arrow, adapter, and plugins; owns orchestration state; highlight-based turn detection fallback for puzzle pages
+- `core/coordinator.js` — mediates between engine, panel, arrow, adapter, and plugins; owns orchestration state; highlight-based turn detection fallback for puzzle pages. Decoupled from plugins — plugins self-register events in `setup()`.
 - `core/board-state.js` — value object: board array, ply, FEN, turn; diff-based turn detection
-- `core/plugin.js` — base `AnalysisPlugin` class (lifecycle hooks: `onBoardChange`, `onEval`, `onSettingsChange`, `onEngineReset`)
+- `core/plugin.js` — base `AnalysisPlugin` class (lifecycle hooks: `setup`, `onBoardChange`, `onEval`, `onSettingsChange`, `onEngineReset`, `onBoardMouseDown`, `onBoardMouseUp`, `onPanelEvent`, `onPluginEvent`)
+- `core/renderers/header-renderer.js` — generic slot system (`setSlot`/`clearSlot`) for plugin UI in the panel header
 
 **Plugins** (`core/plugins/`):
-- `classification-plugin.js` — move classification (Brilliant → Blunder), board badge + insight arrow
+- `classification-plugin.js` — move classification (Brilliant → Blunder), board badge + insight arrow. Self-wires classifier events in `setup()`, broadcasts `classification:lock` for PGN.
 - `hint-plugin.js` — pre-move hint arrows (classification-based spread or always-on best move). Waits for engine to reach full depth before drawing when `waitForComplete` is enabled (default on) or in puzzle mode.
-- `pgn-plugin.js` — PGN export with eval comments, classification symbols, NAG codes
-- `guard-plugin.js` — blunder guard: warns when clicked piece isn't in any engine top line
-- `trapboy-plugin.js` — sacrifice-based trap detection with step tracking (see Trapboy section below)
+- `pgn-plugin.js` — PGN export with eval comments, classification symbols, NAG codes. Receives classifications via `onPluginEvent('classification:lock')`.
+- `guard-plugin.js` — blunder guard: warns when clicked piece isn't in any engine top line. Uses `onBoardMouseDown`/`onBoardMouseUp`.
+- `book-plugin.js` — book move detection and continuation arrows from ECO opening database
+- `trapboy-plugin.js` — sacrifice-based trap detection with step tracking (currently disabled, see Trapboy section below). Uses generic panel slots and `requestSecondaryAnalysis`.
 
 **Shared utilities** (`lib/`):
 - `lib/dom.js` — DOM helpers: `el()`, `svgEl()`, `indexOfNode()`, `eventToSquare(e, boardEl, isFlipped)` (mouse event → `{ file, rank }`, works on both sites)
 - `lib/uci.js` — `parseUci(uciMove)` → `{ fromFile, fromRank, toFile, toRank, promotion }`
 - `lib/emitter.js` — simple event emitter mixin
 - `lib/debug.js` — `createDebug('chee:namespace')` wrapper
+- `lib/format.js` — shared eval formatters: `advantageCls()`, `formatMate()`, `formatCp()`
 - `lib/lru.js` — LRU cache for eval results
 - `lib/themes.js` — Catppuccin theme application
 - `lib/settings.js` — Chrome storage load/save
@@ -119,6 +122,8 @@ Line endings are enforced as LF on all platforms via `.gitattributes`.
 - **Max line length**: 120 chars
 - **Commit style**: Conventional Commits (`feat:`, `fix:`, `refactor:`)
 - **No co-author** lines in commits
+- **Data-driven popup**: checkbox toggles use `data-key` attributes auto-wired to `chrome.storage` — adding a toggle requires only HTML
+- **Plugin architecture**: plugins self-register in `setup()`, use generic panel slots (`setSlot`/`clearSlot`), communicate via `broadcastToPlugins`/`onPluginEvent`
 
 ## Static Assets (not bundled)
 
@@ -158,7 +163,7 @@ Chess sites update DOM elements (clocks, move lists, highlights) at unpredictabl
 
 ## Panel Features
 
-The analysis panel displays (top to bottom): header (classification badge, eval score, depth), opening name, insight text, trapboy slot (trap status/steps), W/D/L bar with percentages, analysis lines, eval chart, status bar (accuracy, PGN button, FEN button).
+The analysis panel displays (top to bottom): header (classification badge, eval score, depth), opening name, insight text, plugin slots (generic via `setSlot`/`clearSlot`), W/D/L bar with percentages, analysis lines, eval chart, status bar (accuracy, PGN button, FEN button).
 
 ### W/D/L bar
 
@@ -244,23 +249,26 @@ Two modes (can both be active):
 
 `detectPly()` in each adapter returns the half-move index from the active move in the DOM move list. The classifier only treats a board diff as a played move when `ply > _prevPly`. Backward navigation restores the cached classification for that ply (panel badge + board icon + insight arrow).
 
-## Puzzle Mode
+## Puzzle / Hint Mode
 
-chess.com puzzle pages (`/puzzles/rated`, `/puzzles/rush`, `/puzzles/battle`, `/puzzles/learning`) and daily chess (`/daily/*`) are supported with a lightweight hint mode. Each page type has its own enable toggle: `enablePuzzles` (default off), `enablePuzzleRush` (default off), `enablePuzzleBattle` (default off), `enablePuzzleLearning` (default off), `enableDaily` (default on).
+Hint pages are defined in a data-driven `HINT_PAGES` config array in `content.js`. Each entry has `{ pattern, key, label, daily? }`. First match wins (specific patterns before general ones). To add a new hint page: add one entry to `HINT_PAGES`, a toggle in `popup.html`, and a default in `constants.js`.
+
+**Supported hint pages:**
+- **chess.com**: `/puzzles` (rated), `/puzzles/rush`, `/puzzles/battle`, `/puzzles/learning`, `/daily`
+- **lichess**: `/training`, `/storm`, `/racer`, `/streak`
+
+Each page type has its own enable toggle (all default off except `enableDaily`).
 
 When a hint page is detected and the corresponding toggle is on:
 - **No panel** — the analysis panel is mounted but hidden (`display: none`)
-- **Forced overrides**: `numLines=1`, `showBestMove=true`, `showClassifications=false`, `showChart=false`, `showGuard=false`, `showCrazy=false`
-- **Hint depth**: separate `puzzleDepth` setting (default 19, range 15-21) used as `searchDepth` on hint pages
+- **Forced overrides**: `numLines=1`, `searchDepth=15`, `showBestMove=true`, `showClassifications=false`, `showChart=false`, `showGuard=false`, `showCrazy=false`
 - Only `HintPlugin` is registered (no classification, PGN, guard plugins)
 - Turn detection uses highlight-based fallback (`_detectTurnFromHighlights`) since puzzles lack clocks and move lists
 - Storage changes to forced keys are filtered out so popup changes don't override hint overrides
 
-**Puzzle pages** (rated/rush/battle/learning): best move arrow auto-draws after engine calculation completes.
+**Daily chess** (`/daily/*`): The `enableDaily` toggle in the popup live-toggles the arrow: off clears it immediately, on replays the cached eval via `coordinator.replayEval()` so the arrow reappears without re-analysis.
 
-**Daily chess** (`/daily/*`): best move arrow auto-draws after engine calculation completes. The `enableDaily` toggle in the popup live-toggles the arrow: off clears it immediately, on replays the cached eval via `coordinator.replayEval()` so the arrow reappears without re-analysis.
-
-The popup has a **Hints** tab grouping all hint-related settings (toggles, depth, debug logging).
+The popup has a **Puzzles** tab with a two-column grid (chess.com / lichess) for hint toggles.
 
 ## Theme System
 

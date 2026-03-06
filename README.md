@@ -32,22 +32,23 @@ localStorage.debug = 'chee:*'
 ## Supported Sites
 
 - **chess.com** — `/game/*` and `/play/*` pages (full analysis panel)
-- **chess.com** — `/puzzles/*` pages: rated, rush, battle, learning (best move arrow only, each togglable separately)
-- **chess.com** — `/daily/*` pages (best move arrow, live-togglable from popup, enabled by default)
+- **chess.com** — `/puzzles/*` pages: rated, rush, battle, learning (best move arrow only, each togglable)
+- **chess.com** — `/daily/*` pages (best move arrow, live-togglable, enabled by default)
 - **lichess.org** — all game pages (full analysis panel)
+- **lichess.org** — `/training`, `/storm`, `/racer`, `/streak` (best move arrow, each togglable)
 
 ## Features
 
 - Multi-line analysis (configurable 3-5 lines) with per-line eval scores
-- Configurable search depth (19-22, separate puzzle depth 15-21) with optional wait-for-full-depth
+- Configurable search depth (19-22) with optional wait-for-full-depth
 - Arrow overlays showing suggested moves
-- Hint mode: best move arrow on chess.com puzzles (rated, rush, battle, learning) and daily chess
+- Hint mode: best move arrow on chess.com and lichess puzzles (depth 15)
 - Move classification (Brilliant, Best, Excellent, Good, Inaccuracy, Mistake, Blunder) with board icons and panel badges
 - Insight arrows showing the best move on Mistake/Blunder
 - Pre-move hint arrows for clearly best moves
 - Best move arrow toggle (always-on option)
-- Trap detection (Trapboy) — finds sacrifice-based traps where offering material leads to a winning punishment if the opponent captures greedily, with step-by-step tracking
 - Blunder guard — warns when you click a piece not in any top engine line
+- Book move detection with continuation arrows
 - W/D/L bar with win/draw/loss percentages
 - Eval score chart showing game progress over time
 - Opening name display (193-entry ECO database)

@@ -8,12 +8,12 @@ Chee does **not** collect, store, or transmit any personal data. All chess analy
 
 ## Storage
 
-Chee uses `chrome.storage.sync` to save your preferences (theme, number of analysis lines, search depth, puzzle toggles). This data stays in your browser and syncs across your Chrome devices via your Google account. No third party can access it.
+Chee uses `chrome.storage.sync` to save your preferences (theme, number of analysis lines, search depth, puzzle toggles for chess.com and lichess). This data stays in your browser and syncs across your Chrome devices via your Google account. No third party can access it.
 
 ## Permissions
 
 - **storage** -- Save and sync user preferences.
-- **Host permissions (chess.com, lichess.org)** -- Read the chess board from the page DOM (game and puzzle pages) to generate analysis. No page content is collected or sent anywhere.
+- **Host permissions (chess.com, lichess.org)** -- Read the chess board from the page DOM (game, puzzle, and training pages) to generate analysis. No page content is collected or sent anywhere.
 
 ## Third Parties
 

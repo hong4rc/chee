@@ -70,4 +70,4 @@ Enable debug logging in the browser console:
 localStorage.debug = 'chee:*'
 ```
 
-Or toggle it from the extension popup (Hints tab → Debug logging).
+Or toggle it from the extension popup (Settings tab → Debug logging).
