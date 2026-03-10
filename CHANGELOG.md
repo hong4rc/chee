@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.7.0](https://github.com/hong4rc/chee/compare/v1.6.0...v1.7.0) (2026-03-10)
+
+### Features
+
+* add depth 15 option, configure mise to load .env ([4affa14](https://github.com/hong4rc/chee/commit/4affa14c08c59a12a565422719c0acf5a8bdc175))
+* add lichess puzzle support, data-driven hint page detection, popup UI improvements ([55653d5](https://github.com/hong4rc/chee/commit/55653d5360867144a919c789ac02a2eac177c64d))
+
+### Bug Fixes
+
+* **ci:** allow devDependencies and console in config and scripts ([9a4a45e](https://github.com/hong4rc/chee/commit/9a4a45e376b6529301b18e85bf7a359988e31b45))
+* clean up unused imports and lint errors in test files ([0e61a56](https://github.com/hong4rc/chee/commit/0e61a561a92134bc1b325c142ee80f1d5fee7fb2))
+
 ## [1.6.0](https://github.com/hong4rc/chee/compare/v1.5.0...v1.6.0) (2026-02-26)
 
 ### Features
