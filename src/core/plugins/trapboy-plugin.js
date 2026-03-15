@@ -405,7 +405,7 @@ export class TrapboyPlugin extends AnalysisPlugin {
     }
 
     // No trap found by any method
-    this._showTrapStatus(renderCtx.panel, 'No trap');
+    this._clearTrapPanel(renderCtx.panel);
   }
 
   _onGreedEval(data, trapInfo, renderCtx) {
@@ -419,7 +419,7 @@ export class TrapboyPlugin extends AnalysisPlugin {
     this._phase2Pending = false;
 
     if (!data.lines || data.lines.length === 0) {
-      this._showTrapStatus(renderCtx.panel, 'No trap');
+      this._clearTrapPanel(renderCtx.panel);
       return;
     }
     const line1 = data.lines[0];
@@ -431,7 +431,7 @@ export class TrapboyPlugin extends AnalysisPlugin {
     }
     if (score < TRAPBOY_TRAP_THRESHOLD) {
       log('Greed line score', score, '< threshold', TRAPBOY_TRAP_THRESHOLD, '— not a trap');
-      this._showTrapStatus(renderCtx.panel, 'No trap');
+      this._clearTrapPanel(renderCtx.panel);
       return;
     }
 
@@ -447,7 +447,7 @@ export class TrapboyPlugin extends AnalysisPlugin {
         const punishDest = parseUci(greedMoves[mi]);
         if (punishDest.toFile === baitDest.toFile && punishDest.toRank === baitDest.toRank) {
           log('Punishment move', mi, 'recaptures on bait square — too obvious');
-          this._showTrapStatus(renderCtx.panel, 'No trap');
+          this._clearTrapPanel(renderCtx.panel);
           return;
         }
       }
@@ -464,7 +464,7 @@ export class TrapboyPlugin extends AnalysisPlugin {
     const allMoves = steps.map((s) => s.uci);
     if (!validateMoveSequence(trapInfo.board, allMoves)) {
       log('Trap validation failed — invalid move in sequence');
-      this._showTrapStatus(renderCtx.panel, 'No trap');
+      this._clearTrapPanel(renderCtx.panel);
       return;
     }
 
@@ -493,7 +493,7 @@ export class TrapboyPlugin extends AnalysisPlugin {
     this._phase2Pending = false;
 
     if (!data.lines || data.lines.length === 0) {
-      this._showTrapStatus(renderCtx.panel, 'No trap');
+      this._clearTrapPanel(renderCtx.panel);
       return;
     }
     const line1 = data.lines[0];
@@ -505,7 +505,7 @@ export class TrapboyPlugin extends AnalysisPlugin {
     }
     if (score < TRAPBOY_TRAP_THRESHOLD) {
       log('Tempting capture score', score, '< threshold — not a trap');
-      this._showTrapStatus(renderCtx.panel, 'No trap');
+      this._clearTrapPanel(renderCtx.panel);
       return;
     }
 
@@ -518,7 +518,7 @@ export class TrapboyPlugin extends AnalysisPlugin {
         const dest = parseUci(punishMoves[mi]);
         if (dest.toFile === trapInfo.targetFile && dest.toRank === trapInfo.targetRank) {
           log('Punishment recaptures on target square — not a trap');
-          this._showTrapStatus(renderCtx.panel, 'No trap');
+          this._clearTrapPanel(renderCtx.panel);
           return;
         }
       }
@@ -533,7 +533,7 @@ export class TrapboyPlugin extends AnalysisPlugin {
     const allMoves = steps.map((s) => s.uci);
     if (!validateMoveSequence(trapInfo.board, allMoves)) {
       log('Tempting capture trap validation failed');
-      this._showTrapStatus(renderCtx.panel, 'No trap');
+      this._clearTrapPanel(renderCtx.panel);
       return;
     }
 
