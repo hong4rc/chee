@@ -454,3 +454,20 @@ body.chee-resizing {
   user-select: none;
   cursor: nwse-resize !important;
 }
+
+/* ─── Arrow / overlay animations ──────────────────────────── */
+@keyframes chee-fade-in {
+  from { opacity: 0; }
+}
+
+.chee-arrow-el,
+.chee-hint-el,
+.chee-insight-el,
+.chee-guard-el,
+.chee-classify-el {
+  animation: chee-fade-in 0.15s ease-out;
+}
+
+[class^="chee-layer-"] {
+  animation: chee-fade-in 0.15s ease-out;
+}
