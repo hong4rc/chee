@@ -134,10 +134,6 @@ export class ArrowOverlay {
 
     const svg = createSvgEl('svg', { id: ARROW_OVERLAY_ID });
     svg.style.position = 'absolute';
-    svg.style.top = '0';
-    svg.style.left = '0';
-    svg.style.width = '100%';
-    svg.style.height = '100%';
     svg.style.pointerEvents = 'none';
     svg.style.zIndex = ARROW_OVERLAY_Z;
 
@@ -152,7 +148,17 @@ export class ArrowOverlay {
     this._svg = svg;
   }
 
+  _syncPosition() {
+    const boardRect = this._boardEl.getBoundingClientRect();
+    const parentRect = this._boardEl.parentElement.getBoundingClientRect();
+    this._svg.style.left = `${boardRect.left - parentRect.left}px`;
+    this._svg.style.top = `${boardRect.top - parentRect.top}px`;
+    this._svg.style.width = `${boardRect.width}px`;
+    this._svg.style.height = `${boardRect.height}px`;
+  }
+
   _getBoardMetrics() {
+    this._syncPosition();
     const rect = this._boardEl.getBoundingClientRect();
     const { width: boardWidth, height: boardHeight } = rect;
     const sqW = boardWidth / BOARD_SIZE;
