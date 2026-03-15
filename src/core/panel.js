@@ -103,6 +103,11 @@ export class Panel extends Emitter {
     this._lineRenderer.setBoard(board, turn);
   }
 
+  setLoading(loading) {
+    if (!this._el) return;
+    this._header.setLoading(loading);
+  }
+
   updateEval(data) {
     if (!this._el) return;
     const { lines } = data;

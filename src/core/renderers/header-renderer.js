@@ -118,9 +118,20 @@ export class HeaderRenderer {
     }
   }
 
+  setLoading(loading) {
+    if (!this._scoreEl) return;
+    if (loading) {
+      this._scoreEl.textContent = '...';
+      this._scoreEl.className = 'chee-eval-score chee-loading';
+    } else {
+      this._scoreEl.classList.remove('chee-loading');
+    }
+  }
+
   updateEval(bestLine, depth) {
     if (this._depthEl) this._depthEl.textContent = `d${depth}`;
     if (!bestLine) return;
+    this._scoreEl.classList.remove('chee-loading');
     this._updateScoreDisplay(bestLine);
   }
 

@@ -92,6 +92,7 @@ export class AnalysisCoordinator {
       if (layer) this._persistentLayers.push(layer);
     });
 
+    this._panel.setLoading(true);
     this._engine.init(this._settings);
     this._adapter.observe(boardEl, () => this._onBoardChange());
 
@@ -269,7 +270,10 @@ export class AnalysisCoordinator {
   }
 
   _bindEngineListeners() {
-    this._engine.on(EVT_READY, () => { log.info('Engine ready'); });
+    this._engine.on(EVT_READY, () => {
+      log.info('Engine ready');
+      this._panel.setLoading(false);
+    });
     this._engine.on(EVT_EVAL, (data) => this._onEvalData(data));
     this._engine.on(EVT_ERROR, (msg) => { log.error('Engine error:', msg); });
   }

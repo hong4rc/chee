@@ -65,6 +65,16 @@ body.chee-dragging {
   color: var(--chee-peach) !important;
 }
 
+@keyframes chee-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+#chee-analysis-panel .chee-eval-score.chee-loading {
+  color: var(--chee-overlay0);
+  animation: chee-pulse 1.2s ease-in-out infinite;
+}
+
 #chee-analysis-panel .chee-depth {
   font-weight: 400;
   font-size: 11px;
