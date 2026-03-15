@@ -122,4 +122,12 @@ const log = createDebug('chee:content');
   if (isHintPage && panel.el) {
     panel.el.style.display = 'none';
   }
+
+  // Alt+C toggles panel visibility
+  document.addEventListener('keydown', (e) => {
+    if (e.altKey && e.code === 'KeyC' && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+      e.preventDefault();
+      panel.toggleHidden();
+    }
+  });
 }());

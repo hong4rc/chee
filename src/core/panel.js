@@ -154,6 +154,13 @@ export class Panel extends Emitter {
     this._lineRenderer.reconfigure(numLines, this._el);
   }
 
+  toggleHidden() {
+    if (!this._el) return;
+    const isHidden = this._el.classList.contains('chee-hidden');
+    this._setHidden(!isHidden);
+    chrome.storage.sync.set({ panelHidden: !isHidden });
+  }
+
   restoreState(minimized, hidden, left, top, width) {
     this._setMinimized(minimized);
     this._setHidden(hidden);
