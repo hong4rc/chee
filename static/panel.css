@@ -471,3 +471,7 @@ body.chee-resizing {
 [class^="chee-layer-"] {
   animation: chee-fade-in 0.15s ease-out;
 }
+
+.chee-preview-el {
+  animation: chee-fade-in 0.12s ease-out;
+}
