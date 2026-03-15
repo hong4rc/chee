@@ -8,6 +8,7 @@ import { createAdapter } from './adapters/factory.js';
 import { Engine } from './core/engine.js';
 import { Panel } from './core/panel.js';
 import { ArrowOverlay } from './core/arrow.js';
+import { BoardPreview } from './core/board-preview.js';
 import { BoardState } from './core/board-state.js';
 import { AnalysisCoordinator } from './core/coordinator.js';
 import { ClassificationPlugin } from './core/plugins/classification-plugin.js';
@@ -69,10 +70,11 @@ const log = createDebug('chee:content');
   const engine = new Engine();
   const panel = new Panel(settings.numLines);
   const arrow = new ArrowOverlay();
+  const boardPreview = new BoardPreview();
   const boardState = new BoardState();
 
   const coordinator = new AnalysisCoordinator({
-    engine, panel, arrow, adapter, settings, boardState,
+    engine, panel, arrow, adapter, settings, boardState, boardPreview,
   });
 
   if (!isHintPage) {

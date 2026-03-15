@@ -21,7 +21,7 @@ const log = createDebug('chee:coordinator');
 
 export class AnalysisCoordinator {
   constructor({
-    engine, panel, arrow, adapter, settings, boardState,
+    engine, panel, arrow, adapter, settings, boardState, boardPreview,
   }) {
     this._engine = engine;
     this._panel = panel;
@@ -29,6 +29,7 @@ export class AnalysisCoordinator {
     this._adapter = adapter;
     this._settings = settings;
     this._boardState = boardState;
+    this._boardPreview = boardPreview;
 
     this._evalCache = new LruCache(1024);
     this._debounceTimer = null;
@@ -71,6 +72,7 @@ export class AnalysisCoordinator {
       this._settings.panelWidth,
     );
     this._arrow.mount(boardEl);
+    this._boardPreview.mount(boardEl);
 
     // Give plugins access to shared context before any lifecycle hooks fire
     const setupCtx = {
@@ -112,6 +114,7 @@ export class AnalysisCoordinator {
     this._engine.destroy();
     forEach(this._plugins, (p) => p.destroy());
     this._arrow.clear();
+    this._boardPreview.destroy();
     this._panel.destroy();
     if (this._boardState.boardEl && this._onMouseDown) {
       this._boardState.boardEl.removeEventListener('mousedown', this._onMouseDown);
@@ -172,6 +175,7 @@ export class AnalysisCoordinator {
     return {
       panel: this._panel,
       arrow: this._arrow,
+      boardPreview: this._boardPreview,
       isFlipped: () => this._adapter.isFlipped(this._boardState.boardEl),
     };
   }
@@ -247,6 +251,8 @@ export class AnalysisCoordinator {
     clearTimeout(this._debounceTimer);
     this._debounceTimer = setTimeout(() => {
       this._secondaryAnalysis = null;
+      this._boardPreview.clear();
+      this._boardPreview.invalidate();
       const fen = this._readFen();
       if (!fen) return;
       this._notifyPlugins('onBoardChange', this._boardState, this._createRenderCtx());
@@ -271,10 +277,20 @@ export class AnalysisCoordinator {
   _setupListeners(boardEl) {
     this._panel.on(EVT_LINE_HOVER, (moves, turn) => {
       forEach(this._persistentLayers, (l) => l.clear());
-      this._arrow.draw(moves, turn, this._adapter.isFlipped(boardEl));
+      const isFlipped = this._adapter.isFlipped(boardEl);
+      this._arrow.draw(moves, turn, isFlipped);
+      if (this._settings.showBoardPreview && this._boardState.board) {
+        this._boardPreview.show(
+          this._boardState.board,
+          moves,
+          isFlipped,
+          this._adapter,
+        );
+      }
     });
     this._panel.on(EVT_LINE_LEAVE, () => {
       this._arrow.clear();
+      this._boardPreview.clear();
       forEach(this._persistentLayers, (l) => l.restore());
     });
     this._panel.on(EVT_PGN_COPY, () => {

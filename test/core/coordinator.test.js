@@ -133,12 +133,19 @@ function createCoordinator(overrides = {}) {
     ...overrides,
   };
 
+  const boardPreview = {
+    mount: vi.fn(),
+    show: vi.fn(),
+    clear: vi.fn(),
+    destroy: vi.fn(),
+  };
+
   const coordinator = new AnalysisCoordinator({
-    engine, panel, arrow, adapter, settings, boardState,
+    engine, panel, arrow, adapter, settings, boardState, boardPreview,
   });
 
   return {
-    coordinator, engine, panel, arrow, adapter, boardState, settings,
+    coordinator, engine, panel, arrow, adapter, boardState, boardPreview, settings,
   };
 }
 

@@ -8,6 +8,8 @@ Chee is a Chrome extension (Manifest v3) that provides real-time Stockfish analy
 
 ## Commands
 
+All commands run cross-platform via bash, zsh, or git-bash. On Windows, use WSL, Git Bash, or any shell that has `node` in PATH—no PowerShell wrapper needed.
+
 ```bash
 npm run build      # Rollup → dist/ (IIFE bundles: content.js, popup.js + static assets)
 npm run watch      # Rollup watch mode
@@ -86,7 +88,8 @@ Line endings are enforced as LF on all platforms via `.gitattributes`.
 - `core/openings.js` — 193-entry ECO opening lookup by FEN position
 - `core/opening-traps.js` — 10-entry opening trap database (Noah's Ark, Legal, Elephant, Lasker, Rubinstein, Siberian, Fajarowicz, Blackburne Shilling, Englund Gambit, Fishing Pole). FEN-keyed Map lookup, auto-labeled steps (Bait/Greed/Punish)
 - `core/fen.js` / `core/san.js` — FEN generation and PV-to-SAN conversion
-- `core/coordinator.js` — mediates between engine, panel, arrow, adapter, and plugins; owns orchestration state; highlight-based turn detection fallback for puzzle pages. Decoupled from plugins — plugins self-register events in `setup()`.
+- `core/board-preview.js` — HTML overlay for showing predicted board positions on hover. Renders piece images (read from site's own CSS via `getComputedStyle`) and board-colored square masks. Caches metrics, board background, and piece images for performance.
+- `core/coordinator.js` — mediates between engine, panel, arrow, adapter, board preview, and plugins; owns orchestration state; highlight-based turn detection fallback for puzzle pages. Decoupled from plugins — plugins self-register events in `setup()`.
 - `core/board-state.js` — value object: board array, ply, FEN, turn; diff-based turn detection
 - `core/plugin.js` — base `AnalysisPlugin` class (lifecycle hooks: `setup`, `onBoardChange`, `onEval`, `onSettingsChange`, `onEngineReset`, `onBoardMouseDown`, `onBoardMouseUp`, `onPanelEvent`, `onPluginEvent`)
 - `core/renderers/header-renderer.js` — generic slot system (`setSlot`/`clearSlot`) for plugin UI in the panel header
@@ -252,6 +255,27 @@ Scans for hanging opponent pieces that the engine rejects capturing — models h
 **Arrow layers:** Four persistent layers: `trapboy-bait` (magenta, your bait move), `trapboy-opponent` (amber dashed, opponent's expected response), `trapboy-greed` (red, punishment moves), `trapboy-god` (green dashed, opponent's safe escape — only for engine-detected traps). Layers update as steps advance.
 
 **Key utility:** `core/attacks.js` provides `isSquareAttacked()` for checking if a piece is hanging after a move.
+
+### Board preview (move hover visualization)
+
+`core/board-preview.js` — shows predicted board positions when hovering analysis line moves or trapboy steps. Togglable via popup (`showBoardPreview`, default on).
+
+**How it works:** Creates an HTML overlay div (`#chee-board-preview`, z-index 998) positioned over the board. On hover:
+1. Applies the hovered UCI move sequence via `applyUciMove()` to get the target board state
+2. Diffs current board vs. target board (64-square scan)
+3. For each changed square: renders a **square mask** (board background or fallback light/dark color) to cover the original piece, then a **piece image** on top if a piece exists in the new state
+
+**Piece images** are read from the site's own piece elements via `getComputedStyle(el).backgroundImage` (adapter method `getPieceImageMap()`). This ensures pieces match the site's current theme/piece set regardless of chess.com or lichess.
+
+**Board background** is detected by walking up the DOM from the board element looking for a `backgroundImage` in computed styles. Falls back to standard board colors (`#f0d9b5` / `#b58863`).
+
+**Performance:** All expensive operations are cached — piece images (once per mount), board background (once per mount), board metrics/position (invalidated on board change). Redundant `show()` calls with the same moves are skipped via `_lastMovesKey` deduplication.
+
+**Hover gap handling:** When the mouse moves between spans within a line or trapboy panel, the preview persists instead of flickering. Analysis lines ignore `mouseover` events that don't target a `.chee-move` span. Trapboy uses container-level `mouseleave` on the `.chee-trapboy` wrapper instead of per-span `mouseleave`.
+
+**Integration points:**
+- **Analysis lines**: Coordinator listens to `EVT_LINE_HOVER` → calls `boardPreview.show()`. `EVT_LINE_LEAVE` → `boardPreview.clear()`.
+- **Trapboy steps**: Plugin adds `mouseenter` on each future step span, `mouseleave` on the wrapper. Uses `getRenderCtx().boardPreview` to render.
 
 ### Move revert / navigation detection
 

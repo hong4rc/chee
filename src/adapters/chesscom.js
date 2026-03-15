@@ -280,6 +280,22 @@ export class ChesscomAdapter extends BoardAdapter {
     }
   }
 
+  getPieceImageMap(boardEl) {
+    const root = boardEl.shadowRoot || boardEl;
+    const pieces = discoverPieceElements(root);
+    const imgMap = new Map();
+    forEach(Array.from(pieces), (pieceEl) => {
+      const classes = (pieceEl.getAttribute('class') || '').split(/\s+/);
+      const pieceCls = find(classes, (c) => c.length === 2 && PIECE_MAP[c]);
+      if (!pieceCls || imgMap.has(PIECE_MAP[pieceCls])) return;
+      const style = getComputedStyle(pieceEl);
+      if (style.backgroundImage && style.backgroundImage !== 'none') {
+        imgMap.set(PIECE_MAP[pieceCls], style.backgroundImage);
+      }
+    });
+    return imgMap;
+  }
+
   findAlternatePieceContainer(boardEl) {
     const container = this._findPieceContainer();
     if (!container || container === boardEl) return null;

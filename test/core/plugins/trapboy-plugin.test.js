@@ -26,6 +26,7 @@ beforeEach(() => {
       classList: { add: vi.fn() },
       appendChild: vi.fn(),
       append: vi.fn(),
+      addEventListener: vi.fn(),
     })),
   });
 });
@@ -48,15 +49,21 @@ function makeRenderCtx() {
   return {
     arrow: makeArrow(),
     panel: makePanel(),
+    boardPreview: { show: vi.fn(), clear: vi.fn() },
     isFlipped: () => false,
   };
 }
 
 function makePlugin(overrides = {}) {
   const requestSecondaryAnalysis = vi.fn();
-  const settings = { showTrapboy: true, ...overrides };
+  const settings = { showTrapboy: true, showBoardPreview: true, ...overrides };
   const plugin = new TrapboyPlugin({ settings });
-  plugin.setup({ requestSecondaryAnalysis });
+  const getRenderCtx = () => makeRenderCtx();
+  const adapter = { getPieceImageMap: vi.fn(() => new Map()) };
+  const boardState = { board: null };
+  plugin.setup({
+    requestSecondaryAnalysis, getRenderCtx, adapter, boardState,
+  });
   return { plugin, requestSecondaryAnalysis, settings };
 }
 

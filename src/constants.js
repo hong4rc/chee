@@ -89,6 +89,7 @@ export const SETTINGS_DEFAULTS = {
   waitForComplete: true,
   showGuard: false,
   showTrapboy: false,
+  showBoardPreview: true,
   showBookMoves: true,
   showChart: true,
   panelMinimized: false,
@@ -251,6 +252,12 @@ export const ARROW_MARKER_WIDTH = 4;
 export const ARROW_MARKER_HEIGHT = 4;
 export const ARROW_MARKER_REF_X = 2.5;
 export const ARROW_MARKER_REF_Y = 2;
+
+// ─── Board preview overlay ──────────────────────────────────
+export const PREVIEW_OVERLAY_ID = 'chee-board-preview';
+export const PREVIEW_OVERLAY_Z = '998'; // below arrow overlay (999)
+export const PREVIEW_LIGHT_SQUARE = '#f0d9b5';
+export const PREVIEW_DARK_SQUARE = '#b58863';
 
 // ─── chess.com square class ──────────────────────────────────
 export const SQUARE_PREFIX = 'square-';

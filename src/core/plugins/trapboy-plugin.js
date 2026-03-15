@@ -195,8 +195,13 @@ export class TrapboyPlugin extends AnalysisPlugin {
     this._prevPly = null;
   }
 
-  setup({ requestSecondaryAnalysis }) {
+  setup({
+    requestSecondaryAnalysis, getRenderCtx, adapter, boardState,
+  }) {
     this._requestSecondaryAnalysis = requestSecondaryAnalysis;
+    this._getRenderCtx = getRenderCtx;
+    this._adapter = adapter;
+    this._boardStateRef = boardState;
   }
 
   onBoardChange(boardState, renderCtx) {
@@ -565,14 +570,53 @@ export class TrapboyPlugin extends AnalysisPlugin {
       const span = el('span', cls, `${label} ${readable}`);
       if (i < stepIndex) span.classList.add('chee-trapboy-done');
       if (i === stepIndex) span.classList.add('chee-trapboy-active');
+
+      // Board preview on hover for future steps (not yet played)
+      if (i >= stepIndex) {
+        span.classList.add('chee-trapboy-hoverable');
+        const movesToApply = steps.slice(stepIndex, i + 1).map((s) => s.uci);
+        span.addEventListener('mouseenter', () => this._showStepPreview(movesToApply));
+      }
+
       wrap.appendChild(span);
     }
 
     if (godUci) {
       const godReadable = godUci.length >= 4 ? `${godUci.slice(0, 2)}-${godUci.slice(2, 4)}` : godUci;
-      wrap.appendChild(el('span', 'chee-trapboy-god', `Escape ${godReadable}`));
+      const godSpan = el('span', 'chee-trapboy-god chee-trapboy-hoverable', `Escape ${godReadable}`);
+
+      // Escape preview: bait (if not played) + god-mode response
+      const baitMoves = stepIndex === 0 ? [steps[0].uci] : [];
+      const godMoves = [...baitMoves, godUci];
+      godSpan.addEventListener('mouseenter', () => this._showStepPreview(godMoves));
+
+      wrap.appendChild(godSpan);
     }
+
+    // Clear preview only when mouse leaves the entire trap panel, not between spans
+    wrap.addEventListener('mouseleave', () => this._clearStepPreview());
+
     panel.setSlot('trapboy', wrap);
+  }
+
+  _showStepPreview(uciMoves) {
+    if (!this._getRenderCtx || !this._settings.showBoardPreview) return;
+    const ctx = this._getRenderCtx();
+    if (!ctx.boardPreview) return;
+    const board = this._prevBoard || this._boardStateRef?.board;
+    if (!board) return;
+    ctx.boardPreview.show(
+      board,
+      uciMoves,
+      ctx.isFlipped(),
+      this._adapter,
+    );
+  }
+
+  _clearStepPreview() {
+    if (!this._getRenderCtx) return;
+    const ctx = this._getRenderCtx();
+    if (ctx.boardPreview) ctx.boardPreview.clear();
   }
 
   _showTrapStatus(panel, text) {

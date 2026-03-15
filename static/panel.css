@@ -399,6 +399,14 @@ body.chee-dragging {
   text-decoration: underline;
 }
 
+#chee-analysis-panel .chee-trapboy-hoverable {
+  cursor: pointer;
+}
+
+#chee-analysis-panel .chee-trapboy-hoverable:hover {
+  opacity: 0.7;
+}
+
 #chee-analysis-panel .chee-classification-badge {
   font-size: 10px;
   font-weight: 700;
