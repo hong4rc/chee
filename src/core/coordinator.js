@@ -93,6 +93,7 @@ export class AnalysisCoordinator {
     });
 
     this._panel.setLoading(true);
+    this._panel.setMaxDepth(this._settings.searchDepth);
     this._engine.init(this._settings);
     this._adapter.observe(boardEl, () => this._onBoardChange());
 
@@ -143,6 +144,7 @@ export class AnalysisCoordinator {
     if (!engineChanged) return;
 
     if ('numLines' in newSettings) this._panel.reconfigure(this._settings.numLines);
+    if ('searchDepth' in newSettings) this._panel.setMaxDepth(this._settings.searchDepth);
 
     if (this._activeFen) {
       const cached = this._cacheLookup(this._activeFen);

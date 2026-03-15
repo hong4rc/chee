@@ -42,6 +42,7 @@ function makePanel() {
     el: { querySelector: vi.fn(), style: { setProperty: vi.fn() } },
     setShowChart: vi.fn(),
     setLoading: vi.fn(),
+    setMaxDepth: vi.fn(),
     restoreState: vi.fn(),
     setBoard: vi.fn(),
     updateEval: vi.fn(),

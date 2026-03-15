@@ -108,6 +108,10 @@ export class Panel extends Emitter {
     this._header.setLoading(loading);
   }
 
+  setMaxDepth(maxDepth) {
+    this._header.setMaxDepth(maxDepth);
+  }
+
   updateEval(data) {
     if (!this._el) return;
     const { lines } = data;

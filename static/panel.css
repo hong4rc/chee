@@ -81,6 +81,18 @@ body.chee-dragging {
   color: var(--chee-overlay0);
 }
 
+#chee-analysis-panel .chee-depth-bar {
+  height: 2px;
+  background: var(--chee-surface0);
+}
+
+#chee-analysis-panel .chee-depth-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--chee-green, #a6e3a1);
+  transition: width 0.3s ease;
+}
+
 /* W/D/L bar */
 #chee-analysis-panel .chee-eval-bar {
   display: flex;

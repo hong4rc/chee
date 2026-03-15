@@ -25,6 +25,8 @@ export class HeaderRenderer {
     this._turn = null;
     this._scoreEl = null;
     this._depthEl = null;
+    this._depthFill = null;
+    this._maxDepth = 22;
     this._openingSlot = null;
     this._classSlot = null;
     this._insightSlot = null;
@@ -57,6 +59,9 @@ export class HeaderRenderer {
       toggle,
     );
 
+    const depthBar = el('div', 'chee-depth-bar');
+    depthBar.appendChild(el('div', 'chee-depth-fill'));
+
     const openingSlot = el('div', 'chee-opening-slot');
     const insightSlot = el('div', 'chee-insight-slot');
 
@@ -76,13 +81,14 @@ export class HeaderRenderer {
 
     const pluginSlotContainer = el('div', 'chee-plugin-slots');
 
-    header.append(topRow, openingSlot, insightSlot, pluginSlotContainer, bar, wdlText);
+    header.append(topRow, depthBar, openingSlot, insightSlot, pluginSlotContainer, bar, wdlText);
     return header;
   }
 
   bind(panelEl) {
     this._scoreEl = panelEl.querySelector('.chee-eval-score');
     this._depthEl = panelEl.querySelector('.chee-depth');
+    this._depthFill = panelEl.querySelector('.chee-depth-fill');
     this._openingSlot = panelEl.querySelector('.chee-opening-slot');
     this._classSlot = panelEl.querySelector('.chee-classification-slot');
     this._insightSlot = panelEl.querySelector('.chee-insight-slot');
@@ -128,8 +134,16 @@ export class HeaderRenderer {
     }
   }
 
+  setMaxDepth(maxDepth) {
+    this._maxDepth = maxDepth;
+  }
+
   updateEval(bestLine, depth) {
     if (this._depthEl) this._depthEl.textContent = `d${depth}`;
+    if (this._depthFill) {
+      const pct = Math.min(100, (depth / this._maxDepth) * 100);
+      this._depthFill.style.width = `${pct}%`;
+    }
     if (!bestLine) return;
     this._scoreEl.classList.remove('chee-loading');
     this._updateScoreDisplay(bestLine);
@@ -211,6 +225,7 @@ export class HeaderRenderer {
   destroy() {
     this._scoreEl = null;
     this._depthEl = null;
+    this._depthFill = null;
     this._openingSlot = null;
     this._classSlot = null;
     this._insightSlot = null;
