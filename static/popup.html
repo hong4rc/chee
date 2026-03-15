@@ -111,6 +111,16 @@
       text-align: center;
       flex-shrink: 0;
     }
+    .chee-section-header {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--chee-overlay0);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+      padding-bottom: 3px;
+      border-bottom: 1px solid var(--chee-surface1);
+    }
     .puzzle-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -138,35 +148,11 @@
   </div>
 
   <div id="tab-settings" class="tab-content active">
-    <label>Theme</label>
-    <select id="theme-select">
-      <option value="site">Match Site</option>
-      <option value="latte">Latte</option>
-      <option value="frappe">Frappé</option>
-      <option value="macchiato">Macchiato</option>
-      <option value="mocha">Mocha</option>
-    </select>
-
-    <label>Lines</label>
-    <div class="btn-group" data-key="numLines">
-      <button data-val="3">3</button>
-      <button data-val="4">4</button>
-      <button data-val="5">5</button>
-    </div>
+    <div class="chee-section-header">Analysis</div>
 
     <label class="chee-toggle-row" title="Show move quality badges on the board (Brilliant, Best, Blunder, etc.)">
       <input type="checkbox" data-key="showClassifications">
       <span class="icon">&#9733;</span> Classifications
-    </label>
-
-    <label class="chee-toggle-row" title="Show opening name and book continuation arrows from ECO database">
-      <input type="checkbox" data-key="showBookMoves">
-      <span class="icon">&#128214;</span> Book moves
-    </label>
-
-    <label class="chee-toggle-row" title="Highlight wild sacrifices that maintain advantage">
-      <input type="checkbox" data-key="showCrazy">
-      <span class="icon">&#9889;</span> Crazy sacrifice
     </label>
 
     <label class="chee-toggle-row" title="Always show an arrow for the engine's top move before you play">
@@ -179,10 +165,22 @@
       <span class="icon">&#128737;</span> Blunder guard
     </label>
 
+    <label class="chee-toggle-row" title="Show opening name and book continuation arrows from ECO database">
+      <input type="checkbox" data-key="showBookMoves">
+      <span class="icon">&#128214;</span> Book moves
+    </label>
+
+    <label class="chee-toggle-row" title="Highlight wild sacrifices that maintain advantage">
+      <input type="checkbox" data-key="showCrazy">
+      <span class="icon">&#9889;</span> Crazy sacrifice
+    </label>
+
     <label class="chee-toggle-row" title="Detect traps: sacrifices, tempting captures, and known opening traps">
       <input type="checkbox" data-key="showTrapboy">
       <span class="icon">&#129683;</span> Trapboy mode
     </label>
+
+    <div class="chee-section-header">Display</div>
 
     <label class="chee-toggle-row" title="Show piece positions overlay when hovering analysis lines">
       <input type="checkbox" data-key="showBoardPreview">
@@ -194,15 +192,36 @@
       <span class="icon">&#128200;</span> Eval chart
     </label>
 
-    <label class="chee-toggle-row" title="Wait for engine to reach full depth before showing hints">
-      Depth <input type="checkbox" data-key="waitForComplete"> wait all
-    </label>
+    <label>Theme</label>
+    <select id="theme-select">
+      <option value="site">Match Site</option>
+      <option value="latte">Latte</option>
+      <option value="frappe">Frappé</option>
+      <option value="macchiato">Macchiato</option>
+      <option value="mocha">Mocha</option>
+    </select>
+
+    <div class="chee-section-header">Engine</div>
+
+    <label>Lines</label>
+    <div class="btn-group" data-key="numLines">
+      <button data-val="3">3</button>
+      <button data-val="4">4</button>
+      <button data-val="5">5</button>
+    </div>
+
+    <label>Depth</label>
     <div class="btn-group" data-key="searchDepth">
       <button data-val="15">15</button>
       <button data-val="18">18</button>
       <button data-val="20">20</button>
       <button data-val="22">22</button>
     </div>
+
+    <label class="chee-toggle-row" title="Wait for engine to reach full depth before showing hint arrows">
+      <input type="checkbox" data-key="waitForComplete">
+      <span class="icon">&#9201;</span> Wait for full depth
+    </label>
 
     <label class="chee-toggle-row" title="Enable debug logging in browser console (chee:* namespace)">
       <input type="checkbox" data-key="debugMode">
