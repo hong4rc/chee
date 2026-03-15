@@ -96,7 +96,11 @@ export class PgnPlugin extends AnalysisPlugin {
     navigator.clipboard.writeText(pgn).then(() => {
       if (btn) {
         btn.textContent = '\u2713';
-        setTimeout(() => { btn.textContent = 'PGN'; }, 1000);
+        btn.classList.add('chee-copied');
+        setTimeout(() => {
+          btn.textContent = 'PGN';
+          btn.classList.remove('chee-copied');
+        }, 1000);
       }
     });
   }

@@ -249,12 +249,20 @@ body.chee-dragging {
   border-radius: 3px;
   background: var(--chee-surface0);
   letter-spacing: 0.5px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
 #chee-analysis-panel .chee-copy-pgn:hover,
 #chee-analysis-panel .chee-copy-fen:hover {
   color: var(--chee-text);
   border-color: var(--chee-overlay0);
+}
+
+#chee-analysis-panel .chee-copy-pgn.chee-copied,
+#chee-analysis-panel .chee-copy-fen.chee-copied {
+  color: var(--chee-green, #a6e3a1);
+  border-color: var(--chee-green, #a6e3a1);
+  background: rgba(166, 227, 161, 0.1);
 }
 
 /* Hide / Toggle buttons */

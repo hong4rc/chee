@@ -403,7 +403,11 @@ export class Panel extends Emitter {
       if (!this._fen) return;
       navigator.clipboard.writeText(this._fen).then(() => {
         this._copyFenEl.textContent = '\u2713';
-        setTimeout(() => { this._copyFenEl.textContent = 'FEN'; }, 1000);
+        this._copyFenEl.classList.add('chee-copied');
+        setTimeout(() => {
+          this._copyFenEl.textContent = 'FEN';
+          this._copyFenEl.classList.remove('chee-copied');
+        }, 1000);
       });
     });
     this._copyPgnEl.addEventListener('click', () => {
