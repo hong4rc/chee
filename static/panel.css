@@ -475,3 +475,12 @@ body.chee-resizing {
 .chee-preview-el {
   animation: chee-fade-in 0.12s ease-out;
 }
+
+@keyframes chee-badge-pop {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+#chee-analysis-panel .chee-classification-badge {
+  animation: chee-badge-pop 0.2s ease-out;
+}
