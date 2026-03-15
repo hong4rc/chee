@@ -2,7 +2,10 @@
 
 import { forEach, sortedIndex } from 'lodash-es';
 import { el, svgEl } from '../../lib/dom.js';
-import { TURN_BLACK } from '../../constants.js';
+import {
+  TURN_BLACK, CENTIPAWN_DIVISOR, MATE_PREFIX, MATE_NEG_PREFIX,
+} from '../../constants.js';
+import { formatCp } from '../../lib/format.js';
 
 const CHART_VB_W = 200;
 const CHART_VB_H = 40;
@@ -15,6 +18,8 @@ export class ChartRenderer {
     this._chartSvg = null;
     this._chartWhite = null;
     this._chartCursor = null;
+    this._tooltip = null;
+    this._container = null;
   }
 
   createDOM() {
@@ -46,7 +51,9 @@ export class ChartRenderer {
       x2: 0,
       y2: CHART_VB_H,
     }));
+    const tooltip = el('div', 'chee-chart-tooltip');
     container.appendChild(svg);
+    container.appendChild(tooltip);
     return container;
   }
 
@@ -55,6 +62,11 @@ export class ChartRenderer {
     this._chartSvg = panelEl.querySelector('.chee-chart svg');
     this._chartWhite = this._chartSvg?.querySelector('.chee-chart-white');
     this._chartCursor = this._chartSvg?.querySelector('.chee-chart-cursor');
+    this._tooltip = panelEl.querySelector('.chee-chart-tooltip');
+    if (this._container) {
+      this._container.addEventListener('mousemove', (e) => this._onMouseMove(e));
+      this._container.addEventListener('mouseleave', () => this._hideTooltip());
+    }
   }
 
   setVisible(show) {
@@ -130,11 +142,54 @@ export class ChartRenderer {
     }
   }
 
+  _onMouseMove(e) {
+    if (!this._container || this._sortedPlies.length === 0) return;
+    const rect = this._container.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const pct = x / rect.width;
+
+    const plies = this._sortedPlies;
+    const minPly = plies[0];
+    const maxPly = Math.max(plies[plies.length - 1], minPly + 1);
+    const hoveredPly = Math.round(minPly + pct * (maxPly - minPly));
+
+    // Find closest ply with data
+    let closest = plies[0];
+    let closestDist = Math.abs(hoveredPly - closest);
+    for (let i = 1; i < plies.length; i++) {
+      const dist = Math.abs(hoveredPly - plies[i]);
+      if (dist < closestDist) {
+        closest = plies[i];
+        closestDist = dist;
+      }
+    }
+
+    const cp = this._scores.get(closest);
+    if (cp === undefined || !this._tooltip) return;
+
+    const moveNum = Math.floor(closest / 2) + 1;
+    const side = closest % 2 === 0 ? '.' : '...';
+    let score;
+    if (Math.abs(cp) >= CHART_MAX_CP) {
+      score = cp > 0 ? MATE_PREFIX : MATE_NEG_PREFIX;
+    } else {
+      score = formatCp(cp / CENTIPAWN_DIVISOR);
+    }
+    this._tooltip.textContent = `${moveNum}${side} ${score}`;
+    this._tooltip.style.left = `${x}px`;
+    this._tooltip.style.display = 'block';
+  }
+
+  _hideTooltip() {
+    if (this._tooltip) this._tooltip.style.display = 'none';
+  }
+
   destroy() {
     this._scores.clear();
     this._sortedPlies = [];
     this._chartSvg = null;
     this._chartWhite = null;
     this._chartCursor = null;
+    this._tooltip = null;
   }
 }

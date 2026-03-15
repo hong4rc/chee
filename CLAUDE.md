@@ -119,7 +119,7 @@ Line endings are enforced as LF on all platforms via `.gitattributes`.
 
 - **ES6 modules** with explicit `.js` extensions in all imports (ESLint-enforced)
 - **lodash-es** for utilities (tree-shakeable named imports)
-- **Constants** centralized in `src/constants.js` — always use named constants instead of hardcoded values (e.g., `TURN_WHITE`/`TURN_BLACK` not `'w'`/`'b'`)
+- **Constants** centralized in `src/constants.js` — always use named constants instead of hardcoded values. This includes chess logic (`TURN_WHITE`/`TURN_BLACK` not `'w'`/`'b'`), display strings (`MATE_PREFIX` not `'M'`), DOM IDs, colors, thresholds, and any value used in more than one place. When adding new functionality, define constants first.
 - **Private members** prefixed with `_` (e.g., `this._observer`)
 - **Debug logging**: `createDebug('chee:namespace')` — enable with `localStorage.debug = 'chee:*'`
 - **No console.log** — ESLint `no-console: 'error'`

@@ -206,9 +206,26 @@ body.chee-dragging {
 
 /* Eval chart */
 #chee-analysis-panel .chee-chart {
+  position: relative;
   height: 40px;
   border-top: 1px solid var(--chee-surface0);
   overflow: hidden;
+}
+
+#chee-analysis-panel .chee-chart-tooltip {
+  display: none;
+  position: absolute;
+  top: 2px;
+  transform: translateX(-50%);
+  background: var(--chee-surface0, #313244);
+  color: var(--chee-text, #cdd6f4);
+  font-size: 9px;
+  font-weight: 600;
+  padding: 1px 4px;
+  border-radius: 3px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1;
 }
 
 #chee-analysis-panel .chee-chart svg {

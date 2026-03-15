@@ -193,6 +193,8 @@ export const PANEL_ID = 'chee-analysis-panel';
 export const NUM_LINES = 3;
 export const MAX_PV_MOVES = 8;
 export const CENTIPAWN_DIVISOR = 100;
+export const MATE_PREFIX = 'M';
+export const MATE_NEG_PREFIX = '-M';
 
 // ─── DOM exploration limits ──────────────────────────────────
 export const MAX_EXPLORE_CHILDREN = 30;
