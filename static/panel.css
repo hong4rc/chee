@@ -248,12 +248,18 @@ body.chee-dragging {
 #chee-analysis-panel .chee-accuracy {
   font-weight: 700;
   font-size: 11px;
-  color: var(--chee-green);
   flex: 1;
+  display: flex;
+  gap: 4px;
 }
 
-#chee-analysis-panel .chee-accuracy:empty {
-  display: none;
+
+#chee-analysis-panel .chee-acc-white {
+  color: #e8e8e8;
+}
+
+#chee-analysis-panel .chee-acc-black {
+  color: #888;
 }
 
 /* Copy PGN / FEN buttons */

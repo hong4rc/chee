@@ -70,6 +70,7 @@ export class Panel extends Emitter {
     document.body.appendChild(this._showBtn);
 
     this._header.bind(this._el);
+    this._header.initAccuracy();
     this._chart.bind(this._el);
     this._lineRenderer.bind(this._el);
     this._attachListeners();

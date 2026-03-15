@@ -189,15 +189,18 @@ export class HeaderRenderer {
     }
   }
 
+  initAccuracy() {
+    this.showAccuracy({ white: null, black: null });
+  }
+
   showAccuracy({ white, black }) {
     if (!this._accuracyEl) return;
-    if (white === null && black === null) {
-      this._accuracyEl.textContent = '';
-      return;
-    }
     const w = white !== null ? `${white}%` : '-';
     const b = black !== null ? `${black}%` : '-';
-    this._accuracyEl.textContent = `Acc: ${w}|${b}`;
+    const wSpan = el('span', 'chee-acc-white', w);
+    const bSpan = el('span', 'chee-acc-black', b);
+    this._accuracyEl.innerHTML = '';
+    this._accuracyEl.append(wSpan, ' ', bSpan);
   }
 
   clearClassification() {
