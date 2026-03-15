@@ -1,6 +1,8 @@
-// Trapboy plugin: sacrifice-based trap detection.
-// Phase 1: detect sacrifices where our best move leaves a piece hanging.
-// Phase 2: verify the "greed line" (opponent captures) leads to a winning position.
+// Trapboy plugin: trap detection via three methods:
+// 1. Sacrifice detection: engine PV leaves a piece hanging → opponent captures → punish.
+// 2. Tempting capture detection: opponent has a "free" piece the engine rejects taking →
+//    verify the capture leads to a losing position (humans take free pieces, engines don't).
+// 3. Opening trap database: known named traps matched by FEN position.
 // Tracks the trap sequence: if you play the bait, advances to show the next step.
 
 import createDebug from '../../lib/debug.js';
@@ -11,15 +13,16 @@ import { applyUciMove } from '../san.js';
 import { boardToFen } from '../fen.js';
 import { boardDiffToUci } from '../board-diff.js';
 import { isSquareAttacked } from '../attacks.js';
+import { lookupOpeningTrap } from '../opening-traps.js';
 import {
   PLUGIN_TRAPBOY, LAST_RANK, BOARD_SIZE,
   TURN_WHITE, toggleTurn,
   WHITE_PAWN, WHITE_KNIGHT, WHITE_BISHOP, WHITE_ROOK, WHITE_QUEEN, WHITE_KING,
   TRAPBOY_MIN_DEPTH, TRAPBOY_GREED_DEPTH,
-  TRAPBOY_TRAP_THRESHOLD, TRAPBOY_MIN_SACRIFICE_VALUE,
+  TRAPBOY_TRAP_THRESHOLD, TRAPBOY_MIN_SACRIFICE_VALUE, TRAPBOY_MAX_DEFENDERS,
   TRAPBOY_BAIT_COLOR, TRAPBOY_GREED_COLOR, TRAPBOY_GOD_COLOR,
   TRAPBOY_ARROW_OPACITY, TRAPBOY_GREED_ARROW_OPACITY, TRAPBOY_GOD_ARROW_OPACITY,
-  TRAPBOY_GOD_DASH,
+  TRAPBOY_GOD_DASH, TRAPBOY_OPPONENT_COLOR, TRAPBOY_OPPONENT_OPACITY, TRAPBOY_OPPONENT_DASH,
 } from '../../constants.js';
 
 const log = createDebug('chee:trapboy');
@@ -27,6 +30,7 @@ const log = createDebug('chee:trapboy');
 const LAYER_BAIT = 'trapboy-bait';
 const LAYER_GREED = 'trapboy-greed';
 const LAYER_GOD = 'trapboy-god';
+const LAYER_OPPONENT = 'trapboy-opponent';
 
 const PIECE_VALUES = {
   [WHITE_PAWN]: 1,
@@ -88,6 +92,95 @@ function validateMoveSequence(board, moves) {
     sim = applyUciMove(sim, uci);
   }
   return true;
+}
+
+/**
+ * Count how many pieces of the given color defend (can reach) a target square.
+ * Uses the same canReach logic as _findGreedyCapture.
+ */
+function countDefenders(board, targetFile, targetRank, byColor) {
+  const isWhite = byColor === TURN_WHITE;
+  let count = 0;
+  for (let r = 0; r < BOARD_SIZE; r++) {
+    for (let f = 0; f < BOARD_SIZE; f++) {
+      const p = board[LAST_RANK - r][f];
+      if (!p) continue;
+      const pIsWhite = p === p.toUpperCase();
+      if (pIsWhite !== isWhite) continue;
+      if (f === targetFile && r === targetRank) continue; // skip the bait piece itself
+      const pu = p.toUpperCase();
+      if (!canReach(pu, f, r, targetFile, targetRank, board)) continue;
+      if (pu === WHITE_PAWN) {
+        const dir = isWhite ? 1 : -1;
+        if (targetRank - r !== dir) continue;
+      }
+      count++;
+    }
+  }
+  return count;
+}
+
+/**
+ * Find tempting captures available to the side to move.
+ * A capture is "tempting" if the target value >= capturer value (free piece / winning material).
+ * Returns array sorted by target value descending (most tempting first).
+ */
+function findTemptingCaptures(board, turn) {
+  const isWhite = turn === TURN_WHITE;
+  const captures = [];
+
+  for (let r = 0; r < BOARD_SIZE; r++) {
+    for (let f = 0; f < BOARD_SIZE; f++) {
+      const target = board[LAST_RANK - r][f];
+      if (!target) continue;
+
+      // Target must be opponent's piece
+      const targetIsWhite = target === target.toUpperCase();
+      if (targetIsWhite === isWhite) continue;
+
+      const targetValue = pieceValue(target);
+      if (targetValue < TRAPBOY_MIN_SACRIFICE_VALUE) continue;
+
+      // Find lowest-value attacker of our color that can reach this square
+      let bestUci = null;
+      let bestValue = Infinity;
+
+      for (let ar = 0; ar < BOARD_SIZE; ar++) {
+        for (let af = 0; af < BOARD_SIZE; af++) {
+          const a = board[LAST_RANK - ar][af];
+          if (!a) continue;
+          const aIsWhite = a === a.toUpperCase();
+          if (aIsWhite !== isWhite) continue;
+          const au = a.toUpperCase();
+          if (!canReach(au, af, ar, f, r, board)) continue;
+          if (au === WHITE_PAWN) {
+            const dir = isWhite ? 1 : -1;
+            if (r - ar !== dir) continue;
+          }
+          const val = pieceValue(a);
+          if (val < bestValue) {
+            bestValue = val;
+            bestUci = toUci(af, ar, f, r);
+          }
+        }
+      }
+
+      if (!bestUci) continue;
+
+      // Tempting: target value >= capturer value (free piece or winning trade)
+      if (targetValue < bestValue) continue;
+
+      captures.push({
+        targetFile: f,
+        targetRank: r,
+        captureUci: bestUci,
+        capturedValue: targetValue,
+      });
+    }
+  }
+
+  captures.sort((a, b) => b.capturedValue - a.capturedValue);
+  return captures;
 }
 
 export class TrapboyPlugin extends AnalysisPlugin {
@@ -163,10 +256,34 @@ export class TrapboyPlugin extends AnalysisPlugin {
 
     this._phase2Pending = false;
     this._trapData = null;
-    this._prevBoard = boardState.board;
-    this._prevPly = currentPly;
     this._clearAllLayers(renderCtx.arrow);
     this._clearTrapPanel(renderCtx.panel);
+
+    // Check opening trap database for known trap patterns
+    if (this._settings.showTrapboy && boardState.fen) {
+      const openingTrap = lookupOpeningTrap(boardState.fen);
+      if (openingTrap) {
+        this._trapData = {
+          steps: openingTrap.steps,
+          stepIndex: 0,
+          godUci: openingTrap.godUci,
+          startPly: currentPly,
+          name: openingTrap.name,
+        };
+        log('Opening trap detected:', openingTrap.name);
+        const isFlipped = renderCtx.isFlipped();
+        this._drawTrap(renderCtx.arrow, isFlipped);
+        this._showTrapPanel(
+          renderCtx.panel,
+          this._trapData.steps,
+          this._trapData.stepIndex,
+          this._trapData.godUci,
+        );
+      }
+    }
+
+    this._prevBoard = boardState.board;
+    this._prevPly = currentPly;
   }
 
   onEval(data, boardState, renderCtx) {
@@ -220,7 +337,20 @@ export class TrapboyPlugin extends AnalysisPlugin {
       // If god-mode IS the greedy capture, it's not a trap
       if (godModeUci === greedyCapture) continue;
 
-      log('Sacrifice detected:', sacrificeUci, 'greedy capture:', greedyCapture, 'god-mode:', godModeUci);
+      // If the bait square is over-defended, humans won't take — it looks suspicious
+      const defenders = countDefenders(boardAfter, toFile, toRank, turn);
+      if (defenders > TRAPBOY_MAX_DEFENDERS) continue;
+
+      log(
+        'Sacrifice detected:',
+        sacrificeUci,
+        'greedy capture:',
+        greedyCapture,
+        'god-mode:',
+        godModeUci,
+        'defenders:',
+        defenders,
+      );
 
       // Build FEN for position after: sacrifice + greedy capture
       const boardAfterGreed = applyUciMove(boardAfter, greedyCapture);
@@ -239,7 +369,37 @@ export class TrapboyPlugin extends AnalysisPlugin {
       return; // only process first qualifying line
     }
 
-    // No sacrifice found in any line
+    // Phase 1b: Check for tempting captures the engine rejects.
+    // Humans take "free" pieces — if a hanging piece is a trap, detect it.
+    const temptingCaptures = findTemptingCaptures(board, turn);
+    for (const target of temptingCaptures) {
+      // Skip if engine recommends this capture (it's a good move, not a trap)
+      if (data.lines.some((l) => l.pv && l.pv[0] === target.captureUci)) continue;
+
+      const boardAfterCapture = applyUciMove(board, target.captureUci);
+      const captureFen = boardToFen(boardAfterCapture, toggleTurn(turn), '-', '-', 1);
+
+      this._phase2Pending = true;
+      this._showTrapStatus(renderCtx.panel, 'Verifying...');
+      const capturedFen = this._activeFen;
+      const godModeUci = data.lines[0]?.pv?.[0] || null;
+
+      this._requestSecondaryAnalysis(
+        captureFen,
+        TRAPBOY_GREED_DEPTH,
+        (evalData) => this._onTemptingCaptureEval(evalData, {
+          captureUci: target.captureUci,
+          targetFile: target.targetFile,
+          targetRank: target.targetRank,
+          godModeUci,
+          capturedFen,
+          board,
+        }, renderCtx),
+      );
+      return; // only check first qualifying tempting capture
+    }
+
+    // No trap found by any method
     this._showTrapStatus(renderCtx.panel, 'No trap');
   }
 
@@ -273,14 +433,18 @@ export class TrapboyPlugin extends AnalysisPlugin {
     // Collect greed line continuation moves (our punishing moves)
     const greedMoves = line1.pv ? line1.pv.slice(0, 3) : [];
 
-    // Punishment must not be a simple recapture on the bait square — that's obvious
+    // Punishment must not be a simple recapture on the bait square — that's obvious.
+    // Check the first 2 punishment moves (not just the first) to catch multi-step take-backs.
     if (greedMoves.length > 0) {
       const baitDest = parseUci(trapInfo.sacrificeUci);
-      const punishDest = parseUci(greedMoves[0]);
-      if (punishDest.toFile === baitDest.toFile && punishDest.toRank === baitDest.toRank) {
-        log('Punishment is a recapture on bait square — too obvious');
-        this._showTrapStatus(renderCtx.panel, 'No trap');
-        return;
+      const movesToCheck = Math.min(greedMoves.length, 2);
+      for (let mi = 0; mi < movesToCheck; mi++) {
+        const punishDest = parseUci(greedMoves[mi]);
+        if (punishDest.toFile === baitDest.toFile && punishDest.toRank === baitDest.toRank) {
+          log('Punishment move', mi, 'recaptures on bait square — too obvious');
+          this._showTrapStatus(renderCtx.panel, 'No trap');
+          return;
+        }
       }
     }
 
@@ -313,9 +477,84 @@ export class TrapboyPlugin extends AnalysisPlugin {
     this._showTrapPanel(renderCtx.panel, this._trapData.steps, this._trapData.stepIndex, this._trapData.godUci);
   }
 
+  _onTemptingCaptureEval(data, trapInfo, renderCtx) {
+    if (!this._phase2Pending) return;
+    if (this._activeFen !== trapInfo.capturedFen) {
+      this._phase2Pending = false;
+      return;
+    }
+    if (!data.complete && data.depth < TRAPBOY_GREED_DEPTH) return;
+
+    this._phase2Pending = false;
+
+    if (!data.lines || data.lines.length === 0) {
+      this._showTrapStatus(renderCtx.panel, 'No trap');
+      return;
+    }
+    const line1 = data.lines[0];
+
+    // After the tempting capture, the OTHER side moves — check if they're winning
+    let { score } = line1;
+    if (line1.mate !== null) {
+      score = line1.mate > 0 ? 10000 : -10000;
+    }
+    if (score < TRAPBOY_TRAP_THRESHOLD) {
+      log('Tempting capture score', score, '< threshold — not a trap');
+      this._showTrapStatus(renderCtx.panel, 'No trap');
+      return;
+    }
+
+    const punishMoves = line1.pv ? line1.pv.slice(0, 3) : [];
+
+    // Recapture filter: if punishment just takes back on the captured square, not a trap
+    if (punishMoves.length > 0) {
+      const movesToCheck = Math.min(punishMoves.length, 2);
+      for (let mi = 0; mi < movesToCheck; mi++) {
+        const dest = parseUci(punishMoves[mi]);
+        if (dest.toFile === trapInfo.targetFile && dest.toRank === trapInfo.targetRank) {
+          log('Punishment recaptures on target square — not a trap');
+          this._showTrapStatus(renderCtx.panel, 'No trap');
+          return;
+        }
+      }
+    }
+
+    // Build steps: tempting capture (Greed) + punishment moves
+    const steps = [
+      { uci: trapInfo.captureUci, label: 'Greed' },
+      ...punishMoves.map((uci, idx) => ({ uci, label: idx === 0 ? 'Punish' : `Punish ${idx + 1}` })),
+    ];
+
+    const allMoves = steps.map((s) => s.uci);
+    if (!validateMoveSequence(trapInfo.board, allMoves)) {
+      log('Tempting capture trap validation failed');
+      this._showTrapStatus(renderCtx.panel, 'No trap');
+      return;
+    }
+
+    log('TEMPTING CAPTURE TRAP! Steps:', steps.map((s) => `${s.label}:${s.uci}`).join(' '));
+
+    this._trapData = {
+      steps,
+      stepIndex: 0,
+      godUci: trapInfo.godModeUci,
+      startPly: this._prevPly,
+    };
+
+    const isFlipped = renderCtx.isFlipped();
+    this._drawTrap(renderCtx.arrow, isFlipped);
+    this._showTrapPanel(
+      renderCtx.panel,
+      this._trapData.steps,
+      this._trapData.stepIndex,
+      this._trapData.godUci,
+    );
+  }
+
   _showTrapPanel(panel, steps, stepIndex, godUci) {
     const wrap = el('div', 'chee-trapboy');
-    const title = el('span', 'chee-trapboy-title', 'TRAP');
+    const titleText = this._trapData?.name || 'TRAP';
+    const title = el('span', 'chee-trapboy-title', titleText);
     wrap.appendChild(title);
 
     for (let i = 0; i < steps.length; i++) {
@@ -329,8 +568,10 @@ export class TrapboyPlugin extends AnalysisPlugin {
       wrap.appendChild(span);
     }
 
-    const godReadable = godUci && godUci.length >= 4 ? `${godUci.slice(0, 2)}-${godUci.slice(2, 4)}` : godUci;
-    wrap.appendChild(el('span', 'chee-trapboy-god', `Escape ${godReadable}`));
+    if (godUci) {
+      const godReadable = godUci.length >= 4 ? `${godUci.slice(0, 2)}-${godUci.slice(2, 4)}` : godUci;
+      wrap.appendChild(el('span', 'chee-trapboy-god', `Escape ${godReadable}`));
+    }
     panel.setSlot('trapboy', wrap);
   }
 
@@ -350,6 +591,7 @@ export class TrapboyPlugin extends AnalysisPlugin {
     const remaining = steps.slice(stepIndex);
     const baitMoves = remaining.filter((s) => s.label === 'Bait').map((s) => s.uci);
     const punishMoves = remaining.filter((s) => s.label !== 'Bait' && s.label !== 'Greed').map((s) => s.uci);
+    const opponentMoves = remaining.filter((s) => s.label === 'Greed').map((s) => s.uci);
 
     // Bait arrow (magenta) — only if bait hasn't been played yet
     if (baitMoves.length > 0) {
@@ -361,7 +603,7 @@ export class TrapboyPlugin extends AnalysisPlugin {
       arrow.clearLayer(LAYER_BAIT);
     }
 
-    // Greed/Punish line arrows (red) — our punishing continuation
+    // Punish arrows (red) — our punishing continuation
     if (punishMoves.length > 0) {
       arrow.drawLayer(LAYER_GREED, punishMoves, isFlipped, {
         color: TRAPBOY_GREED_COLOR,
@@ -371,8 +613,19 @@ export class TrapboyPlugin extends AnalysisPlugin {
       arrow.clearLayer(LAYER_GREED);
     }
 
+    // Opponent arrows (amber dashed) — expected opponent responses
+    if (opponentMoves.length > 0) {
+      arrow.drawLayer(LAYER_OPPONENT, opponentMoves, isFlipped, {
+        color: TRAPBOY_OPPONENT_COLOR,
+        opacity: TRAPBOY_OPPONENT_OPACITY,
+        dashArray: TRAPBOY_OPPONENT_DASH,
+      });
+    } else {
+      arrow.clearLayer(LAYER_OPPONENT);
+    }
+
     // God-mode arrow (green dashed) — opponent's only safe response (only before bait is played)
-    if (stepIndex === 0) {
+    if (stepIndex === 0 && godUci) {
       arrow.drawLayer(LAYER_GOD, [godUci], isFlipped, {
         color: TRAPBOY_GOD_COLOR,
         opacity: TRAPBOY_GOD_ARROW_OPACITY,
@@ -419,6 +672,7 @@ export class TrapboyPlugin extends AnalysisPlugin {
     arrow.clearLayer(LAYER_BAIT);
     arrow.clearLayer(LAYER_GREED);
     arrow.clearLayer(LAYER_GOD);
+    arrow.clearLayer(LAYER_OPPONENT);
   }
 
   getPersistentLayer(getRenderCtx) {
