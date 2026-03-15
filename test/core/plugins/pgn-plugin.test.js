@@ -43,7 +43,7 @@ describe('PgnPlugin', () => {
       const afterE4 = boardFromFen('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR');
       pgn.onBoardChange(makeBoardState(afterE4, 'afterE4Fen', 1, TURN_BLACK));
 
-      // Export should have one move
+      // Export should have one move (move number and SAN as separate tokens)
       const result = pgn.exportPgn();
       expect(result).toContain('1. e4');
     });
@@ -61,8 +61,8 @@ describe('PgnPlugin', () => {
       const result = pgn.exportPgn();
       // Extract just the move text (after the blank line separating headers from moves)
       const moveText = result.split('\n\n')[1] || '';
-      // Should only have 1 move number in the move text
-      const moveNumbers = moveText.match(/\d+\.\s/g) || [];
+      // Should only have 1 move number token in the move text
+      const moveNumbers = moveText.match(/\d+\./g) || [];
       expect(moveNumbers.length).toBe(1);
     });
   });
@@ -105,25 +105,81 @@ describe('PgnPlugin', () => {
       pgn.onPluginEvent('classification:lock', { ply: 0, result: { label: LABEL_BLUNDER, symbol: '??' } });
 
       const result = pgn.exportPgn();
-      expect(result).toContain('e4??');
+      // PGN export format uses NAGs, not inline symbols
+      expect(result).toContain('e4');
       expect(result).toContain('$4'); // Blunder NAG
     });
   });
 
   describe('exportPgn', () => {
-    it('generates correct PGN headers', () => {
+    it('generates correct Seven Tag Roster', () => {
       const pgn = new PgnPlugin();
-      pgn.onBoardChange(makeBoardState(STARTING_BOARD, 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', 0, TURN_WHITE));
+      pgn.onBoardChange(makeBoardState(
+        STARTING_BOARD,
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        0,
+        TURN_WHITE,
+      ));
 
       const result = pgn.exportPgn();
       expect(result).toContain('[Event "Live Chess"]');
       expect(result).toContain('[Site "www.chess.com"]');
       expect(result).toContain('[Date "');
-      expect(result).toContain('[White "White"]');
-      expect(result).toContain('[Black "Black"]');
+      expect(result).toContain('[Round "?"]');
+      expect(result).toContain('[White "?"]');
+      expect(result).toContain('[Black "?"]');
       expect(result).toContain('[Result "*"]');
       // Standard FEN should NOT include SetUp/FEN headers
       expect(result).not.toContain('[SetUp');
+
+      // Verify STR order: Event before Site before Date before Round before White before Black before Result
+      const eventIdx = result.indexOf('[Event');
+      const siteIdx = result.indexOf('[Site');
+      const dateIdx = result.indexOf('[Date');
+      const roundIdx = result.indexOf('[Round');
+      const whiteIdx = result.indexOf('[White');
+      const blackIdx = result.indexOf('[Black');
+      const resultIdx = result.indexOf('[Result');
+      expect(eventIdx).toBeLessThan(siteIdx);
+      expect(siteIdx).toBeLessThan(dateIdx);
+      expect(dateIdx).toBeLessThan(roundIdx);
+      expect(roundIdx).toBeLessThan(whiteIdx);
+      expect(whiteIdx).toBeLessThan(blackIdx);
+      expect(blackIdx).toBeLessThan(resultIdx);
+    });
+
+    it('uses player names from adapter', () => {
+      const pgn = new PgnPlugin();
+      pgn.setup({
+        panel: null,
+        adapter: {
+          readPlayerNames: () => ({ white: 'Magnus', black: 'Hikaru' }),
+          readGameResult: () => '*',
+          readMoveList: () => null,
+        },
+      });
+      pgn.onBoardChange(makeBoardState(STARTING_BOARD, 'startFen', 0, TURN_WHITE));
+
+      const result = pgn.exportPgn();
+      expect(result).toContain('[White "Magnus"]');
+      expect(result).toContain('[Black "Hikaru"]');
+    });
+
+    it('uses game result from adapter', () => {
+      const pgn = new PgnPlugin();
+      pgn.setup({
+        panel: null,
+        adapter: {
+          readPlayerNames: () => null,
+          readGameResult: () => '1-0',
+          readMoveList: () => null,
+        },
+      });
+      pgn.onBoardChange(makeBoardState(STARTING_BOARD, 'startFen', 0, TURN_WHITE));
+
+      const result = pgn.exportPgn();
+      expect(result).toContain('[Result "1-0"]');
+      expect(result.trim()).toMatch(/1-0$/);
     });
 
     it('includes SetUp/FEN headers for non-standard start position', () => {
@@ -173,7 +229,7 @@ describe('PgnPlugin', () => {
       expect(result).toContain('{#-2/22}');
     });
 
-    it('appends inline classification symbols', () => {
+    it('uses NAG codes for classifications', () => {
       const pgn = new PgnPlugin();
       pgn.onBoardChange(makeBoardState(STARTING_BOARD, 'startFen', 0, TURN_WHITE));
       const afterE4 = boardFromFen('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR');
@@ -181,8 +237,7 @@ describe('PgnPlugin', () => {
 
       pgn.onPluginEvent('classification:lock', { ply: 0, result: { label: LABEL_BRILLIANT, symbol: '!!' } });
       const result = pgn.exportPgn();
-      expect(result).toContain('e4!!');
-      expect(result).toContain('$3');
+      expect(result).toContain('$3'); // Brilliant NAG
     });
 
     it('handles NAG codes correctly for various labels', () => {
@@ -193,11 +248,10 @@ describe('PgnPlugin', () => {
 
       pgn.onPluginEvent('classification:lock', { ply: 0, result: { label: LABEL_INACCURACY, symbol: '?!' } });
       const result = pgn.exportPgn();
-      expect(result).toContain('e4?!');
-      expect(result).toContain('$6');
+      expect(result).toContain('$6'); // Inaccuracy NAG
     });
 
-    it('does not append symbol for Good classification', () => {
+    it('does not append NAG for Good classification', () => {
       const pgn = new PgnPlugin();
       pgn.onBoardChange(makeBoardState(STARTING_BOARD, 'startFen', 0, TURN_WHITE));
       const afterE4 = boardFromFen('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR');
@@ -205,10 +259,8 @@ describe('PgnPlugin', () => {
 
       pgn.onPluginEvent('classification:lock', { ply: 0, result: { label: 'Good', symbol: '' } });
       const result = pgn.exportPgn();
-      // No symbol appended, no NAG
-      expect(result).toContain('1. e4 ');
-      expect(result).not.toContain('e4?');
-      expect(result).not.toContain('e4!');
+      expect(result).toContain('e4');
+      expect(result).not.toContain('$');
     });
 
     it('black first move uses ... notation', () => {
@@ -224,7 +276,73 @@ describe('PgnPlugin', () => {
       expect(result).toContain('1... e5');
     });
 
-    it('ends with *', () => {
+    it('repeats black move number after annotation', () => {
+      const pgn = new PgnPlugin();
+      pgn.onBoardChange(makeBoardState(STARTING_BOARD, 'startFen', 0, TURN_WHITE));
+
+      const afterE4 = boardFromFen('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR');
+      pgn.onBoardChange(makeBoardState(afterE4, 'e4Fen', 1, TURN_BLACK));
+      pgn.onEval({ depth: 22, lines: [{ score: 30, mate: null }] }, { ply: 0 });
+
+      const afterE5 = boardFromFen('rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR');
+      pgn.onBoardChange(makeBoardState(afterE5, 'e5Fen', 2, TURN_WHITE));
+
+      const result = pgn.exportPgn();
+      // After eval comment on white's move, black's move number must be repeated
+      expect(result).toContain('1... e5');
+    });
+
+    it('wraps movetext lines under 80 characters', () => {
+      const pgn = new PgnPlugin();
+      pgn.onBoardChange(makeBoardState(STARTING_BOARD, 'startFen', 0, TURN_WHITE));
+
+      // Play enough moves to exceed 80 chars
+      const positions = [
+        'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR',
+        'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR',
+        'rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R',
+        'r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R',
+        'r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R',
+        'r1bqkbnr/1ppp1ppp/p1n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R',
+        'r1bqkbnr/1ppp1ppp/p1n5/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R',
+        'r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R',
+      ];
+      const turns = [TURN_BLACK, TURN_WHITE, TURN_BLACK, TURN_WHITE, TURN_BLACK, TURN_WHITE, TURN_BLACK, TURN_WHITE];
+
+      for (let i = 0; i < positions.length; i++) {
+        const board = boardFromFen(positions[i]);
+        pgn.onBoardChange(makeBoardState(board, `fen${i}`, i + 1, turns[i]));
+        pgn.onEval({ depth: 22, lines: [{ score: 30, mate: null }] }, { ply: i });
+      }
+
+      const result = pgn.exportPgn();
+      const lines = result.split('\n');
+      // All lines should be under 80 chars
+      for (const line of lines) {
+        expect(line.length).toBeLessThan(80);
+      }
+    });
+
+    it('uses DOM move list when adapter provides one', () => {
+      const pgn = new PgnPlugin();
+      pgn.setup({
+        panel: null,
+        adapter: {
+          readPlayerNames: () => null,
+          readGameResult: () => '*',
+          readMoveList: () => ({ moves: ['e4', 'e5', 'Nf3', 'Nc6'], startPly: 0 }),
+        },
+      });
+      pgn.onBoardChange(makeBoardState(STARTING_BOARD, 'startFen', 0, TURN_WHITE));
+
+      const result = pgn.exportPgn();
+      expect(result).toContain('1. e4');
+      expect(result).toContain('e5');
+      expect(result).toContain('2. Nf3');
+      expect(result).toContain('Nc6');
+    });
+
+    it('ends with game termination marker', () => {
       const pgn = new PgnPlugin();
       pgn.onBoardChange(makeBoardState(STARTING_BOARD, 'startFen', 0, TURN_WHITE));
       const result = pgn.exportPgn();

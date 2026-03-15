@@ -6,12 +6,13 @@ import { AnalysisPlugin } from '../plugin.js';
 import { boardDiffToUci } from '../board-diff.js';
 import { uciToSan } from '../san.js';
 import {
-  PLUGIN_PGN, TURN_WHITE, CENTIPAWN_DIVISOR, PGN_NAGS, EVT_PGN_COPY,
+  PLUGIN_PGN, TURN_WHITE, TURN_BLACK, CENTIPAWN_DIVISOR, PGN_NAGS, EVT_PGN_COPY,
 } from '../../constants.js';
 
 const log = createDebug('chee:pgn');
 
 const STANDARD_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+const PGN_MAX_LINE_LEN = 80;
 
 function formatEvalComment(ev) {
   if (ev.mate !== null && ev.mate !== undefined) {
@@ -22,11 +23,23 @@ function formatEvalComment(ev) {
   return `{${sign}${cp.toFixed(1)}/${ev.depth}}`;
 }
 
-function classificationSuffix(label, symbol) {
-  if (!symbol) return '';
-  // Append known PGN symbols inline: ?!, ??, !!
-  if (symbol === '?!' || symbol === '??' || symbol === '!!') return symbol;
-  return '';
+// Wrap tokens into lines under 80 characters per the PGN export format spec.
+function wrapMovetext(tokens) {
+  const lines = [];
+  let line = '';
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+    if (line.length === 0) {
+      line = token;
+    } else if (line.length + 1 + token.length < PGN_MAX_LINE_LEN) {
+      line += ` ${token}`;
+    } else {
+      lines.push(line);
+      line = token;
+    }
+  }
+  if (line.length > 0) lines.push(line);
+  return lines.join('\n');
 }
 
 export class PgnPlugin extends AnalysisPlugin {
@@ -41,10 +54,12 @@ export class PgnPlugin extends AnalysisPlugin {
     this._startFen = null;
     this._initialised = false;
     this._panel = null;
+    this._adapter = null;
   }
 
-  setup({ panel }) {
+  setup({ panel, adapter }) {
     this._panel = panel;
+    this._adapter = adapter;
   }
 
   onBoardChange(boardState) {
@@ -117,51 +132,93 @@ export class PgnPlugin extends AnalysisPlugin {
   }
 
   exportPgn() {
-    const headers = [];
-    const site = window.location.hostname || 'Unknown';
+    const site = window.location.hostname || '?';
     const now = new Date();
     const dateStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
 
+    const players = (this._adapter && this._adapter.readPlayerNames()) || null;
+    const result = (this._adapter && this._adapter.readGameResult()) || '*';
+    const whiteName = (players && players.white) || '?';
+    const blackName = (players && players.black) || '?';
+
+    // Seven Tag Roster (STR) in required order per PGN spec
+    const headers = [];
     headers.push('[Event "Live Chess"]');
     headers.push(`[Site "${site}"]`);
     headers.push(`[Date "${dateStr}"]`);
-    headers.push('[White "White"]');
-    headers.push('[Black "Black"]');
-    headers.push('[Result "*"]');
+    headers.push('[Round "?"]');
+    headers.push(`[White "${whiteName}"]`);
+    headers.push(`[Black "${blackName}"]`);
+    headers.push(`[Result "${result}"]`);
 
     if (this._startFen && this._startFen !== STANDARD_FEN) {
       headers.push('[SetUp "1"]');
       headers.push(`[FEN "${this._startFen}"]`);
     }
 
-    const parts = [];
-    for (let i = 0; i < this._moves.length; i++) {
-      const { ply, san, turn } = this._moves[i];
-      const cls = this._classifications.get(ply);
-      const suffix = cls ? classificationSuffix(cls.label, cls.symbol) : '';
-      const moveSan = san + suffix;
+    const domMoveList = this._adapter && this._adapter.readMoveList();
+    const tokens = domMoveList
+      ? this._exportFromDomMoves(domMoveList)
+      : this._exportFromDiffMoves();
 
+    tokens.push(result);
+    const movetext = wrapMovetext(tokens);
+    const pgn = `${headers.join('\n')}\n\n${movetext}\n`;
+    log.info('exported PGN:', pgn.length, 'chars');
+    return pgn;
+  }
+
+  _annotateMoveTokens(san, ply, tokens, needsMoveNum, turn) {
+    const cls = this._classifications.get(ply);
+    const nag = cls ? PGN_NAGS[cls.label] : null;
+
+    if (needsMoveNum) {
+      const moveNum = Math.floor(ply / 2) + 1;
       if (turn === TURN_WHITE) {
-        const moveNum = Math.floor(ply / 2) + 1;
-        parts.push(`${moveNum}. ${moveSan}`);
-      } else if (i === 0) {
-        const moveNum = Math.floor(ply / 2) + 1;
-        parts.push(`${moveNum}... ${moveSan}`);
+        tokens.push(`${moveNum}.`);
       } else {
-        parts.push(moveSan);
+        tokens.push(`${moveNum}...`);
       }
-
-      const nag = cls ? PGN_NAGS[cls.label] : null;
-      if (nag) parts.push(nag);
-
-      const ev = this._evals.get(ply);
-      if (ev) parts.push(formatEvalComment(ev));
     }
 
-    parts.push('*');
-    const pgn = `${headers.join('\n')}\n\n${parts.join(' ')}`;
-    log.info('exported PGN:', pgn.length, 'chars,', this._moves.length, 'moves');
-    return pgn;
+    tokens.push(san);
+    if (nag) tokens.push(nag);
+
+    const ev = this._evals.get(ply);
+    if (ev) {
+      tokens.push(formatEvalComment(ev));
+    }
+  }
+
+  _exportFromDomMoves(domMoveList) {
+    const { moves, startPly } = domMoveList;
+    const tokens = [];
+    let prevHadAnnotation = false;
+    for (let i = 0; i < moves.length; i++) {
+      const ply = startPly + i;
+      const turn = ply % 2 === 0 ? TURN_WHITE : TURN_BLACK;
+      // Move number required for: white moves, first move, or after annotation
+      const needsMoveNum = turn === TURN_WHITE || i === 0 || prevHadAnnotation;
+      const cls = this._classifications.get(ply);
+      const ev = this._evals.get(ply);
+      this._annotateMoveTokens(moves[i], ply, tokens, needsMoveNum, turn);
+      prevHadAnnotation = !!(cls && PGN_NAGS[cls.label]) || !!ev;
+    }
+    return tokens;
+  }
+
+  _exportFromDiffMoves() {
+    const tokens = [];
+    let prevHadAnnotation = false;
+    for (let i = 0; i < this._moves.length; i++) {
+      const { ply, san, turn } = this._moves[i];
+      const needsMoveNum = turn === TURN_WHITE || i === 0 || prevHadAnnotation;
+      const cls = this._classifications.get(ply);
+      const ev = this._evals.get(ply);
+      this._annotateMoveTokens(san, ply, tokens, needsMoveNum, turn);
+      prevHadAnnotation = !!(cls && PGN_NAGS[cls.label]) || !!ev;
+    }
+    return tokens;
   }
 
   destroy() {

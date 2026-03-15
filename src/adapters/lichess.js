@@ -1,6 +1,8 @@
 // Lichess adapter: chessground DOM, piece parsing, turn/EP detection
 
-import { forEach, includes, find } from 'lodash-es';
+import {
+  forEach, includes, find, map,
+} from 'lodash-es';
 import createDebug from '../lib/debug.js';
 import { BoardAdapter, detectEnPassantFromSquares } from './base.js';
 import { indexOfNode } from '../lib/dom.js';
@@ -121,6 +123,13 @@ export class LichessAdapter extends BoardAdapter {
       }
     });
     return imgMap;
+  }
+
+  readMoveList() {
+    const moveEls = document.querySelectorAll(SEL_MOVES);
+    if (moveEls.length === 0) return null;
+    const moves = map(Array.from(moveEls), (el) => el.textContent.trim());
+    return { moves, startPly: 0 };
   }
 
   // Returns { index, total } where index is the 0-based active move index

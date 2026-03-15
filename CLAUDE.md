@@ -97,7 +97,7 @@ Line endings are enforced as LF on all platforms via `.gitattributes`.
 **Plugins** (`core/plugins/`):
 - `classification-plugin.js` — move classification (Brilliant → Blunder), board badge + insight arrow. Self-wires classifier events in `setup()`, broadcasts `classification:lock` for PGN.
 - `hint-plugin.js` — pre-move hint arrows (classification-based spread or always-on best move). Waits for engine to reach full depth before drawing when `waitForComplete` is enabled (default on) or in puzzle mode.
-- `pgn-plugin.js` — PGN export with eval comments, classification symbols, NAG codes. Receives classifications via `onPluginEvent('classification:lock')`.
+- `pgn-plugin.js` — PGN export with eval comments and NAG codes. Reads move list, player names, and game result from adapter DOM at export time; falls back to board-diff tracking. Receives classifications via `onPluginEvent('classification:lock')`.
 - `guard-plugin.js` — blunder guard: warns when clicked piece isn't in any engine top line. Uses `onBoardMouseDown`/`onBoardMouseUp`.
 - `book-plugin.js` — book move detection and continuation arrows from ECO opening database
 - `trapboy-plugin.js` — trap detection via three methods: sacrifice detection, tempting capture detection, and opening trap database lookup. Uses generic panel slots and `requestSecondaryAnalysis`.
@@ -192,12 +192,20 @@ Each analysis line shows its own eval score badge (cp or mate) next to the rank 
 
 ### PGN export
 
-`core/plugins/pgn-plugin.js` — accumulates moves, evals, and classifications during analysis. Click PGN button in status bar → copies annotated PGN to clipboard.
+`core/plugins/pgn-plugin.js` — accumulates evals and classifications during analysis. Click PGN button in status bar → copies annotated PGN to clipboard.
 
-- Uses `boardDiffToUci()` from `core/board-diff.js` + `uciToSan()` from `core/san.js` to record SAN moves
-- Only records forward moves (`ply > prevPly`), backward navigation is ignored
-- Stores best eval (highest depth) per ply, and locked classifications via `receiveClassification()`
-- Output includes: PGN headers (Event, Site, Date, White, Black, Result), eval comments (`{+0.3/22}`), inline classification symbols (`e5?!`, `Nc6??`), and NAG codes (`$1` Best/Excellent, `$2` Mistake, `$3` Brilliant, `$4` Blunder, `$6` Inaccuracy; none for Good)
+**Two export strategies** (selected at export time):
+1. **DOM-based** (preferred): `adapter.readMoveList()` provides the complete move list from the site's DOM, so PGN includes all moves from move 1 even when analysis started mid-game. `adapter.readPlayerNames()` and `adapter.readGameResult()` provide real player names and game result.
+2. **Diff-based** (fallback): when no DOM move list is available (e.g. puzzle pages), uses `boardDiffToUci()` + `uciToSan()` to record moves observed during analysis.
+
+Evals and classifications are overlaid on moves by ply index regardless of strategy.
+
+**PGN spec compliance:**
+- Seven Tag Roster (STR) in required order: Event, Site, Date, Round, White, Black, Result
+- Move numbers as separate tokens (`1.` not `1. e4`); black move number (`1...`) repeated after annotations
+- NAG codes only — no inline classification symbols (`$4` not `e4??`)
+- Movetext lines wrapped under 80 characters
+- Game termination marker matches Result tag
 - Mid-game loads include `[SetUp "1"]` and `[FEN "..."]` headers when the starting position differs from standard
 
 ## Move Classification
