@@ -146,14 +146,11 @@ export class LineRenderer extends Emitter {
       this._lineMovesEls[i] = lineEl.querySelector('.chee-line-moves');
       lineEl.addEventListener('mouseover', (e) => {
         const moveSpan = e.target.closest('.chee-move');
+        if (!moveSpan) return; // in gap between spans — keep last hovered state
         const pv = this._lines[i];
         if (!pv) return;
-        if (moveSpan) {
-          const m = parseInt(moveSpan.dataset.idx, 10);
-          this.emit(EVT_LINE_HOVER, pv.slice(0, m + 1), this._turn);
-        } else {
-          this.emit(EVT_LINE_HOVER, pv.slice(0, 1), this._turn);
-        }
+        const m = parseInt(moveSpan.dataset.idx, 10);
+        this.emit(EVT_LINE_HOVER, pv.slice(0, m + 1), this._turn);
       });
       lineEl.addEventListener('mouseleave', () => {
         this.emit(EVT_LINE_LEAVE);
