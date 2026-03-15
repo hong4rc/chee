@@ -84,6 +84,7 @@ Line endings are enforced as LF on all platforms via `.gitattributes`.
 - `core/insight.js` — tactical insight detection for Mistake/Blunder (right piece, right square, delayed move)
 - `core/move-classifier.js` — classification state machine, accuracy tracking, ply cache
 - `core/openings.js` — 193-entry ECO opening lookup by FEN position
+- `core/opening-traps.js` — 10-entry opening trap database (Noah's Ark, Legal, Elephant, Lasker, Rubinstein, Siberian, Fajarowicz, Blackburne Shilling, Englund Gambit, Fishing Pole). FEN-keyed Map lookup, auto-labeled steps (Bait/Greed/Punish)
 - `core/fen.js` / `core/san.js` — FEN generation and PV-to-SAN conversion
 - `core/coordinator.js` — mediates between engine, panel, arrow, adapter, and plugins; owns orchestration state; highlight-based turn detection fallback for puzzle pages. Decoupled from plugins — plugins self-register events in `setup()`.
 - `core/board-state.js` — value object: board array, ply, FEN, turn; diff-based turn detection
@@ -96,7 +97,7 @@ Line endings are enforced as LF on all platforms via `.gitattributes`.
 - `pgn-plugin.js` — PGN export with eval comments, classification symbols, NAG codes. Receives classifications via `onPluginEvent('classification:lock')`.
 - `guard-plugin.js` — blunder guard: warns when clicked piece isn't in any engine top line. Uses `onBoardMouseDown`/`onBoardMouseUp`.
 - `book-plugin.js` — book move detection and continuation arrows from ECO opening database
-- `trapboy-plugin.js` — sacrifice-based trap detection with step tracking (currently disabled, see Trapboy section below). Uses generic panel slots and `requestSecondaryAnalysis`.
+- `trapboy-plugin.js` — trap detection via three methods: sacrifice detection, tempting capture detection, and opening trap database lookup. Uses generic panel slots and `requestSecondaryAnalysis`.
 
 **Shared utilities** (`lib/`):
 - `lib/dom.js` — DOM helpers: `el()`, `svgEl()`, `indexOfNode()`, `eventToSquare(e, boardEl, isFlipped)` (mouse event → `{ file, rank }`, works on both sites)
@@ -120,6 +121,7 @@ Line endings are enforced as LF on all platforms via `.gitattributes`.
 - **Debug logging**: `createDebug('chee:namespace')` — enable with `localStorage.debug = 'chee:*'`
 - **No console.log** — ESLint `no-console: 'error'`
 - **Max line length**: 120 chars
+- **Function call formatting**: when a function call has multiple arguments that don't fit on one line, put each argument on its own line with a trailing comma (ESLint `function-paren-newline` + `function-call-argument-newline`)
 - **Commit style**: Conventional Commits (`feat:`, `fix:`, `refactor:`)
 - **No co-author** lines in commits
 - **Data-driven popup**: checkbox toggles use `data-key` attributes auto-wired to `chrome.storage` — adding a toggle requires only HTML
@@ -220,28 +222,34 @@ Two modes (can both be active):
 
 `core/plugins/guard-plugin.js` — warns when a user clicks a piece that isn't in any of the engine's top analysis lines. Togglable via popup (`showGuard`, default off). Mousedown on the board → `eventToSquare()` from `lib/dom.js` converts coords to `{ file, rank }` → `checkSquare()` tests if any line's PV[0] starts from that square → if none match, `arrow.drawGuard()` renders a semi-transparent red circle (`.chee-guard-el`). Cleared on mouseup, board change, or next mousedown.
 
-### Trapboy (sacrifice-based trap detection)
+### Trapboy (trap detection)
 
-`core/plugins/trapboy-plugin.js` — detects positions where offering material leads to a winning punishment if the opponent captures greedily. Togglable via popup (`showTrapboy`, default off).
+`core/plugins/trapboy-plugin.js` — detects traps via three methods: sacrifice detection, tempting capture detection, and opening trap database. Togglable via popup (`showTrapboy`, default off).
 
-**Two-phase detection:**
+**Method 1 — Sacrifice detection (engine-based):**
 1. **Phase 1 (depth ≥ 12):** Scans engine PV lines for sacrifice candidates. For each line, applies the first move (`sacrificeUci`) and checks if the destination piece is attacked by the opponent. Filters require:
    - Bait piece value ≥ `TRAPBOY_MIN_SACRIFICE_VALUE` (1)
    - Bait value ≥ capturer value (capture must be tempting — no human trades a knight for a pawn)
    - Opponent's best response (`godModeUci`) is NOT the greedy capture (otherwise it's not a trap)
-2. **Phase 2 (depth 4):** Requests secondary analysis of the position after sacrifice + greedy capture. If the score ≥ `TRAPBOY_TRAP_THRESHOLD` (200cp), and the first punishment move doesn't recapture on the bait square (must be non-obvious), the trap is confirmed.
+2. **Phase 2 (depth 8):** Requests secondary analysis of the position after sacrifice + greedy capture. If the score ≥ `TRAPBOY_TRAP_THRESHOLD` (200cp), and the first punishment move doesn't recapture on the bait square (must be non-obvious), the trap is confirmed.
+
+**Method 2 — Tempting capture detection (human-oriented):**
+Scans for hanging opponent pieces that the engine rejects capturing — models human behavior (humans take free pieces). `findTemptingCaptures()` finds pieces where target value ≥ capturer value, sorted by value. For each tempting capture not in engine's top lines, requests secondary analysis. If the resulting position is winning (≥ threshold) and punishment isn't a simple recapture, the trap is confirmed. This catches traps like the Lasker Trap where Bxb4 looks like a free bishop but leads to disaster.
+
+**Method 3 — Opening trap database:**
+`core/opening-traps.js` stores 10 famous opening traps (Noah's Ark, Legal, Elephant, Lasker, Rubinstein, Siberian, Fajarowicz, Blackburne Shilling, Englund Gambit, Fishing Pole). On each `onBoardChange`, `lookupOpeningTrap(fen)` checks the current position against the FEN-keyed Map (O(1) lookup using position + turn). Instant activation without engine analysis. Panel shows the trap name.
 
 **Move validation:** Before confirming, `validateMoveSequence()` simulates the full step sequence with `applyUciMove()`, checking each source square has a piece.
 
-**Trap tracking:** Once confirmed, `_trapData` stores the full step sequence (`steps[]` with `uci` + `label`, `stepIndex`, `godUci`, `startPly`). On each `onBoardChange`:
+**Trap tracking:** Once confirmed, `_trapData` stores the full step sequence (`steps[]` with `uci` + `label`, `stepIndex`, `godUci`, `startPly`, optional `name`). On each `onBoardChange`:
 - Forward move matching `steps[stepIndex].uci` → advance `stepIndex`, redraw arrows/panel
 - Forward move not matching → clear trap (player deviated)
 - Backward navigation within trap range → revert `stepIndex` (take-back friendly)
 - Navigation before trap start → clear trap
 
-**Panel display:** Shows status throughout: "Searching..." → "Verifying..." → "No trap" or trap steps. Steps show with `.chee-trapboy-done` (dimmed/strikethrough) for completed steps and `.chee-trapboy-active` (bold/underline) for the current step.
+**Panel display:** Shows status throughout: "Searching..." → "Verifying..." → "No trap" or trap steps. Shows trap name (e.g., "Legal Trap") for database traps, "TRAP" for engine-detected traps. Steps show with `.chee-trapboy-done` (dimmed/strikethrough) for completed steps and `.chee-trapboy-active` (bold/underline) for the current step.
 
-**Arrow layers:** Three persistent layers: `trapboy-bait` (magenta), `trapboy-greed` (red, punishment moves), `trapboy-god` (green dashed, opponent's safe escape). Layers update as steps advance.
+**Arrow layers:** Four persistent layers: `trapboy-bait` (magenta, your bait move), `trapboy-opponent` (amber dashed, opponent's expected response), `trapboy-greed` (red, punishment moves), `trapboy-god` (green dashed, opponent's safe escape — only for engine-detected traps). Layers update as steps advance.
 
 **Key utility:** `core/attacks.js` provides `isSquareAttacked()` for checking if a piece is hanging after a move.
 
