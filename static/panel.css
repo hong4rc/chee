@@ -513,15 +513,15 @@ body.chee-resizing {
   from { opacity: 0; }
 }
 
-.chee-arrow-el,
-.chee-hint-el,
-.chee-insight-el,
-.chee-guard-el,
-.chee-classify-el {
+line.chee-arrow-el, circle.chee-arrow-el,
+line.chee-hint-el, circle.chee-hint-el,
+line.chee-insight-el, circle.chee-insight-el,
+circle.chee-guard-el,
+circle.chee-classify-el, text.chee-classify-el {
   animation: chee-fade-in 0.15s ease-out;
 }
 
-[class^="chee-layer-"] {
+line[class^="chee-layer-"], circle[class^="chee-layer-"] {
   animation: chee-fade-in 0.15s ease-out;
 }
 
