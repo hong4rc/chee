@@ -296,7 +296,7 @@ body.chee-dragging {
 /* Hide / Toggle buttons */
 #chee-analysis-panel .chee-hide,
 #chee-analysis-panel .chee-toggle {
-  cursor: default;
+  cursor: pointer;
   color: var(--chee-overlay0);
   font-size: 14px;
   line-height: 1;
