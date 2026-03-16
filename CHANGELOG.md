@@ -1,5 +1,46 @@
 # Changelog
 
+## [2.0.0](https://github.com/hong4rc/chee/compare/v1.7.0...v2.0.0) (2026-03-16)
+
+### Features
+
+* add Alt+C keyboard shortcut to toggle panel visibility ([13d9484](https://github.com/hong4rc/chee/commit/13d948452f190ef9c9ee69f6fbb3fc68d8d8f9ee))
+* add board preview overlay on move hover ([60ce5bc](https://github.com/hong4rc/chee/commit/60ce5bc74da116fcb742ed0878796053fa47643b))
+* add debug info copy button with log buffer and page diagnostics ([a1931e6](https://github.com/hong4rc/chee/commit/a1931e60b4ee17629a613538663a880d10fb4910))
+* add depth progress bar under panel header ([a961648](https://github.com/hong4rc/chee/commit/a961648536787201a0dc895e76caf6369fdd2689))
+* add eval chart hover tooltip and extract mate display constants ([664cb0d](https://github.com/hong4rc/chee/commit/664cb0d8fb04ea8de8c2726ee62730bb20eef103))
+* add fade-in animation for board preview overlay ([443ddee](https://github.com/hong4rc/chee/commit/443ddee1ac458fbe02c066a560f55272a8829993))
+* add opening trap database with 10 known traps ([c9bb818](https://github.com/hong4rc/chee/commit/c9bb81842f4bbb1fb3b6680f1e9984a3c86727b4))
+* add pop-in animation for classification badges ([e40bdd4](https://github.com/hong4rc/chee/commit/e40bdd4d2d844a0763649df06f361769082b5cb1))
+* add pulsing loading indicator while engine initializes ([3122a25](https://github.com/hong4rc/chee/commit/3122a251a02c2fb3b0a5ebd702b9de1af149f3d4))
+* add sanToUci converter for SAN-to-UCI move translation ([d8a7c25](https://github.com/hong4rc/chee/commit/d8a7c25f07c11e62dc7636d44503314b98ee9236))
+* add smooth fade-in animation for arrows and board overlays ([c847168](https://github.com/hong4rc/chee/commit/c84716820486d0f137712f30b0f27d2f0d80b8ab))
+* add tooltip descriptions to all popup toggles ([d1245ab](https://github.com/hong4rc/chee/commit/d1245ab9b4e2072875da4082c83684fa2b05514d))
+* add visual feedback for PGN/FEN copy buttons ([e1e63f0](https://github.com/hong4rc/chee/commit/e1e63f002b3f915b86ae7a7605965bfba66faa20))
+* color-code accuracy display and show placeholder from start ([2686a6f](https://github.com/hong4rc/chee/commit/2686a6f567e0b5ee9669d153b46e55eedb9c5498))
+* dom-based PGN export with spec-compliant formatting ([2673c91](https://github.com/hong4rc/chee/commit/2673c91a35675b37414c90a7bb5ab0c491ef1c10))
+* enable classifications, best move, and guard by default ([b718ea3](https://github.com/hong4rc/chee/commit/b718ea3f3656e762f8eab50b7a43cefa1f9e4ce8))
+* improve trapboy with tempting capture detection, opening trap integration, and opponent arrows ([8c2eafe](https://github.com/hong4rc/chee/commit/8c2eafe4c1b7c4e823319a2c0e00e869ebcc2373))
+* reorganize popup with section headers and clearer labels ([111e5b2](https://github.com/hong4rc/chee/commit/111e5b2d74721cf21260f7165ef932d03ef3fc30))
+* replace showBoardPreview with previewLastMove setting ([4f9793d](https://github.com/hong4rc/chee/commit/4f9793d2cb74c172a9ffedaf6371da1388937040))
+* rewrite guard plugin with searchmoves-based per-square warnings ([da4a366](https://github.com/hong4rc/chee/commit/da4a366af7c5b793cb1b002ed1b38e1c6f7c67ff))
+
+### Bug Fixes
+
+* add d22 to depth button group matching the default ([8ebd9cf](https://github.com/hong4rc/chee/commit/8ebd9cfad93de126fc6521e7ef35ee0dc2dd970b))
+* align arrow overlay SVG to board element instead of parent ([b6e76c5](https://github.com/hong4rc/chee/commit/b6e76c56ab1c37debc192c045cc20452abf9bd09))
+* apply setting toggles in real-time via plugin onSettingsChange ([c5f8210](https://github.com/hong4rc/chee/commit/c5f82102924ef05a718bee504ae4c4f4f02299b7))
+* avoid unnecessary engine reconfigure and improve crash recovery ([d3264b0](https://github.com/hong4rc/chee/commit/d3264b09b41f390018608e6d8427da976f6897cd))
+* convert Unicode figurine chars to SAN letters in move list ([2819394](https://github.com/hong4rc/chee/commit/28193946b68456ca74f0c4d06a6c3345aaa7b8d8))
+* exclude SVG marker elements from fade-in animation ([50172ce](https://github.com/hong4rc/chee/commit/50172ce565c1fb6c961ba7b16da16250828d7b3f))
+* pawn move generation skips captures on own pieces ([7714266](https://github.com/hong4rc/chee/commit/77142666067dedae51904609166127841cb7c33f))
+* prevent arrow/preview flicker when hovering between move spans ([827dc0c](https://github.com/hong4rc/chee/commit/827dc0c2c8046b9891d37caf779380b539281237))
+* refresh debug flag in same tab when toggling debug mode ([b2cfed9](https://github.com/hong4rc/chee/commit/b2cfed9d17286f0d5c3289d5cb4a2eab48e76800))
+* serialize objects in log calls for debug buffer readability ([d00279c](https://github.com/hong4rc/chee/commit/d00279c0b82fbfef5756da812770ec700b9370a0))
+* suppress Trapboy "No trap" noise in panel ([42fdeda](https://github.com/hong4rc/chee/commit/42fdedaa63003271e533b4f26474bc9388451953))
+* tag eval messages with FEN and drop stale evals for wrong position ([e3f2ebc](https://github.com/hong4rc/chee/commit/e3f2ebc239e86a68875d6b6352984615765a47de))
+* use pointer cursor on panel hide and toggle buttons ([c738a5a](https://github.com/hong4rc/chee/commit/c738a5ad5da7defe62ad3f924bd6a1dac5acba76))
+
 ## [1.7.0](https://github.com/hong4rc/chee/compare/v1.6.0...v1.7.0) (2026-03-10)
 
 ### Features
