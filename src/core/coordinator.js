@@ -127,6 +127,8 @@ export class AnalysisCoordinator {
   }
 
   applySettings(newSettings) {
+    const prevNumLines = this._settings.numLines;
+    const prevSearchDepth = this._settings.searchDepth;
     Object.assign(this._settings, newSettings);
     log.info('settings changed:', this._settings);
 
@@ -140,7 +142,8 @@ export class AnalysisCoordinator {
 
     this._notifyPlugins('onSettingsChange', newSettings);
 
-    const engineChanged = 'numLines' in newSettings || 'searchDepth' in newSettings;
+    const engineChanged = ('numLines' in newSettings && newSettings.numLines !== prevNumLines)
+      || ('searchDepth' in newSettings && newSettings.searchDepth !== prevSearchDepth);
     if (!engineChanged) return;
 
     if ('numLines' in newSettings) this._panel.reconfigure(this._settings.numLines);
@@ -234,11 +237,11 @@ export class AnalysisCoordinator {
     if (this._secondaryAnalysis) {
       const sa = this._secondaryAnalysis;
       if (this._engine.currentFen === sa.fen) {
-        sa.callback(data);
+        // Clear before callback so the callback can chain another request
         if (data.complete || data.depth >= sa.targetDepth) {
           this._secondaryAnalysis = null;
-          // Don't resume original FEN — main analysis was already complete
         }
+        sa.callback(data);
         return;
       }
       // Board changed during secondary — abort silently
@@ -253,11 +256,11 @@ export class AnalysisCoordinator {
   _onBoardChange() {
     clearTimeout(this._debounceTimer);
     this._debounceTimer = setTimeout(() => {
-      this._secondaryAnalysis = null;
       this._boardPreview.clear();
       this._boardPreview.invalidate();
       const fen = this._readFen();
       if (!fen) return;
+      this._secondaryAnalysis = null;
       this._notifyPlugins('onBoardChange', this._boardState, this._createRenderCtx());
       this._activeFen = fen;
 
@@ -275,6 +278,10 @@ export class AnalysisCoordinator {
     this._engine.on(EVT_READY, () => {
       log.info('Engine ready');
       this._panel.setLoading(false);
+      // After crash recovery, ensure we're analyzing the current position
+      if (this._activeFen && this._engine.currentFen !== this._activeFen) {
+        this._engine.analyze(this._activeFen);
+      }
     });
     this._engine.on(EVT_EVAL, (data) => this._onEvalData(data));
     this._engine.on(EVT_ERROR, (msg) => { log.error('Engine error:', msg); });

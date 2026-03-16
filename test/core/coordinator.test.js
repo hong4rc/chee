@@ -348,7 +348,7 @@ describe('AnalysisCoordinator', () => {
         depth: 22,
       });
 
-      coordinator.applySettings({ numLines: 3 });
+      coordinator.applySettings({ numLines: 2 });
 
       // Should use cached eval instead of reconfiguring engine
       expect(panel.updateEval).toHaveBeenCalled();
