@@ -77,9 +77,9 @@ Line endings are enforced as LF on all platforms via `.gitattributes`.
 - `adapters/factory.js` — hostname-based auto-detection, returns the right adapter
 
 **Core modules:**
-- `core/engine.js` — Stockfish worker lifecycle (state machine: IDLE→INITIALIZING→READY→ANALYZING), UCI protocol, auto-recovery with max 2 retry attempts per crashing position
+- `core/engine.js` — Stockfish worker lifecycle (state machine: IDLE→INITIALIZING→READY→ANALYZING), UCI protocol, auto-recovery with max 2 retry attempts per crashing position. Supports `searchmoves` parameter for restricted move analysis.
 - `core/panel.js` — panel DOM creation and updates (eval display, W/D/L bar, opening name, analysis lines, score chart, accuracy, trap status), extends `lib/emitter.js` for events
-- `core/arrow.js` — SVG arrow overlay (analysis arrows, classification badges, hint arrows, insight arrows, guard circles, trap arrows)
+- `core/arrow.js` — SVG arrow overlay (analysis arrows, classification badges, hint arrows, insight arrows, guard badges, trap arrows)
 - `core/board-diff.js` — board diff → UCI move detection (`detectMoveFromBoards()`, `boardDiffToUci()`), shared by classifier, PGN plugin, and trapboy
 - `core/attacks.js` — pure utility: `isSquareAttacked(board, file, rank, byColor)` checks if a square is attacked by a given color
 - `core/classify.js` — pure classification logic: `computeCpLoss()` and `classify()`
@@ -87,9 +87,9 @@ Line endings are enforced as LF on all platforms via `.gitattributes`.
 - `core/move-classifier.js` — classification state machine, accuracy tracking, ply cache
 - `core/openings.js` — 193-entry ECO opening lookup by FEN position
 - `core/opening-traps.js` — 10-entry opening trap database (Noah's Ark, Legal, Elephant, Lasker, Rubinstein, Siberian, Fajarowicz, Blackburne Shilling, Englund Gambit, Fishing Pole). FEN-keyed Map lookup, auto-labeled steps (Bait/Greed/Punish)
-- `core/fen.js` / `core/san.js` — FEN generation and PV-to-SAN conversion
+- `core/fen.js` / `core/san.js` — FEN generation, PV-to-SAN conversion, `sanToUci()` reverse conversion, `generateMovesFromSquare()` for pseudo-legal move generation
 - `core/board-preview.js` — HTML overlay for showing predicted board positions on hover. Renders piece images (read from site's own CSS via `getComputedStyle`) and board-colored square masks. Caches metrics, board background, and piece images for performance.
-- `core/coordinator.js` — mediates between engine, panel, arrow, adapter, board preview, and plugins; owns orchestration state; highlight-based turn detection fallback for puzzle pages. Decoupled from plugins — plugins self-register events in `setup()`.
+- `core/coordinator.js` — mediates between engine, panel, arrow, adapter, board preview, and plugins; owns orchestration state; highlight-based turn detection fallback for puzzle pages. Decoupled from plugins — plugins self-register events in `setup()`. Provides `requestSecondaryAnalysis` (with `searchmoves` support) and `cancelSecondaryAnalysis` for plugins. Secondary analysis isolation via `savedEval` + `_dropUntilNewAnalysis`.
 - `core/board-state.js` — value object: board array, ply, FEN, turn; diff-based turn detection
 - `core/plugin.js` — base `AnalysisPlugin` class (lifecycle hooks: `setup`, `onBoardChange`, `onEval`, `onSettingsChange`, `onEngineReset`, `onBoardMouseDown`, `onBoardMouseUp`, `onPanelEvent`, `onPluginEvent`)
 - `core/renderers/header-renderer.js` — generic slot system (`setSlot`/`clearSlot`) for plugin UI in the panel header
@@ -98,7 +98,7 @@ Line endings are enforced as LF on all platforms via `.gitattributes`.
 - `classification-plugin.js` — move classification (Brilliant → Blunder), board badge + insight arrow. Self-wires classifier events in `setup()`, broadcasts `classification:lock` for PGN.
 - `hint-plugin.js` — pre-move hint arrows (classification-based spread or always-on best move). Waits for engine to reach full depth before drawing when `waitForComplete` is enabled (default on) or in puzzle mode.
 - `pgn-plugin.js` — PGN export with eval comments and NAG codes. Reads move list, player names, and game result from adapter DOM at export time; falls back to board-diff tracking. Receives classifications via `onPluginEvent('classification:lock')`.
-- `guard-plugin.js` — blunder guard: warns when clicked piece isn't in any engine top line. Uses `onBoardMouseDown`/`onBoardMouseUp`.
+- `guard-plugin.js` — move guard: on mousedown, runs shallow `searchmoves` analysis on all candidate moves from the picked-up piece, marks bad destination squares (cpLoss > threshold) with `!` badges. Uses `requestSecondaryAnalysis` with `searchmoves`.
 - `book-plugin.js` — book move detection and continuation arrows from ECO opening database
 - `trapboy-plugin.js` — trap detection via three methods: sacrifice detection, tempting capture detection, and opening trap database lookup. Uses generic panel slots and `requestSecondaryAnalysis`.
 
@@ -106,7 +106,7 @@ Line endings are enforced as LF on all platforms via `.gitattributes`.
 - `lib/dom.js` — DOM helpers: `el()`, `svgEl()`, `indexOfNode()`, `eventToSquare(e, boardEl, isFlipped)` (mouse event → `{ file, rank }`, works on both sites)
 - `lib/uci.js` — `parseUci(uciMove)` → `{ fromFile, fromRank, toFile, toRank, promotion }`
 - `lib/emitter.js` — simple event emitter mixin
-- `lib/debug.js` — `createDebug('chee:namespace')` wrapper
+- `lib/debug.js` — `createDebug('chee:namespace')` wrapper. Always-on ring buffer (`getLogBuffer()`) stores last 200 log entries regardless of debug mode. `refreshDebugFlag()` re-parses `localStorage.debug` for same-tab updates.
 - `lib/format.js` — shared eval formatters: `advantageCls()`, `formatMate()`, `formatCp()`
 - `lib/lru.js` — LRU cache for eval results
 - `lib/themes.js` — Catppuccin theme application
@@ -129,10 +129,11 @@ Line endings are enforced as LF on all platforms via `.gitattributes`.
 - **No co-author** lines in commits
 - **Data-driven popup**: checkbox toggles use `data-key` attributes auto-wired to `chrome.storage` — adding a toggle requires only HTML
 - **Plugin architecture**: plugins self-register in `setup()`, use generic panel slots (`setSlot`/`clearSlot`), communicate via `broadcastToPlugins`/`onPluginEvent`
+- **Real-time settings**: plugins handle ON/OFF in `onSettingsChange(settings, renderCtx)` — clear visuals on toggle-off, restore from cached data on toggle-on. No broadcast replay patterns.
 
 ## Static Assets (not bundled)
 
-`static/stockfish-worker.js`, `stockfish.js`, `stockfish.wasm` are loaded at runtime via `chrome.runtime.getURL()`. Rollup copies them to `dist/` via the copy plugin.
+`static/stockfish-worker.js`, `stockfish.js`, `stockfish.wasm` are loaded at runtime via `chrome.runtime.getURL()`. Rollup copies them to `dist/` via the copy plugin. The worker supports `searchmoves` in the `go` command (passed via `MSG_POSITION.searchmoves`) and temporarily raises MultiPV when `searchmoves.length > NUM_LINES`.
 
 ## Common Pitfalls & Fixes
 
@@ -229,9 +230,19 @@ Two modes (can both be active):
 1. **Classification hints** — when `showClassifications` is enabled and engine finds a clearly best move (score spread ≥ 80cp between line 1 and 2), shows a badged arrow. ≥200cp → Brilliant hint (teal), ≥80cp → Excellent hint (green). Requires depth ≥ 14.
 2. **Best move arrow** — when `showBestMove` is enabled, always shows PV[0] as a team-colored arrow (blue for white, orange for black). No badge.
 
-### Blunder guard (piece selection warning)
+### Move guard (per-square blunder warning)
 
-`core/plugins/guard-plugin.js` — warns when a user clicks a piece that isn't in any of the engine's top analysis lines. Togglable via popup (`showGuard`, default off). Mousedown on the board → `eventToSquare()` from `lib/dom.js` converts coords to `{ file, rank }` → `checkSquare()` tests if any line's PV[0] starts from that square → if none match, `arrow.drawGuard()` renders a semi-transparent red circle (`.chee-guard-el`). Cleared on mouseup, board change, or next mousedown.
+`core/plugins/guard-plugin.js` — on mousedown, runs a shallow `searchmoves` analysis on all pseudo-legal moves from the picked-up piece. Marks destination squares where cpLoss > `GUARD_CP_THRESHOLD` (100cp) with a red `!` badge. Togglable via popup (`showGuard`, default on).
+
+**How it works:**
+1. Mousedown → `eventToSquare()` resolves clicked square → `generateMovesFromSquare()` from `san.js` generates all candidate UCI moves
+2. `requestSecondaryAnalysis(fen, GUARD_DEPTH, callback, moves)` sends `go depth 8 searchmoves ...` to the engine
+3. Worker temporarily raises MultiPV to cover all candidate moves (`tempMultiPV`), restores after `bestmove`
+4. Callback fires when `data.complete` — compares each line's score to `_latestEval` (global best). Moves with cpLoss > threshold → `arrow.drawGuardBadges()` renders `!` badges
+5. Moves not in results (MultiPV partial fill at shallow depth) are treated as bad
+6. Mouseup → `cancelSecondaryAnalysis()` clears badges, restores `savedEval` to panel
+
+**Secondary analysis isolation:** The guard analyzes the same FEN with `searchmoves`, so leftover evals could contaminate the main pipeline. Prevented by: `savedEval` (snapshot before secondary), `_dropUntilNewAnalysis` flag (drops all evals until board changes or engine resumes), and `cancelSecondaryAnalysis()` which stops the engine and restores state.
 
 ### Trapboy (trap detection)
 
@@ -266,7 +277,7 @@ Scans for hanging opponent pieces that the engine rejects capturing — models h
 
 ### Board preview (move hover visualization)
 
-`core/board-preview.js` — shows predicted board positions when hovering analysis line moves or trapboy steps. Togglable via popup (`showBoardPreview`, default on).
+`core/board-preview.js` — shows predicted board positions when hovering analysis line moves or trapboy steps. Always active for preceding moves. The `previewLastMove` setting (default off) controls whether the hovered move itself is also rendered on the board or shown as arrow only.
 
 **How it works:** Creates an HTML overlay div (`#chee-board-preview`, z-index 998) positioned over the board. On hover:
 1. Applies the hovered UCI move sequence via `applyUciMove()` to get the target board state

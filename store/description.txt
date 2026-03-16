@@ -2,31 +2,43 @@ Chee adds a real-time analysis panel to your chess games on Chess.com and Liches
 
 It runs Stockfish (one of the strongest chess engines) entirely in your browser using WebAssembly — no server, no account, no data sent anywhere.
 
-Features:
-• Multi-line analysis — see the top 3-5 best moves and continuations
-• Adjustable search depth (19-22 ply) with optional wait-for-full-depth
-• Eval bar showing who's winning at a glance
-• Arrow overlays on the board for suggested moves
+Analysis:
+• Multi-line analysis — see the top 3–5 best moves and continuations
+• Adjustable search depth (15–22 ply) with optional wait-for-full-depth
 • Move classifications — Brilliant, Crazy, Best, Excellent, Good, Inaccuracy, Mistake, Blunder
-• Crazy sacrifice detection — flags material sacrifices that maintain evaluation
-• Blunder guard — warns when you click a piece not in any top engine line
-• Eval score chart — SVG area chart plotting eval over the game
-• PGN export — copy annotated PGN with eval comments and classification symbols
-• Accuracy tracker — running accuracy percentage in the status bar
+• Move guard — pick up a piece to see which destination squares are bad moves (! badges)
 • Tactical insights — dashed arrows show the best move after Mistakes and Blunders
 • Pre-move hints — see the engine's best move or classification-based hint arrows
-• Trap detection (Trapboy) — finds traps via sacrifice detection, tempting capture analysis, and a 10-trap opening database (Legal, Lasker, Noah's Ark, and more). Tracks the sequence step by step as you play
+• Trap detection (Trapboy) — finds traps via sacrifice detection, tempting capture analysis, and a 10-trap opening database (Legal, Lasker, Noah's Ark, and more)
+• Crazy sacrifice detection — flags wild material sacrifices that maintain advantage
+• Book move detection with continuation arrows from ECO opening database
+
+Display:
+• Board preview — hover analysis line moves to see the predicted position on the board
+• Eval bar showing who's winning at a glance
+• Eval score chart — SVG area chart with hover tooltip tracking the game
 • Opening name display — 193-entry ECO opening database
+• Accuracy tracker — running accuracy percentage (chess.com-style formula)
+• Arrow overlays on the board for suggested moves
+
+Export & Debug:
+• PGN export — copy annotated PGN with eval comments, NAG codes, and player names
 • Copy FEN to clipboard with one click
-• Draggable panel — drag the header to reposition anywhere, double-click to reset
+• Copy debug info — one-click diagnostic dump for troubleshooting
+
+UI:
+• Compact 2-column settings popup with section headers
+• Draggable panel — drag the header to reposition, double-click to reset
 • Resizable panel — drag the bottom-right grip to adjust width
-• Minimize or hide the panel when you don't need it
+• Minimize or hide the panel (Alt+C keyboard shortcut)
 • Catppuccin theme system — Latte, Frappé, Macchiato, Mocha, or auto-match the site theme
+• All settings apply in real-time — no page reload needed
 
 Supported sites:
 • chess.com — live games (/game/*, /play/*)
 • chess.com — puzzles, rush, battle, learning (best move arrow, each togglable)
 • chess.com — daily chess (best move arrow, live-togglable)
 • lichess.org — all game pages
+• lichess.org — training, storm, racer, streak (best move arrow, each togglable)
 
 All analysis runs locally in your browser. No data is collected or transmitted.
