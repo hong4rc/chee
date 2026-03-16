@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { uciToSan, pvToSan, applyUciMove } from '../../src/core/san.js';
+import {
+  uciToSan, pvToSan, applyUciMove, sanToUci,
+} from '../../src/core/san.js';
 import { boardFromFen, STARTING_BOARD } from '../helpers.js';
-import { TURN_WHITE, TURN_BLACK } from '../../src/constants.js';
+import { TURN_WHITE, TURN_BLACK, toggleTurn } from '../../src/constants.js';
 
 describe('uciToSan', () => {
   it('pawn move (e2e4)', () => {
@@ -255,5 +257,112 @@ describe('canPieceReach (tested via disambiguation)', () => {
     const board = boardFromFen('4K2k/8/8/8/8/8/8/Q6Q');
     const san = uciToSan('a1d1', board, TURN_WHITE);
     expect(san).toBe('Qad1');
+  });
+});
+
+// ─── sanToUci ─────────────────────────────────────────────────
+
+function playMoves(moves) {
+  let board = STARTING_BOARD;
+  let turn = TURN_WHITE;
+  const results = [];
+  for (const san of moves) {
+    const uci = sanToUci(san, board, turn);
+    results.push({ san, uci, turn });
+    if (!uci) break;
+    board = applyUciMove(board, uci);
+    turn = toggleTurn(turn);
+  }
+  return results;
+}
+
+describe('sanToUci', () => {
+  it('pawn move (e4)', () => {
+    expect(sanToUci('e4', STARTING_BOARD, TURN_WHITE)).toBe('e2e4');
+  });
+
+  it('pawn move (d5)', () => {
+    expect(sanToUci('d5', STARTING_BOARD, TURN_BLACK)).toBe('d7d5');
+  });
+
+  it('knight move (Nf3)', () => {
+    expect(sanToUci('Nf3', STARTING_BOARD, TURN_WHITE)).toBe('g1f3');
+  });
+
+  it('pawn non-capture uses same file, not diagonal', () => {
+    // After 1. e4, Black plays ...e6. Must be e7e6, NOT d7e6 (diagonal).
+    const results = playMoves(['e4', 'e6']);
+    expect(results[1].uci).toBe('e7e6');
+  });
+
+  it('pawn capture (exd5)', () => {
+    const results = playMoves(['e4', 'd5', 'exd5']);
+    expect(results[2].uci).toBe('e4d5');
+  });
+
+  it('kingside castling (O-O)', () => {
+    const castleBoard = boardFromFen('r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R');
+    expect(sanToUci('O-O', castleBoard, TURN_WHITE)).toBe('e1g1');
+  });
+
+  it('queenside castling (O-O-O)', () => {
+    const board = boardFromFen('r3kbnr/pppqpppp/2n5/3p1b2/3P1B2/2N5/PPPQPPPP/R3KBNR');
+    expect(sanToUci('O-O-O', board, TURN_WHITE)).toBe('e1c1');
+  });
+
+  it('promotion (e8=Q)', () => {
+    const board = boardFromFen('8/4P3/8/4k3/8/8/8/4K3');
+    expect(sanToUci('e8=Q', board, TURN_WHITE)).toBe('e7e8q');
+  });
+
+  it('pawn capture with promotion (exd8=Q)', () => {
+    const board = boardFromFen('3rk3/4P3/8/8/8/8/8/4K3');
+    expect(sanToUci('exd8=Q', board, TURN_WHITE)).toBe('e7d8q');
+  });
+
+  it('handles check and checkmate suffixes', () => {
+    expect(sanToUci('Nf3+', STARTING_BOARD, TURN_WHITE)).toBe('g1f3');
+    expect(sanToUci('Nf3#', STARTING_BOARD, TURN_WHITE)).toBe('g1f3');
+  });
+
+  it('returns null for unparseable move', () => {
+    expect(sanToUci('Zz9', STARTING_BOARD, TURN_WHITE)).toBeNull();
+  });
+
+  it('handles zero-notation castling (0-0)', () => {
+    const board = boardFromFen('r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R');
+    expect(sanToUci('0-0', board, TURN_WHITE)).toBe('e1g1');
+  });
+
+  it('plays a full Scandinavian Defense sequence', () => {
+    const results = playMoves([
+      'e4', 'd5', 'exd5', 'Qxd5', 'Nc3', 'Qa5',
+    ]);
+    for (const r of results) {
+      expect(r.uci).not.toBeNull();
+    }
+  });
+
+  it('plays French Defense with exd6 without failure', () => {
+    // The game that was failing: 1. e4 e6 2. e5 Nc6 3. Nf3 d5 4. exd6 cxd6
+    const results = playMoves([
+      'e4', 'e6', 'e5', 'Nc6', 'Nf3', 'd5', 'exd6', 'cxd6',
+    ]);
+    expect(results[1].uci).toBe('e7e6'); // NOT d7e6
+    expect(results[6].uci).toBe('e5d6');
+    expect(results[7].uci).toBe('c7d6');
+    for (const r of results) {
+      expect(r.uci).not.toBeNull();
+    }
+  });
+
+  it('handles disambiguation by file', () => {
+    const board = boardFromFen('4k3/8/8/8/8/8/8/R3K2R');
+    expect(sanToUci('Rad1', board, TURN_WHITE)).toBe('a1d1');
+  });
+
+  it('handles disambiguation by rank', () => {
+    const board = boardFromFen('R3K2k/8/8/8/8/8/8/R7');
+    expect(sanToUci('R1a4', board, TURN_WHITE)).toBe('a1a4');
   });
 });

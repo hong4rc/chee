@@ -208,6 +208,8 @@ export const MIN_PIECE_CONTAINER_COUNT = 2;
 // ─── SAN notation ───────────────────────────────────────────
 export const SAN_CASTLE_KING = 'O-O';
 export const SAN_CASTLE_QUEEN = 'O-O-O';
+export const SAN_CASTLE_KING_ZEROS = '0-0'; // Alternate notation (zeros)
+export const SAN_CASTLE_QUEEN_ZEROS = '0-0-0';
 
 // ─── UCI move parsing ────────────────────────────────────────
 export const UCI_MIN_LEN = 4;
