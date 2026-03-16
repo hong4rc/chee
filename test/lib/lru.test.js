@@ -62,4 +62,69 @@ describe('LruCache', () => {
     expect(c.size).toBe(0);
     expect(c.get('a')).toBeUndefined();
   });
+
+  describe('eviction behavior', () => {
+    it('evicts oldest and continues evicting correctly', () => {
+      const c = new LruCache(3);
+      c.set('a', 1);
+      c.set('b', 2);
+      c.set('c', 3);
+      c.set('d', 4); // evicts 'a'
+      expect(c.has('a')).toBe(false);
+      c.set('e', 5); // evicts 'b'
+      expect(c.has('b')).toBe(false);
+      expect(c.get('c')).toBe(3);
+      expect(c.get('d')).toBe(4);
+      expect(c.get('e')).toBe(5);
+    });
+
+    it('get() on evicted key returns undefined', () => {
+      const c = new LruCache(2);
+      c.set('a', 1);
+      c.set('b', 2);
+      c.set('c', 3); // evicts 'a'
+      expect(c.get('a')).toBeUndefined();
+      expect(c.has('a')).toBe(false);
+    });
+
+    it('get() promotes key — evicts next oldest instead', () => {
+      const c = new LruCache(3);
+      c.set('a', 1);
+      c.set('b', 2);
+      c.set('c', 3);
+      c.get('a'); // promote 'a', now 'b' is oldest
+      c.set('d', 4); // evicts 'b'
+      expect(c.has('a')).toBe(true);
+      expect(c.has('b')).toBe(false);
+      c.set('e', 5); // evicts 'c' (next oldest)
+      expect(c.has('c')).toBe(false);
+      expect(c.has('a')).toBe(true);
+    });
+
+    it('set() on existing key promotes it', () => {
+      const c = new LruCache(3);
+      c.set('a', 1);
+      c.set('b', 2);
+      c.set('c', 3);
+      c.set('a', 10); // promote 'a', now 'b' is oldest
+      c.set('d', 4); // evicts 'b'
+      expect(c.has('b')).toBe(false);
+      expect(c.get('a')).toBe(10);
+    });
+
+    it('size stays at capacity through multiple evictions', () => {
+      const c = new LruCache(2);
+      c.set('a', 1);
+      c.set('b', 2);
+      expect(c.size).toBe(2);
+      c.set('c', 3);
+      expect(c.size).toBe(2);
+      c.set('d', 4);
+      expect(c.size).toBe(2);
+      c.set('e', 5);
+      expect(c.size).toBe(2);
+      expect(c.has('d')).toBe(true);
+      expect(c.has('e')).toBe(true);
+    });
+  });
 });

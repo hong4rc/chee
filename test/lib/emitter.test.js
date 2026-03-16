@@ -68,4 +68,55 @@ describe('Emitter', () => {
     const result = e.on('x', () => {});
     expect(result).toBe(e);
   });
+
+  it('off() removes only the specified listener, others still fire', () => {
+    const e = new Emitter();
+    const kept = vi.fn();
+    const removed = vi.fn();
+    e.on('evt', kept);
+    e.on('evt', removed);
+    e.off('evt', removed);
+    e.emit('evt', 'payload');
+    expect(kept).toHaveBeenCalledWith('payload');
+    expect(removed).not.toHaveBeenCalled();
+  });
+
+  it('off() with non-existent listener does not throw', () => {
+    const e = new Emitter();
+    const registered = vi.fn();
+    const stranger = vi.fn();
+    e.on('evt', registered);
+    expect(() => e.off('evt', stranger)).not.toThrow();
+    e.emit('evt');
+    expect(registered).toHaveBeenCalledOnce();
+  });
+
+  it('after off(), re-adding the same listener works', () => {
+    const e = new Emitter();
+    const fn = vi.fn();
+    e.on('evt', fn);
+    e.off('evt', fn);
+    e.emit('evt');
+    expect(fn).not.toHaveBeenCalled();
+
+    e.on('evt', fn);
+    e.emit('evt', 'back');
+    expect(fn).toHaveBeenCalledOnce();
+    expect(fn).toHaveBeenCalledWith('back');
+  });
+
+  it('multiple listeners — removing one does not affect others', () => {
+    const e = new Emitter();
+    const fn1 = vi.fn();
+    const fn2 = vi.fn();
+    const fn3 = vi.fn();
+    e.on('evt', fn1);
+    e.on('evt', fn2);
+    e.on('evt', fn3);
+    e.off('evt', fn2);
+    e.emit('evt', 'ok');
+    expect(fn1).toHaveBeenCalledWith('ok');
+    expect(fn2).not.toHaveBeenCalled();
+    expect(fn3).toHaveBeenCalledWith('ok');
+  });
 });
