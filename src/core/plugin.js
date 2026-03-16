@@ -19,7 +19,8 @@ export class AnalysisPlugin {
   onEval(data, boardState, renderCtx) {} // eslint-disable-line no-unused-vars
 
   // Called when user changes settings.
-  onSettingsChange(settings) {} // eslint-disable-line no-unused-vars
+  // settings: changed keys only, renderCtx: { panel, arrow, isFlipped() }
+  onSettingsChange(settings, renderCtx) {} // eslint-disable-line no-unused-vars
 
   // Called when the engine is rebuilt (depth/lines changed). Clear caches and reset state.
   onEngineReset() {}

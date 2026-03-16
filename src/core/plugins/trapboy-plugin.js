@@ -733,10 +733,16 @@ export class TrapboyPlugin extends AnalysisPlugin {
     };
   }
 
-  onSettingsChange(settings) {
+  onSettingsChange(settings, renderCtx) {
     if ('showTrapboy' in settings && !settings.showTrapboy) {
       this._trapData = null;
       this._phase2Pending = false;
+      const { arrow } = renderCtx;
+      arrow.clearLayer(LAYER_BAIT);
+      arrow.clearLayer(LAYER_GREED);
+      arrow.clearLayer(LAYER_GOD);
+      arrow.clearLayer(LAYER_OPPONENT);
+      renderCtx.panel.clearSlot('trapboy');
     }
   }
 

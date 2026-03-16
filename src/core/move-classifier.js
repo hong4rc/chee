@@ -227,6 +227,14 @@ export class MoveClassifier extends Emitter {
     if (!enabled) this.emit(EVT_CLASSIFY_CLEAR);
   }
 
+  replayCurrent() {
+    const cached = this._cache.get(this._prevPly);
+    if (cached) {
+      this.emit(EVT_CLASSIFY_LOCK, cached);
+      this.emit(EVT_ACCURACY_UPDATE, this.getAccuracy());
+    }
+  }
+
   clearCache() {
     this._cache.clear();
   }

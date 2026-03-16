@@ -15,6 +15,7 @@ export class HintPlugin extends AnalysisPlugin {
     super(PLUGIN_HINT);
     this._settings = settings;
     this._currentHint = null;
+    this._latestData = null;
   }
 
   get currentHint() {
@@ -26,7 +27,24 @@ export class HintPlugin extends AnalysisPlugin {
     this._currentHint = null;
   }
 
+  onSettingsChange(settings, renderCtx) {
+    if ('showBestMove' in settings || 'showClassifications' in settings) {
+      // Re-evaluate hint from cached data with updated settings
+      if (this._latestData) {
+        this._computeHint(this._latestData, renderCtx);
+      } else {
+        renderCtx.arrow.clearHint();
+        this._currentHint = null;
+      }
+    }
+  }
+
   onEval(data, boardState, renderCtx) {
+    this._latestData = data;
+    this._computeHint(data, renderCtx);
+  }
+
+  _computeHint(data, renderCtx) {
     renderCtx.arrow.clearHint();
     this._currentHint = null;
 

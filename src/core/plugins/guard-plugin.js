@@ -20,8 +20,10 @@ export class GuardPlugin extends AnalysisPlugin {
     if (data.lines) this._latestLines = data.lines;
   }
 
-  onSettingsChange(settings) {
-    this._settings = settings;
+  onSettingsChange(settings, renderCtx) {
+    if ('showGuard' in settings && !settings.showGuard) {
+      renderCtx.arrow.clearGuard();
+    }
   }
 
   onBoardMouseDown(sq, board, turn, renderCtx) {

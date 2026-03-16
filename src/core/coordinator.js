@@ -140,7 +140,7 @@ export class AnalysisCoordinator {
     if (newSettings.theme && this._panel.el) applyTheme(this._panel.el, this._settings.theme);
     if ('showChart' in newSettings) this._panel.setShowChart(newSettings.showChart);
 
-    this._notifyPlugins('onSettingsChange', newSettings);
+    this._notifyPlugins('onSettingsChange', newSettings, this._createRenderCtx());
 
     const engineChanged = ('numLines' in newSettings && newSettings.numLines !== prevNumLines)
       || ('searchDepth' in newSettings && newSettings.searchDepth !== prevSearchDepth);

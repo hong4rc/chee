@@ -11,6 +11,7 @@ import {
 export class ClassificationPlugin extends AnalysisPlugin {
   constructor({ adapter, settings }) {
     super(PLUGIN_CLASSIFICATION);
+    this._settings = settings;
     this._classifier = new MoveClassifier({ adapter, settings });
     this._initialised = false;
   }
@@ -64,9 +65,13 @@ export class ClassificationPlugin extends AnalysisPlugin {
     this._classifier.onEval(data);
   }
 
-  onSettingsChange(settings) {
-    if ('showClassifications' in settings && !settings.showClassifications && !settings.showCrazy) {
-      this._classifier.setEnabled(false);
+  onSettingsChange(settings, renderCtx) { // eslint-disable-line no-unused-vars
+    if ('showClassifications' in settings || 'showCrazy' in settings) {
+      if (!this._settings.showClassifications && !this._settings.showCrazy) {
+        this._classifier.setEnabled(false);
+      } else {
+        this._classifier.replayCurrent();
+      }
     }
   }
 
