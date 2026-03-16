@@ -4,16 +4,16 @@
   <meta charset="utf-8">
   <style>
     body {
-      width: 200px;
+      width: 300px;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       font-size: 13px;
-      padding: 12px;
+      padding: 10px 12px;
       margin: 0;
       color: var(--chee-text);
       background: var(--chee-base);
     }
     h3 {
-      margin: 0 0 10px;
+      margin: 0 0 8px;
       font-size: 14px;
       color: var(--chee-text);
     }
@@ -25,12 +25,12 @@
     .tab-bar {
       display: flex;
       gap: 0;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       border-bottom: 1px solid var(--chee-surface1);
     }
     .tab-btn {
       flex: 1;
-      padding: 6px 0;
+      padding: 5px 0;
       background: none;
       border: none;
       border-bottom: 2px solid transparent;
@@ -49,25 +49,30 @@
     .tab-content.active { display: block; }
     label {
       display: block;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       font-weight: 500;
       font-size: 12px;
       color: var(--chee-subtext0);
     }
+    .toggle-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px 10px;
+    }
     .btn-group {
       display: flex;
       gap: 4px;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
     .btn-group button {
       flex: 1;
-      padding: 6px 0;
+      padding: 5px 0;
       background: var(--chee-surface0);
       color: var(--chee-overlay0);
       border: 1px solid var(--chee-surface1);
       border-radius: 4px;
       cursor: pointer;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 500;
       transition: background 0.15s, color 0.15s;
     }
@@ -79,13 +84,13 @@
     }
     select {
       width: 100%;
-      padding: 6px 8px;
-      margin-bottom: 12px;
+      padding: 5px 6px;
+      margin-bottom: 8px;
       background: var(--chee-surface0);
       color: var(--chee-text);
       border: 1px solid var(--chee-surface1);
       border-radius: 4px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 500;
       cursor: pointer;
       appearance: auto;
@@ -94,32 +99,61 @@
     .chee-toggle-row {
       display: flex;
       align-items: center;
-      gap: 6px;
-      margin-bottom: 12px;
+      gap: 4px;
+      margin-bottom: 6px;
       font-weight: 500;
-      font-size: 12px;
+      font-size: 11px;
       color: var(--chee-subtext0);
       cursor: pointer;
     }
     .chee-toggle-row input[type="checkbox"] {
       accent-color: var(--chee-green);
       cursor: pointer;
+      margin: 0;
     }
     .chee-toggle-row .icon {
-      font-size: 13px;
-      width: 16px;
+      font-size: 12px;
+      width: 14px;
       text-align: center;
       flex-shrink: 0;
     }
     .chee-section-header {
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 600;
       color: var(--chee-overlay0);
       text-transform: uppercase;
       letter-spacing: 0.8px;
-      margin-bottom: 8px;
-      padding-bottom: 3px;
+      margin: 6px 0 5px;
+      padding-bottom: 2px;
       border-bottom: 1px solid var(--chee-surface1);
+    }
+    .chee-section-header:first-child {
+      margin-top: 0;
+    }
+    .theme-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .theme-row label {
+      margin: 0;
+      flex-shrink: 0;
+    }
+    .theme-row select {
+      margin: 0;
+      flex: 1;
+    }
+    .engine-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px 10px;
+    }
+    .engine-grid label {
+      margin-bottom: 2px;
+    }
+    .engine-grid .btn-group {
+      margin-bottom: 6px;
     }
     .puzzle-grid {
       display: grid;
@@ -130,12 +164,12 @@
       font-size: 11px;
       font-weight: 600;
       color: var(--chee-overlay0);
-      margin-bottom: 6px;
-      padding-bottom: 3px;
+      margin-bottom: 5px;
+      padding-bottom: 2px;
       border-bottom: 1px solid var(--chee-surface1);
     }
     .puzzle-grid .chee-toggle-row {
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
   </style>
 </head>
@@ -150,83 +184,96 @@
   <div id="tab-settings" class="tab-content active">
     <div class="chee-section-header">Analysis</div>
 
-    <label class="chee-toggle-row" title="Show move quality badges on the board (Brilliant, Best, Blunder, etc.)">
-      <input type="checkbox" data-key="showClassifications">
-      <span class="icon">&#9733;</span> Classifications
-    </label>
+    <div class="toggle-grid">
+      <label class="chee-toggle-row" title="Show move quality badges (Brilliant, Best, Blunder, etc.)">
+        <input type="checkbox" data-key="showClassifications">
+        <span class="icon">&#9733;</span> Classify
+      </label>
 
-    <label class="chee-toggle-row" title="Always show an arrow for the engine's top move before you play">
-      <input type="checkbox" data-key="showBestMove">
-      <span class="icon">&#10132;</span> Best move arrow
-    </label>
+      <label class="chee-toggle-row" title="Always show arrow for engine's top move">
+        <input type="checkbox" data-key="showBestMove">
+        <span class="icon">&#10132;</span> Best move
+      </label>
 
-    <label class="chee-toggle-row" title="Warn when you click a piece that isn't in any top engine line">
-      <input type="checkbox" data-key="showGuard">
-      <span class="icon">&#128737;</span> Blunder guard
-    </label>
+      <label class="chee-toggle-row" title="Warn when clicked piece isn't in any top line">
+        <input type="checkbox" data-key="showGuard">
+        <span class="icon">&#128737;</span> Guard
+      </label>
 
-    <label class="chee-toggle-row" title="Show opening name and book continuation arrows from ECO database">
-      <input type="checkbox" data-key="showBookMoves">
-      <span class="icon">&#128214;</span> Book moves
-    </label>
+      <label class="chee-toggle-row" title="Show opening name and book continuation arrows">
+        <input type="checkbox" data-key="showBookMoves">
+        <span class="icon">&#128214;</span> Book moves
+      </label>
 
-    <label class="chee-toggle-row" title="Highlight wild sacrifices that maintain advantage">
-      <input type="checkbox" data-key="showCrazy">
-      <span class="icon">&#9889;</span> Crazy sacrifice
-    </label>
+      <label class="chee-toggle-row" title="Highlight wild sacrifices that maintain advantage">
+        <input type="checkbox" data-key="showCrazy">
+        <span class="icon">&#9889;</span> Crazy
+      </label>
 
-    <label class="chee-toggle-row" title="Detect traps: sacrifices, tempting captures, and known opening traps">
-      <input type="checkbox" data-key="showTrapboy">
-      <span class="icon">&#129683;</span> Trapboy mode
-    </label>
+      <label class="chee-toggle-row" title="Detect traps: sacrifices, tempting captures, opening traps">
+        <input type="checkbox" data-key="showTrapboy">
+        <span class="icon">&#129683;</span> Trapboy
+      </label>
+    </div>
 
     <div class="chee-section-header">Display</div>
 
-    <label class="chee-toggle-row" title="Also render the hovered move on the board (off = arrow only)">
-      <input type="checkbox" data-key="previewLastMove">
-      <span class="icon">&#128065;</span> Preview last move
-    </label>
+    <div class="toggle-grid">
+      <label class="chee-toggle-row" title="Also render hovered move on board (off = arrow only)">
+        <input type="checkbox" data-key="previewLastMove">
+        <span class="icon">&#128065;</span> Preview last
+      </label>
 
-    <label class="chee-toggle-row" title="Show evaluation score chart tracking the game over time">
-      <input type="checkbox" data-key="showChart">
-      <span class="icon">&#128200;</span> Eval chart
-    </label>
+      <label class="chee-toggle-row" title="Show evaluation score chart tracking the game">
+        <input type="checkbox" data-key="showChart">
+        <span class="icon">&#128200;</span> Eval chart
+      </label>
+    </div>
 
-    <label>Theme</label>
-    <select id="theme-select">
-      <option value="site">Match Site</option>
-      <option value="latte">Latte</option>
-      <option value="frappe">Frappé</option>
-      <option value="macchiato">Macchiato</option>
-      <option value="mocha">Mocha</option>
-    </select>
+    <div class="theme-row">
+      <label>Theme</label>
+      <select id="theme-select">
+        <option value="site">Match Site</option>
+        <option value="latte">Latte</option>
+        <option value="frappe">Frappé</option>
+        <option value="macchiato">Macchiato</option>
+        <option value="mocha">Mocha</option>
+      </select>
+    </div>
 
     <div class="chee-section-header">Engine</div>
 
-    <label>Lines</label>
-    <div class="btn-group" data-key="numLines">
-      <button data-val="3">3</button>
-      <button data-val="4">4</button>
-      <button data-val="5">5</button>
+    <div class="engine-grid">
+      <div>
+        <label>Lines</label>
+        <div class="btn-group" data-key="numLines">
+          <button data-val="3">3</button>
+          <button data-val="4">4</button>
+          <button data-val="5">5</button>
+        </div>
+      </div>
+      <div>
+        <label>Depth</label>
+        <div class="btn-group" data-key="searchDepth">
+          <button data-val="15">15</button>
+          <button data-val="18">18</button>
+          <button data-val="20">20</button>
+          <button data-val="22">22</button>
+        </div>
+      </div>
     </div>
 
-    <label>Depth</label>
-    <div class="btn-group" data-key="searchDepth">
-      <button data-val="15">15</button>
-      <button data-val="18">18</button>
-      <button data-val="20">20</button>
-      <button data-val="22">22</button>
+    <div class="toggle-grid">
+      <label class="chee-toggle-row" title="Wait for full depth before showing hint arrows">
+        <input type="checkbox" data-key="waitForComplete">
+        <span class="icon">&#9201;</span> Full depth
+      </label>
+
+      <label class="chee-toggle-row" title="Enable debug logging in console (chee:*)">
+        <input type="checkbox" data-key="debugMode">
+        <span class="icon">&#128736;</span> Debug
+      </label>
     </div>
-
-    <label class="chee-toggle-row" title="Wait for engine to reach full depth before showing hint arrows">
-      <input type="checkbox" data-key="waitForComplete">
-      <span class="icon">&#9201;</span> Wait for full depth
-    </label>
-
-    <label class="chee-toggle-row" title="Enable debug logging in browser console (chee:* namespace)">
-      <input type="checkbox" data-key="debugMode">
-      <span class="icon">&#128736;</span> Debug logging
-    </label>
   </div>
 
   <div id="tab-puzzles" class="tab-content">
