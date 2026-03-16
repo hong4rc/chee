@@ -6,7 +6,7 @@
   border-radius: 4px;
   color: var(--chee-text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 13px;
+  font-size: 14px;
   z-index: 100000;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -41,7 +41,7 @@ body.chee-dragging {
 }
 
 #chee-analysis-panel .chee-eval-score {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   padding: 1px 6px;
   border-radius: 3px;
@@ -77,7 +77,7 @@ body.chee-dragging {
 
 #chee-analysis-panel .chee-depth {
   font-weight: 400;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--chee-overlay0);
 }
 
@@ -125,14 +125,14 @@ body.chee-dragging {
 #chee-analysis-panel .chee-wdl-text {
   display: flex;
   justify-content: space-between;
-  font-size: 9px;
+  font-size: 10px;
   padding: 2px 0 4px;
-  color: var(--chee-overlay0);
+  color: var(--chee-subtext0);
 }
 
 #chee-analysis-panel .chee-wdl-w-pct { color: #e8e8e8; }
-#chee-analysis-panel .chee-wdl-d-pct { color: #888; }
-#chee-analysis-panel .chee-wdl-l-pct { color: #666; }
+#chee-analysis-panel .chee-wdl-d-pct { color: #aaa; }
+#chee-analysis-panel .chee-wdl-l-pct { color: #888; }
 
 /* Lines */
 #chee-analysis-panel .chee-lines {
@@ -158,14 +158,14 @@ body.chee-dragging {
 }
 
 #chee-analysis-panel .chee-line-rank {
-  color: var(--chee-overlay0);
-  font-size: 11px;
+  color: var(--chee-subtext0);
+  font-size: 12px;
   flex-shrink: 0;
   width: 12px;
 }
 
 #chee-analysis-panel .chee-line-score {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   flex-shrink: 0;
   padding: 0 3px;
@@ -184,8 +184,8 @@ body.chee-dragging {
 
 #chee-analysis-panel .chee-line-moves {
   font-family: 'Lucida Console', 'Menlo', monospace;
-  font-size: 11px;
-  color: var(--chee-subtext0);
+  font-size: 12px;
+  color: var(--chee-subtext1);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -219,7 +219,7 @@ body.chee-dragging {
   transform: translateX(-50%);
   background: var(--chee-surface0, #313244);
   color: var(--chee-text, #cdd6f4);
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   padding: 1px 4px;
   border-radius: 3px;
@@ -256,15 +256,15 @@ body.chee-dragging {
   justify-content: center;
   gap: 6px;
   padding: 5px 10px;
-  font-size: 10px;
-  color: var(--chee-overlay0);
+  font-size: 11px;
+  color: var(--chee-subtext0);
   border-top: 1px solid var(--chee-surface0);
   background: var(--chee-mantle);
 }
 
 #chee-analysis-panel .chee-accuracy {
   font-weight: 700;
-  font-size: 11px;
+  font-size: 12px;
   flex: 1;
   display: flex;
   gap: 4px;
@@ -283,8 +283,8 @@ body.chee-dragging {
 #chee-analysis-panel .chee-copy-pgn,
 #chee-analysis-panel .chee-copy-fen {
   cursor: pointer;
-  color: var(--chee-overlay0);
-  font-size: 9px;
+  color: var(--chee-subtext0);
+  font-size: 10px;
   font-weight: 600;
   line-height: 1;
   padding: 2px 4px;
@@ -377,7 +377,7 @@ body.chee-dragging {
 
 /* Opening name */
 #chee-analysis-panel .chee-opening-slot {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--chee-subtext0);
   padding: 0 10px;
   white-space: nowrap;
@@ -395,9 +395,9 @@ body.chee-dragging {
 }
 
 #chee-analysis-panel .chee-insight {
-  font-size: 9px;
+  font-size: 10px;
   font-style: italic;
-  color: var(--chee-overlay0);
+  color: var(--chee-subtext0);
 }
 
 /* Plugin slots container */
@@ -412,14 +412,14 @@ body.chee-dragging {
   align-items: center;
   gap: 6px;
   padding: 3px 10px 4px;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   flex-wrap: wrap;
 }
 
 #chee-analysis-panel .chee-trapboy-title {
   color: #d946ef;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 1px;
 }
@@ -461,7 +461,7 @@ body.chee-dragging {
 }
 
 #chee-analysis-panel .chee-classification-badge {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   color: #fff;
   padding: 1px 6px;

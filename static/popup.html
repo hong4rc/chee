@@ -6,7 +6,7 @@
     body {
       width: 300px;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      font-size: 13px;
+      font-size: 14px;
       padding: 10px 12px;
       margin: 0;
       color: var(--chee-text);
@@ -35,7 +35,7 @@
       border: none;
       border-bottom: 2px solid transparent;
       color: var(--chee-overlay0);
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 500;
       cursor: pointer;
       transition: color 0.15s, border-color 0.15s;
@@ -51,7 +51,7 @@
       display: block;
       margin-bottom: 4px;
       font-weight: 500;
-      font-size: 12px;
+      font-size: 13px;
       color: var(--chee-subtext0);
     }
     .toggle-grid {
@@ -72,7 +72,7 @@
       border: 1px solid var(--chee-surface1);
       border-radius: 4px;
       cursor: pointer;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 500;
       transition: background 0.15s, color 0.15s;
     }
@@ -90,7 +90,7 @@
       color: var(--chee-text);
       border: 1px solid var(--chee-surface1);
       border-radius: 4px;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 500;
       cursor: pointer;
       appearance: auto;
@@ -102,7 +102,7 @@
       gap: 4px;
       margin-bottom: 6px;
       font-weight: 500;
-      font-size: 11px;
+      font-size: 12px;
       color: var(--chee-subtext0);
       cursor: pointer;
     }
@@ -112,13 +112,13 @@
       margin: 0;
     }
     .chee-toggle-row .icon {
-      font-size: 12px;
-      width: 14px;
+      font-size: 14px;
+      width: 16px;
       text-align: center;
       flex-shrink: 0;
     }
     .chee-section-header {
-      font-size: 9px;
+      font-size: 10px;
       font-weight: 600;
       color: var(--chee-overlay0);
       text-transform: uppercase;
@@ -154,6 +154,27 @@
     }
     .engine-grid .btn-group {
       margin-bottom: 6px;
+    }
+    .copy-debug-btn {
+      width: 100%;
+      padding: 5px 0;
+      margin-top: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--chee-surface1);
+      border-radius: 4px;
+      background: var(--chee-surface0);
+      color: var(--chee-overlay0);
+      transition: background 0.15s, color 0.15s;
+    }
+    .copy-debug-btn:hover {
+      background: var(--chee-surface1);
+      color: var(--chee-text);
+    }
+    .copy-debug-btn.copied {
+      color: var(--chee-green);
+      border-color: var(--chee-green);
     }
     .puzzle-grid {
       display: grid;
@@ -274,6 +295,10 @@
         <span class="icon">&#128736;</span> Debug
       </label>
     </div>
+
+    <button id="copy-debug" class="copy-debug-btn" title="Copy diagnostic info to clipboard for AI debugging">
+      &#128203; Copy debug info
+    </button>
   </div>
 
   <div id="tab-puzzles" class="tab-content">
