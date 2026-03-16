@@ -54,6 +54,20 @@ const SEL_PLAYER_NAME = '.user-tagline-username';
 const SEL_RESULT = 'wc-simple-move-list .result-text, .result-text';
 const NODE_TEXT = 3; // Node.TEXT_NODE
 const NODE_ELEMENT = 1; // Node.ELEMENT_NODE
+
+// Unicode chess figurine → SAN letter (covers both filled and outline sets)
+const FIGURINE_MAP = {
+  '\u2654': 'K',
+  '\u2655': 'Q',
+  '\u2656': 'R',
+  '\u2657': 'B',
+  '\u2658': 'N',
+  '\u265A': 'K',
+  '\u265B': 'Q',
+  '\u265C': 'R',
+  '\u265D': 'B',
+  '\u265E': 'N',
+};
 const VALID_RESULTS = ['1-0', '0-1', '1/2-1/2'];
 
 const CLS_WHITE_MOVE = 'white-move';
@@ -320,8 +334,13 @@ export class ChesscomAdapter extends BoardAdapter {
         text += figurine || child.textContent;
       }
     });
+    // Replace Unicode figurines that may appear when data-figurine is absent
+    let result = '';
+    for (const ch of text) {
+      result += FIGURINE_MAP[ch] || ch;
+    }
     // SAN moves never contain spaces — collapse any whitespace from DOM formatting
-    return text.replace(/\s+/g, '');
+    return result.replace(/\s+/g, '');
   }
 
   readPlayerNames() {
