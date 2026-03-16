@@ -364,6 +364,52 @@ export class ArrowOverlay {
     forEach(this._svg.querySelectorAll('.chee-guard-el'), (el) => el.remove());
   }
 
+  drawGuardBadges(squares, isFlipped) {
+    if (!this._svg || !this._boardEl) return;
+    this.clearGuardBadges();
+    const { sqW, sqH } = this._getBoardMetrics();
+    forEach(squares, ({ file, rank }) => {
+      const center = squareCenter(file, rank, sqW, sqH, isFlipped);
+      const r = sqW * 0.22;
+      const cx = center.x + sqW * 0.28;
+      const cy = center.y - sqH * 0.28;
+      const g = createSvgEl('g', { class: 'chee-guard-badge-el' });
+      // Shadow for depth
+      g.appendChild(createSvgEl('circle', {
+        cx: cx + 1,
+        cy: cy + 1,
+        r,
+        fill: '#000',
+        opacity: 0.3,
+      }));
+      // Main circle
+      g.appendChild(createSvgEl('circle', {
+        cx,
+        cy,
+        r,
+        fill: '#ef4444',
+      }));
+      // "!" icon
+      g.appendChild(createSvgEl('text', {
+        x: cx,
+        y: cy,
+        'text-anchor': 'middle',
+        'dominant-baseline': 'central',
+        fill: '#fff',
+        'font-size': `${r * 1.6}px`,
+        'font-weight': '900',
+        'font-family': 'Arial, sans-serif',
+      }));
+      g.lastChild.textContent = '!';
+      this._svg.appendChild(g);
+    });
+  }
+
+  clearGuardBadges() {
+    if (!this._svg) return;
+    forEach(this._svg.querySelectorAll('.chee-guard-badge-el'), (el) => el.remove());
+  }
+
   drawLayer(name, uciMoves, isFlipped, opts = {}) {
     if (!this._svg || !this._boardEl) return;
     this.clearLayer(name);

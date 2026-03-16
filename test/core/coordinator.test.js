@@ -392,4 +392,175 @@ describe('AnalysisCoordinator', () => {
       expect(spy).toHaveBeenCalled();
     });
   });
+
+  describe('secondary analysis isolation', () => {
+    const mainEval = {
+      depth: 18,
+      complete: true,
+      lines: [
+        { score: -474, mate: null, pv: ['g4h5'] },
+        { score: -500, mate: null, pv: ['d4d5'] },
+        { score: -520, mate: null, pv: ['c1e3'] },
+      ],
+    };
+    const incompleteMainEval = {
+      depth: 14,
+      complete: false,
+      lines: mainEval.lines,
+    };
+    const searchmovesEval = {
+      depth: 8,
+      complete: false,
+      lines: [
+        { score: -870, mate: null, pv: ['c2c4'] },
+        { score: -900, mate: null, pv: ['c2c3'] },
+      ],
+    };
+    const searchmovesComplete = {
+      depth: 8,
+      complete: true,
+      lines: searchmovesEval.lines,
+    };
+
+    it('restores savedEval after secondary completes — not searchmoves result', () => {
+      const { coordinator, engine, panel } = createCoordinator();
+      coordinator._activeFen = 'testfen';
+      engine.currentFen = 'testfen';
+      engine.forceAnalyze = vi.fn();
+
+      // Simulate main eval arriving
+      coordinator._applyEval(mainEval);
+      expect(panel.updateEval).toHaveBeenCalledWith(mainEval);
+      panel.updateEval.mockClear();
+
+      // Start secondary analysis (guard searchmoves)
+      const callback = vi.fn();
+      coordinator.requestSecondaryAnalysis('testfen', 8, callback, ['c2c3', 'c2c4']);
+
+      // Secondary eval at depth 8 arrives
+      coordinator._onEvalData(searchmovesEval);
+      expect(callback).toHaveBeenCalledWith(searchmovesEval);
+
+      // Panel should be restored with the original mainEval, not searchmovesEval
+      expect(panel.updateEval).toHaveBeenCalledWith(mainEval);
+    });
+
+    it('drops stale searchmoves evals after secondary completes', () => {
+      const { coordinator, engine, panel } = createCoordinator();
+      coordinator._activeFen = 'testfen';
+      engine.currentFen = 'testfen';
+      engine.forceAnalyze = vi.fn();
+
+      // Simulate main eval
+      coordinator._applyEval(mainEval);
+      panel.updateEval.mockClear();
+
+      // Start and complete secondary analysis
+      coordinator.requestSecondaryAnalysis('testfen', 8, vi.fn(), ['c2c3', 'c2c4']);
+      coordinator._onEvalData(searchmovesEval);
+      panel.updateEval.mockClear();
+
+      // Stale searchmoves eval arrives (depth 9, in-flight before stop took effect)
+      const staleEval = {
+        depth: 9,
+        complete: false,
+        lines: [{ score: -880, mate: null, pv: ['c2c3'] }],
+      };
+      coordinator._onEvalData(staleEval);
+
+      // Should be dropped — panel not updated with searchmoves data
+      expect(panel.updateEval).not.toHaveBeenCalled();
+    });
+
+    it('drops bestmove from stopped searchmoves analysis', () => {
+      const { coordinator, engine, panel } = createCoordinator();
+      coordinator._activeFen = 'testfen';
+      engine.currentFen = 'testfen';
+      engine.forceAnalyze = vi.fn();
+
+      coordinator._applyEval(mainEval);
+      panel.updateEval.mockClear();
+
+      coordinator.requestSecondaryAnalysis('testfen', 8, vi.fn(), ['c2c3', 'c2c4']);
+      coordinator._onEvalData(searchmovesEval);
+      panel.updateEval.mockClear();
+
+      // bestmove (complete: true) from stopped searchmoves analysis
+      coordinator._onEvalData(searchmovesComplete);
+
+      // Should be dropped
+      expect(panel.updateEval).not.toHaveBeenCalled();
+    });
+
+    it('clears drop flag on board change', () => {
+      const { coordinator, engine, panel } = createCoordinator();
+      coordinator._activeFen = 'testfen';
+      engine.currentFen = 'testfen';
+      engine.forceAnalyze = vi.fn();
+
+      coordinator._applyEval(mainEval);
+      coordinator.requestSecondaryAnalysis('testfen', 8, vi.fn(), ['c2c3', 'c2c4']);
+      coordinator._onEvalData(searchmovesEval);
+
+      // Flag is set (complete mainEval → engine not resumed)
+      expect(coordinator._dropUntilNewAnalysis).toBe(true);
+
+      // Board change clears the flag
+      coordinator._dropUntilNewAnalysis = false; // simulates _onBoardChange clearing it
+
+      // Evals flow through again
+      panel.updateEval.mockClear();
+      engine.currentFen = 'newfen';
+      coordinator._activeFen = 'newfen';
+      const newEval = {
+        depth: 10,
+        complete: false,
+        lines: [{ score: 30, mate: null, pv: ['e2e4'] }],
+      };
+      coordinator._onEvalData(newEval);
+      expect(panel.updateEval).toHaveBeenCalledWith(newEval);
+    });
+
+    it('cancelSecondaryAnalysis restores savedEval and drops stale evals', () => {
+      const { coordinator, engine, panel } = createCoordinator();
+      coordinator._activeFen = 'testfen';
+      engine.currentFen = 'testfen';
+      engine.forceAnalyze = vi.fn();
+
+      coordinator._applyEval(mainEval);
+      panel.updateEval.mockClear();
+
+      coordinator.requestSecondaryAnalysis('testfen', 8, vi.fn(), ['c2c3', 'c2c4']);
+      coordinator.cancelSecondaryAnalysis();
+
+      // Panel restored with mainEval
+      expect(panel.updateEval).toHaveBeenCalledWith(mainEval);
+
+      // Stale eval after cancel is dropped (complete mainEval → engine not resumed)
+      panel.updateEval.mockClear();
+      coordinator._onEvalData(searchmovesComplete);
+      expect(panel.updateEval).not.toHaveBeenCalled();
+    });
+
+    it('resumes engine when savedEval was incomplete', () => {
+      const { coordinator, engine, panel } = createCoordinator();
+      coordinator._activeFen = 'testfen';
+      engine.currentFen = 'testfen';
+      engine.forceAnalyze = vi.fn();
+
+      // Simulate incomplete main eval (depth 14, still running)
+      coordinator._applyEval(incompleteMainEval);
+      panel.updateEval.mockClear();
+
+      // Start and complete secondary
+      coordinator.requestSecondaryAnalysis('testfen', 8, vi.fn(), ['c2c3', 'c2c4']);
+      coordinator._onEvalData(searchmovesEval);
+
+      // Panel restored with incomplete eval
+      expect(panel.updateEval).toHaveBeenCalledWith(incompleteMainEval);
+      // Engine resumed because eval was not complete
+      expect(engine.forceAnalyze).toHaveBeenCalledTimes(2); // once for secondary, once for resume
+      expect(coordinator._dropUntilNewAnalysis).toBe(false);
+    });
+  });
 });

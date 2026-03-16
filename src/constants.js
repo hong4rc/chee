@@ -219,6 +219,8 @@ export const UCI_PROMO_LEN = 5;
 export const GUARD_CIRCLE_RADIUS = 0.38;
 export const GUARD_OPACITY = 0.35;
 export const GUARD_COLOR = '#ca3431';
+export const GUARD_DEPTH = 8;
+export const GUARD_CP_THRESHOLD = 100; // cp loss above this → warn
 
 // ─── Trapboy (sacrifice-based trap detection) ───────────────
 export const TRAPBOY_MIN_DEPTH = 12;

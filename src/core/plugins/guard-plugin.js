@@ -1,70 +1,144 @@
-// Guard plugin: warns when a clicked piece is not in any engine top line.
-// Self-contained — handles mouse events via onBoardMouseDown/onBoardMouseUp hooks.
+// Guard plugin: on mousedown, runs shallow search on all moves from the picked-up piece.
+// Marks destination squares with ⚠️ if the move loses more than GUARD_CP_THRESHOLD centipawns.
 
+import createDebug from '../../lib/debug.js';
 import { AnalysisPlugin } from '../plugin.js';
 import { parseUci } from '../../lib/uci.js';
-import { PLUGIN_GUARD, LAST_RANK, TURN_WHITE } from '../../constants.js';
+import { generateMovesFromSquare } from '../san.js';
+import {
+  PLUGIN_GUARD, LAST_RANK, TURN_WHITE,
+  GUARD_DEPTH, GUARD_CP_THRESHOLD,
+} from '../../constants.js';
+
+const log = createDebug('chee:guard');
 
 export class GuardPlugin extends AnalysisPlugin {
   constructor({ settings } = {}) {
     super(PLUGIN_GUARD);
     this._settings = settings || {};
-    this._latestLines = null;
+    this._latestEval = null;
+    this._requestSecondaryAnalysis = null;
+    this._cancelSecondaryAnalysis = null;
+    this._boardStateRef = null;
+    this._pendingSquare = null;
+  }
+
+  setup({ requestSecondaryAnalysis, cancelSecondaryAnalysis, boardState }) {
+    this._requestSecondaryAnalysis = requestSecondaryAnalysis;
+    this._cancelSecondaryAnalysis = cancelSecondaryAnalysis;
+    this._boardStateRef = boardState;
   }
 
   onBoardChange(boardState, renderCtx) {
-    renderCtx.arrow.clearGuard();
+    this._clearAll(renderCtx.arrow);
+    this._pendingSquare = null;
   }
 
   onEval(data) {
-    if (data.lines) this._latestLines = data.lines;
+    if (data.lines && data.lines.length > 0) {
+      const top = data.lines[0];
+      this._latestEval = {
+        score: top.mate !== null ? Math.sign(top.mate) * 10000 : top.score,
+      };
+    }
   }
 
   onSettingsChange(settings, renderCtx) {
     if ('showGuard' in settings && !settings.showGuard) {
-      renderCtx.arrow.clearGuard();
+      this._clearAll(renderCtx.arrow);
+      this._pendingSquare = null;
     }
   }
 
   onBoardMouseDown(sq, board, turn, renderCtx) {
-    renderCtx.arrow.clearGuard();
-    if (this.checkSquare(sq.file, sq.rank, board, turn)) {
-      renderCtx.arrow.drawGuard(sq.file, sq.rank, renderCtx.isFlipped());
-    }
+    this._clearAll(renderCtx.arrow);
+    this._pendingSquare = null;
+    if (!this._settings.showGuard) return;
+    if (!this._latestEval || !this._requestSecondaryAnalysis) return;
+
+    const piece = board[LAST_RANK - sq.rank][sq.file];
+    if (!piece) return;
+    const isWhite = piece === piece.toUpperCase();
+    if ((turn === TURN_WHITE) !== isWhite) return;
+
+    const moves = generateMovesFromSquare(board, sq.file, sq.rank, turn);
+    if (moves.length === 0) return;
+
+    this._pendingSquare = { file: sq.file, rank: sq.rank };
+    const bestScore = this._latestEval.score;
+    const fen = this._boardStateRef?.fen;
+    if (!fen) return;
+
+    log.info(`guard check: ${piece} at ${sq.file},${sq.rank} — ${moves.length} moves`);
+
+    this._requestSecondaryAnalysis(
+      fen,
+      GUARD_DEPTH,
+      (data) => {
+        if (!this._pendingSquare) return;
+        if (!data.complete && data.depth < GUARD_DEPTH) return;
+        this._pendingSquare = null;
+        this._evaluateGuardResults(data, bestScore, turn, moves, renderCtx);
+      },
+      moves,
+    );
   }
 
   onBoardMouseUp(renderCtx) {
-    renderCtx.arrow.clearGuard();
+    this._clearAll(renderCtx.arrow);
+    if (this._pendingSquare && this._cancelSecondaryAnalysis) {
+      this._cancelSecondaryAnalysis();
+    }
+    this._pendingSquare = null;
   }
 
-  // Returns true if the square should show a warning (piece not in any engine line).
-  checkSquare(file, rank, board, turn) {
-    if (!this._settings.showGuard) return false;
-    // board is row-major: board[LAST_RANK - rank][file]
-    const piece = board[LAST_RANK - rank][file];
-    if (!piece) return false;
+  _evaluateGuardResults(data, bestScore, turn, allMoves, renderCtx) {
+    if (!data.lines || data.lines.length === 0) return;
+    const badSquares = [];
+    const flip = turn === TURN_WHITE ? 1 : -1;
+    const evaluatedMoves = new Set();
 
-    // Only warn for the side to move
-    const isWhitePiece = piece === piece.toUpperCase();
-    if ((turn === TURN_WHITE) !== isWhitePiece) return false;
-
-    if (!this._latestLines || this._latestLines.length === 0) return false;
-
-    for (let i = 0; i < this._latestLines.length; i++) {
-      const line = this._latestLines[i];
+    for (const line of data.lines) {
       if (!line.pv || line.pv.length === 0) continue;
-      const { fromFile, fromRank } = parseUci(line.pv[0]);
-      if (fromFile === file && fromRank === rank) return false;
+      evaluatedMoves.add(line.pv[0]);
+      const moveScore = line.mate !== null
+        ? Math.sign(line.mate) * 10000
+        : line.score;
+      // cp loss from the perspective of the side to move
+      const cpLoss = (bestScore - moveScore) * flip;
+      if (cpLoss > GUARD_CP_THRESHOLD) {
+        const { toFile, toRank } = parseUci(line.pv[0]);
+        badSquares.push({ file: toFile, rank: toRank });
+        log(`bad move: ${line.pv[0]} cpLoss:${cpLoss}`);
+      }
     }
 
-    return true;
+    // Moves not in results are worse than the worst evaluated — mark as bad
+    for (const uci of allMoves) {
+      if (!evaluatedMoves.has(uci)) {
+        const { toFile, toRank } = parseUci(uci);
+        badSquares.push({ file: toFile, rank: toRank });
+        log(`bad move (unevaluated): ${uci}`);
+      }
+    }
+
+    if (badSquares.length > 0) {
+      renderCtx.arrow.drawGuardBadges(badSquares, renderCtx.isFlipped());
+    }
+  }
+
+  _clearAll(arrow) {
+    arrow.clearGuard();
+    arrow.clearGuardBadges();
   }
 
   onEngineReset() {
-    this._latestLines = null;
+    this._latestEval = null;
+    this._pendingSquare = null;
   }
 
   destroy() {
-    this._latestLines = null;
+    this._latestEval = null;
+    this._pendingSquare = null;
   }
 }

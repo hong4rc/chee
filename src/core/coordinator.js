@@ -37,6 +37,8 @@ export class AnalysisCoordinator {
     this._plugins = [];
     this._persistentLayers = [];
     this._secondaryAnalysis = null;
+    this._lastEvalData = null;
+    this._dropUntilNewAnalysis = false;
   }
 
   _cacheKey(fen, depth) {
@@ -80,7 +82,8 @@ export class AnalysisCoordinator {
       panel: this._panel,
       adapter: this._adapter,
       boardState: this._boardState,
-      requestSecondaryAnalysis: (fen, depth, cb) => this.requestSecondaryAnalysis(fen, depth, cb),
+      requestSecondaryAnalysis: (...args) => this.requestSecondaryAnalysis(...args),
+      cancelSecondaryAnalysis: () => this.cancelSecondaryAnalysis(),
       broadcastToPlugins: (name, data) => this.broadcastToPlugins(name, data),
     };
     forEach(this._plugins, (p) => p.setup(setupCtx));
@@ -170,12 +173,32 @@ export class AnalysisCoordinator {
     if (cached) this._notifyPlugins('onEval', cached, this._boardState, this._createRenderCtx());
   }
 
-  requestSecondaryAnalysis(fen, targetDepth, callback) {
+  cancelSecondaryAnalysis() {
+    if (!this._secondaryAnalysis) return;
+    const { savedEval } = this._secondaryAnalysis;
+    this._secondaryAnalysis = null;
+    this._dropUntilNewAnalysis = true;
+    this._engine.stop();
+    if (savedEval) {
+      this._applyEval(savedEval);
+    }
+    // Resume main analysis if it wasn't complete
+    if (!savedEval?.complete && this._activeFen) {
+      this._dropUntilNewAnalysis = false;
+      this._engine.forceAnalyze(this._activeFen);
+    }
+  }
+
+  requestSecondaryAnalysis(fen, targetDepth, callback, searchmoves) {
     if (this._secondaryAnalysis) return;
     this._secondaryAnalysis = {
-      fen, targetDepth, callback, originalFen: this._activeFen,
+      fen,
+      targetDepth,
+      callback,
+      originalFen: this._activeFen,
+      savedEval: this._lastEvalData,
     };
-    this._engine.forceAnalyze(fen);
+    this._engine.forceAnalyze(fen, searchmoves);
   }
 
   _createRenderCtx() {
@@ -229,6 +252,7 @@ export class AnalysisCoordinator {
   }
 
   _applyEval(data) {
+    this._lastEvalData = data;
     if (data.complete) {
       const top = data.lines?.[0];
       const score = top?.mate !== null ? `M${top.mate}` : top?.score;
@@ -244,10 +268,25 @@ export class AnalysisCoordinator {
       const sa = this._secondaryAnalysis;
       if (this._engine.currentFen === sa.fen) {
         // Clear before callback so the callback can chain another request
-        if (data.complete || data.depth >= sa.targetDepth) {
-          this._secondaryAnalysis = null;
-        }
+        const done = data.complete || data.depth >= sa.targetDepth;
+        if (done) this._secondaryAnalysis = null;
         sa.callback(data);
+        // Stop leftover searchmoves analysis and restore previous eval
+        if (done && !this._secondaryAnalysis) {
+          this._dropUntilNewAnalysis = true;
+          this._engine.stop();
+          if (sa.savedEval) {
+            this._applyEval(sa.savedEval);
+            // If main analysis wasn't complete, resume it
+            if (!sa.savedEval.complete && this._activeFen) {
+              this._dropUntilNewAnalysis = false;
+              this._engine.forceAnalyze(this._activeFen);
+            }
+          } else if (this._activeFen) {
+            this._dropUntilNewAnalysis = false;
+            this._engine.forceAnalyze(this._activeFen);
+          }
+        }
         return;
       }
       // Board changed during secondary — abort silently
@@ -255,6 +294,8 @@ export class AnalysisCoordinator {
     }
 
     if (this._engine.currentFen !== this._activeFen) return;
+    // Drop all evals from a stopped searchmoves analysis until board changes
+    if (this._dropUntilNewAnalysis) return;
     this._applyEval(data);
     this._evalCache.set(this._cacheKey(this._activeFen, data.depth), data);
   }
@@ -268,6 +309,7 @@ export class AnalysisCoordinator {
       if (!fen) return;
       log.info('board change — ply:', this._boardState.ply, 'turn:', this._boardState.turn, 'fen:', fen);
       this._secondaryAnalysis = null;
+      this._dropUntilNewAnalysis = false;
       this._notifyPlugins('onBoardChange', this._boardState, this._createRenderCtx());
       this._activeFen = fen;
 

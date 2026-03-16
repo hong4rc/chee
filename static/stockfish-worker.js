@@ -34,6 +34,7 @@ let reconfiguring = false;
 let isReady = false;
 let sfOnMessage = null;
 let pendingFen = null;
+let pendingSearchMoves = null;
 let activeFen = null;
 const realPostMessage = self.postMessage.bind(self);
 
@@ -101,15 +102,26 @@ function parseInfoLine(line) {
 
 let awaitingReady = false; // waiting for readyok before starting new analysis
 
-function startAnalysis(fen) {
-  currentLines = Array(NUM_LINES).fill(null);
+let tempMultiPV = 0; // non-zero = temporary MultiPV override active
+
+function startAnalysis(fen, searchMoves) {
+  // When searchmoves is provided, temporarily raise MultiPV to cover all candidate moves
+  if (searchMoves && searchMoves.length > NUM_LINES) {
+    tempMultiPV = searchMoves.length;
+    sendUCI(`setoption name MultiPV value ${tempMultiPV}`);
+    currentLines = Array(tempMultiPV).fill(null);
+  } else {
+    currentLines = Array(NUM_LINES).fill(null);
+  }
   currentDepth = 0;
   analyzing = true;
   awaitingReady = false;
   activeFen = fen;
 
   sendUCI(`position fen ${fen}`);
-  sendUCI(`go depth ${SEARCH_DEPTH}`);
+  let goCmd = `go depth ${SEARCH_DEPTH}`;
+  if (searchMoves && searchMoves.length > 0) goCmd += ` searchmoves ${searchMoves.join(' ')}`;
+  sendUCI(goCmd);
 }
 
 // After stop+bestmove, sync with isready/readyok before new analysis
@@ -132,8 +144,10 @@ function onStockfishMessage(line) {
     if (awaitingReady && pendingFen) {
       awaitingReady = false;
       const readyFen = pendingFen;
+      const readySearchMoves = pendingSearchMoves;
       pendingFen = null;
-      startAnalysis(readyFen);
+      pendingSearchMoves = null;
+      startAnalysis(readyFen, readySearchMoves);
     }
     return;
   }
@@ -157,6 +171,12 @@ function onStockfishMessage(line) {
       lines: currentLines.filter(Boolean),
       complete: true,
     });
+    // Restore MultiPV if we temporarily raised it for searchmoves
+    if (tempMultiPV) {
+      tempMultiPV = 0;
+      sendUCI(`setoption name MultiPV value ${NUM_LINES}`);
+      currentLines = Array(NUM_LINES).fill(null);
+    }
 
     // Sync engine state before starting queued analysis
     syncBeforeNext();
@@ -170,18 +190,20 @@ function requestStop() {
   }
 }
 
-function analyzePosition(fen) {
+function analyzePosition(fen, searchMoves) {
   if (!isReady) {
     pendingFen = fen;
+    pendingSearchMoves = searchMoves || null;
     return;
   }
   // If analyzing or waiting for readyok, queue and stop
   if (analyzing || awaitingReady) {
     pendingFen = fen;
+    pendingSearchMoves = searchMoves || null;
     if (analyzing) sendUCI('stop');
     return;
   }
-  startAnalysis(fen);
+  startAnalysis(fen, searchMoves);
 }
 
 function stopAnalysis() {
@@ -271,7 +293,7 @@ function bootstrapStockfish() {
   self.onmessage = (e) => {
     const msg = e.data;
     if (msg.type === MSG_POSITION) {
-      analyzePosition(msg.fen);
+      analyzePosition(msg.fen, msg.searchmoves);
     } else if (msg.type === MSG_STOP) {
       stopAnalysis();
     } else if (msg.type === MSG_RECONFIGURE) {
@@ -285,6 +307,7 @@ function bootstrapStockfish() {
       analyzing = false;
       awaitingReady = false;
       pendingFen = null;
+      pendingSearchMoves = null;
       activeFen = null;
       if (linesChanged) sendUCI(`setoption name MultiPV value ${NUM_LINES}`);
       sendUCI('isready');

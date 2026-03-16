@@ -245,3 +245,68 @@ export function sanToUci(san, board, turn) {
   }
   return null;
 }
+
+// ─── Move generation from a square ──────────────────────────
+
+const PROMO_PIECES = ['q', 'r', 'b', 'n'];
+
+/**
+ * Generate all pseudo-legal UCI moves from a specific square.
+ * Does not check for leaving own king in check.
+ */
+export function generateMovesFromSquare(board, file, rank, turn) {
+  const piece = board[LAST_RANK - rank][file];
+  if (!piece) return [];
+
+  const isWhite = piece === piece.toUpperCase();
+  if ((turn === TURN_WHITE) !== isWhite) return [];
+
+  const pieceType = piece.toUpperCase();
+  const moves = [];
+  const from = FILES[file] + (rank + 1);
+
+  if (pieceType === WHITE_PAWN) {
+    for (let tf = 0; tf < BOARD_SIZE; tf++) {
+      for (let tr = 0; tr < BOARD_SIZE; tr++) {
+        if (!canPawnReach(file, rank, tf, tr, board, turn)) continue;
+        // Exclude captures on empty squares unless en passant (we can't detect en passant without FEN)
+        if (tf !== file && board[LAST_RANK - tr][tf] === null) continue;
+        const to = FILES[tf] + (tr + 1);
+        const promoRank = turn === TURN_WHITE ? LAST_RANK : 0;
+        if (tr === promoRank) {
+          for (const p of PROMO_PIECES) moves.push(from + to + p);
+        } else {
+          moves.push(from + to);
+        }
+      }
+    }
+  } else {
+    for (let tf = 0; tf < BOARD_SIZE; tf++) {
+      for (let tr = 0; tr < BOARD_SIZE; tr++) {
+        if (tf === file && tr === rank) continue;
+        if (!canPieceReach(pieceType, file, rank, tf, tr, board)) continue;
+        const target = board[LAST_RANK - tr][tf];
+        // Can't capture own piece
+        if (target && (target === target.toUpperCase()) === isWhite) continue;
+        moves.push(from + FILES[tf] + (tr + 1));
+      }
+    }
+    // Castling for king
+    if (pieceType === WHITE_KING && file === KING_START_FILE) {
+      const backRank = turn === TURN_WHITE ? 0 : LAST_RANK;
+      if (rank === backRank) {
+        // Kingside
+        if (board[LAST_RANK - backRank][KINGSIDE_ROOK_FILE]?.toUpperCase() === WHITE_ROOK
+          && isPathClear(file, rank, KINGSIDE_ROOK_FILE, rank, board)) {
+          moves.push(from + FILES[file + CASTLING_DISTANCE] + (rank + 1));
+        }
+        // Queenside
+        if (board[LAST_RANK - backRank][QUEENSIDE_ROOK_FILE]?.toUpperCase() === WHITE_ROOK
+          && isPathClear(file, rank, QUEENSIDE_ROOK_FILE, rank, board)) {
+          moves.push(from + FILES[file - CASTLING_DISTANCE] + (rank + 1));
+        }
+      }
+    }
+  }
+  return moves;
+}

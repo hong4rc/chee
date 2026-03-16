@@ -106,7 +106,7 @@ export class Engine extends Emitter {
     }
   }
 
-  analyze(fen) {
+  analyze(fen, searchmoves) {
     if (this._state === State.INITIALIZING) {
       this._pendingFen = fen;
       return;
@@ -118,12 +118,14 @@ export class Engine extends Emitter {
     this._state = State.ANALYZING;
     this._currentFen = fen;
     this._depthGuard = true;
-    this._worker.postMessage({ type: MSG_POSITION, fen });
+    const msg = { type: MSG_POSITION, fen };
+    if (searchmoves) msg.searchmoves = searchmoves;
+    this._worker.postMessage(msg);
   }
 
-  forceAnalyze(fen) {
+  forceAnalyze(fen, searchmoves) {
     this._currentFen = null;
-    this.analyze(fen);
+    this.analyze(fen, searchmoves);
   }
 
   stop() {
