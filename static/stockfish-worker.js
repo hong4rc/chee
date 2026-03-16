@@ -34,6 +34,7 @@ let reconfiguring = false;
 let isReady = false;
 let sfOnMessage = null;
 let pendingFen = null;
+let activeFen = null;
 const realPostMessage = self.postMessage.bind(self);
 
 function sendUCI(cmd) {
@@ -91,6 +92,7 @@ function parseInfoLine(line) {
 
   realPostMessage({
     type: MSG_EVAL,
+    fen: activeFen,
     depth,
     lines: currentLines.filter(Boolean),
     complete: false,
@@ -104,6 +106,7 @@ function startAnalysis(fen) {
   currentDepth = 0;
   analyzing = true;
   awaitingReady = false;
+  activeFen = fen;
 
   sendUCI(`position fen ${fen}`);
   sendUCI(`go depth ${SEARCH_DEPTH}`);
@@ -149,6 +152,7 @@ function onStockfishMessage(line) {
     analyzing = false;
     realPostMessage({
       type: MSG_EVAL,
+      fen: activeFen,
       depth: currentDepth,
       lines: currentLines.filter(Boolean),
       complete: true,
@@ -281,6 +285,7 @@ function bootstrapStockfish() {
       analyzing = false;
       awaitingReady = false;
       pendingFen = null;
+      activeFen = null;
       if (linesChanged) sendUCI(`setoption name MultiPV value ${NUM_LINES}`);
       sendUCI('isready');
     }

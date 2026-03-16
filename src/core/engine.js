@@ -205,6 +205,10 @@ export class Engine extends Emitter {
         this.analyze(fen);
       }
     } else if (msg.type === MSG_EVAL) {
+      if (msg.fen && msg.fen !== this._currentFen) {
+        log('dropping eval for wrong FEN');
+        return;
+      }
       if (this._depthGuard) {
         if (msg.depth > STALE_DEPTH_THRESHOLD) {
           log('dropping stale eval, depth:', msg.depth);
