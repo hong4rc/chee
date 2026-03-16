@@ -40,6 +40,7 @@ After the plan is approved, implement each step:
 3. Keep changes minimal — only what the plan specifies
 4. Mark each TodoWrite item done as you complete it
 5. **When debugging**: ask the user for clarification — what they see, what they expected, exact reproduction steps — before diving into code. Guessing wastes time.
+6. **When fixing a bug**: immediately update `.claude/skills/review/SKILL.md` and `.claude/skills/feature/SKILL.md` with the lesson learned — don't defer to Phase 6. Capture the pitfall while context is fresh. This prevents repeating the same mistake in the same session or future sessions.
 
 ---
 
@@ -65,6 +66,9 @@ Launch **parallel** review agents on your own changes:
   - DOM updates: are arrows/overlays being cleared and redrawn unnecessarily? Each clear+draw is a DOM mutation
   - Engine work: does a setting change trigger engine re-analysis when cached data would suffice?
   - Shared state: when plugins store references to settings objects, do settings changes cause plugins to lose their reference (e.g., replacing `this._settings` with partial update object)?
+  - Secondary analysis leaks: when `requestSecondaryAnalysis` uses `searchmoves` on the same FEN, leftover evals contaminate main analysis after secondary clears. Use `_dropUntilNewAnalysis` + `savedEval` restore. Only resume engine if savedEval was incomplete.
+  - MultiPV partial fills: at shallow depth, Stockfish may not fill all MultiPV lines. Process available lines and treat unfilled moves as worst-case — don't wait forever for all lines.
+  - Hardcoded constants in tests: use named imports (`GUARD_DEPTH`, `SEARCH_DEPTH`) not magic numbers.
 
 Fix any issues found during review. Re-run validation if fixes were needed.
 
@@ -91,11 +95,10 @@ Fix any issues found during review. Re-run validation if fixes were needed.
 - **Only update docs that are affected** — don't touch unrelated sections
 
 ### Learn and improve skills
-Review what happened during this feature implementation:
-- Were there unexpected blockers or pitfalls? → Add to `/review` skill's logic bug checklist
+Most skill updates should already be done (Phase 2 step 6 — update on each bug fix). Final check:
+- Any remaining lessons not yet captured? → Add to `/review` or `/feature` skill
 - Was a new architectural pattern used? → Add to `/plan` skill's approach section
-- Was there a common mistake that should be caught? → Add to `/review` skill
-- Update `.claude/skills/` files if the lessons are generalizable across features
+- SVG/CSS rendering issues (icon not visible, wrong font, bad sizing) → Add to `/review` skill's rendering checklist
 
 ---
 
