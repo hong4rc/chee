@@ -40,6 +40,10 @@ export function getLogBuffer() {
   return logBuffer.slice();
 }
 
+export function refreshDebugFlag() {
+  parseDebugFlag();
+}
+
 const cache = new Map();
 
 export default function createDebug(namespace) {

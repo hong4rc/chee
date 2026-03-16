@@ -4,7 +4,7 @@
 import {
   times, constant, forEach,
 } from 'lodash-es';
-import createDebug from '../lib/debug.js';
+import createDebug, { refreshDebugFlag } from '../lib/debug.js';
 import { LruCache } from '../lib/lru.js';
 import { applyTheme } from '../lib/themes.js';
 import { eventToSquare } from '../lib/dom.js';
@@ -135,6 +135,7 @@ export class AnalysisCoordinator {
     if ('debugMode' in newSettings) { // eslint-disable-line no-restricted-globals
       if (newSettings.debugMode) localStorage.debug = 'chee:*';
       else localStorage.removeItem('debug');
+      refreshDebugFlag();
     }
 
     if (newSettings.theme && this._panel.el) applyTheme(this._panel.el, this._settings.theme);
