@@ -23,6 +23,8 @@ Then synthesize findings into a plan:
 2. Write a numbered implementation checklist using TodoWrite
 3. **Present the plan and wait for user approval before proceeding**
 
+**Skip exploration** for pure CSS/UI changes, simple toggles, or bug fixes where the cause is obvious.
+
 ---
 
 ## Phase 2: Implement
@@ -37,10 +39,11 @@ After the plan is approved, implement each step:
    - Debug logging via `createDebug('chee:namespace')`
    - No `console.log`, no magic numbers, no magic strings — use named constants from `src/constants.js`
    - Max 120 char lines
+   - Tests use named constant imports, not hardcoded values (`GUARD_DEPTH` not `8`)
 3. Keep changes minimal — only what the plan specifies
 4. Mark each TodoWrite item done as you complete it
 5. **When debugging**: ask the user for clarification — what they see, what they expected, exact reproduction steps — before diving into code. Guessing wastes time.
-6. **When fixing a bug**: immediately update `.claude/skills/review/SKILL.md` and `.claude/skills/feature/SKILL.md` with the lesson learned — don't defer to Phase 6. Capture the pitfall while context is fresh. This prevents repeating the same mistake in the same session or future sessions.
+6. **When fixing a bug**: immediately update `.claude/skills/review/SKILL.md` and `.claude/skills/feature/SKILL.md` with the lesson learned — don't defer to Phase 6. Capture the pitfall while context is fresh.
 
 ---
 
@@ -48,7 +51,7 @@ After the plan is approved, implement each step:
 
 Run validation tools in parallel where possible:
 
-1. `npx eslint` on changed files — fix any errors
+1. `npm run lint` — fix any errors
 2. `npm test` — fix any failures
 3. `npm run build` — verify the build succeeds
 
@@ -59,18 +62,20 @@ Run validation tools in parallel where possible:
 Launch **parallel** review agents on your own changes:
 - **Agent 1 (Architecture)**: Verify adapter/plugin/module patterns are followed
 - **Agent 2 (Conventions)**: Check imports, constants, naming, debug logging
-- **Agent 3 (Logic bugs)**: Check DOM timing, board diff usage, ply tracking, engine states, race conditions, cross-site compatibility
-- **Agent 4 (Performance)**: Check for redundant work, unnecessary redraws, and wasted computation. Key checklist:
-  - Settings changes: does toggling a setting trigger work in unrelated plugins? Each plugin should handle its own ON/OFF in `onSettingsChange` — avoid broadcast-replay patterns that fire `onEval` on all plugins
-  - Double-render cycles: does a visual get cleared then immediately redrawn in the same settings change flow?
-  - DOM updates: are arrows/overlays being cleared and redrawn unnecessarily? Each clear+draw is a DOM mutation
-  - Engine work: does a setting change trigger engine re-analysis when cached data would suffice?
-  - Shared state: when plugins store references to settings objects, do settings changes cause plugins to lose their reference (e.g., replacing `this._settings` with partial update object)?
-  - Secondary analysis leaks: when `requestSecondaryAnalysis` uses `searchmoves` on the same FEN, leftover evals contaminate main analysis after secondary clears. Use `_dropUntilNewAnalysis` + `savedEval` restore. Only resume engine if savedEval was incomplete.
-  - MultiPV partial fills: at shallow depth, Stockfish may not fill all MultiPV lines. Process available lines and treat unfilled moves as worst-case — don't wait forever for all lines.
-  - Hardcoded constants in tests: use named imports (`GUARD_DEPTH`, `SEARCH_DEPTH`) not magic numbers.
+- **Agent 3 (Logic bugs)**: Key checklist:
+  - DOM timing: state may not be updated when MutationObserver fires
+  - Engine state machine: IDLE/INITIALIZING/READY/ANALYZING transitions
+  - Secondary analysis isolation: searchmoves on same FEN leaks evals into main pipeline. Use `_dropUntilNewAnalysis` + `savedEval`. Resume engine only if savedEval incomplete.
+  - MultiPV partial fills: at shallow depth, not all lines filled. Process available, treat unfilled as worst-case.
+  - Race conditions: debounce, async sequences, in-flight evals after stop
+- **Agent 4 (Performance)**: Key checklist:
+  - Settings changes: each plugin handles own ON/OFF in `onSettingsChange`, no broadcast replay
+  - Double-render: visual cleared then immediately redrawn in same flow?
+  - Engine work: re-analysis when cache/savedEval would suffice?
+  - Shared state: settings reference replaced with partial object?
+  - Log serialization: objects become `[object Object]` in ring buffer — use JSON.stringify or template literals
 
-Fix any issues found during review. Re-run validation if fixes were needed.
+Fix any issues found. Re-run validation if fixes were needed.
 
 ---
 
@@ -87,18 +92,17 @@ Fix any issues found during review. Re-run validation if fixes were needed.
 ## Phase 6: Documentation & Skill Update
 
 ### Check if docs need updating
-- If new plugin added → update plugin list in `CLAUDE.md` (Architecture, Plugins section)
-- If new setting/toggle added → update `CLAUDE.md` (Settings, Panel Features)
-- If new hint page added → update `CLAUDE.md` (Puzzle / Hint Mode)
-- If new adapter or adapter change → update `CLAUDE.md` (DOM structure sections)
-- If new constants → verify they're documented in the relevant section
-- **Only update docs that are affected** — don't touch unrelated sections
+- New plugin → update `CLAUDE.md` Architecture/Plugins section
+- New setting → update `CLAUDE.md` Settings section
+- New hint page → update `CLAUDE.md` Puzzle/Hint Mode section
+- New constants → verify documented in relevant section
+- **Only update affected docs**
 
 ### Learn and improve skills
-Most skill updates should already be done (Phase 2 step 6 — update on each bug fix). Final check:
-- Any remaining lessons not yet captured? → Add to `/review` or `/feature` skill
-- Was a new architectural pattern used? → Add to `/plan` skill's approach section
-- SVG/CSS rendering issues (icon not visible, wrong font, bad sizing) → Add to `/review` skill's rendering checklist
+Most skill updates should already be done (Phase 2 step 6). Final check:
+- Any remaining lessons? → Add to `/review` or `/feature` skill
+- New architectural pattern? → Add to `/plan` skill
+- SVG/CSS rendering issues? → Add to `/review` skill
 
 ---
 
@@ -106,7 +110,7 @@ Most skill updates should already be done (Phase 2 step 6 — update on each bug
 
 After everything passes:
 
-1. Stage the relevant files (including any doc/skill updates from Phase 6)
+1. Stage the relevant files (including any doc/skill updates)
 2. Create a Conventional Commits message (`feat:`, `fix:`, `refactor:`)
 3. If the feature touches multiple concerns, suggest split commits
 4. **Ask the user before committing**
