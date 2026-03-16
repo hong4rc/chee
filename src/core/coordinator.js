@@ -292,13 +292,16 @@ export class AnalysisCoordinator {
       forEach(this._persistentLayers, (l) => l.clear());
       const isFlipped = this._adapter.isFlipped(boardEl);
       this._arrow.draw(moves, turn, isFlipped);
-      if (this._settings.showBoardPreview && this._boardState.board) {
-        this._boardPreview.show(
-          this._boardState.board,
-          moves,
-          isFlipped,
-          this._adapter,
-        );
+      if (this._boardState.board && moves.length > 0) {
+        const previewMoves = this._settings.previewLastMove ? moves : moves.slice(0, -1);
+        if (previewMoves.length > 0) {
+          this._boardPreview.show(
+            this._boardState.board,
+            previewMoves,
+            isFlipped,
+            this._adapter,
+          );
+        }
       }
     });
     this._panel.on(EVT_LINE_LEAVE, () => {

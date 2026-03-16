@@ -56,7 +56,7 @@ function makeRenderCtx() {
 
 function makePlugin(overrides = {}) {
   const requestSecondaryAnalysis = vi.fn();
-  const settings = { showTrapboy: true, showBoardPreview: true, ...overrides };
+  const settings = { showTrapboy: true, ...overrides };
   const plugin = new TrapboyPlugin({ settings });
   const getRenderCtx = () => makeRenderCtx();
   const adapter = { getPieceImageMap: vi.fn(() => new Map()) };

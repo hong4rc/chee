@@ -600,7 +600,7 @@ export class TrapboyPlugin extends AnalysisPlugin {
   }
 
   _showStepPreview(uciMoves) {
-    if (!this._getRenderCtx || !this._settings.showBoardPreview) return;
+    if (!this._getRenderCtx) return;
     const ctx = this._getRenderCtx();
     if (!ctx.boardPreview) return;
     const board = this._prevBoard || this._boardStateRef?.board;

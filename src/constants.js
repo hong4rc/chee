@@ -89,7 +89,7 @@ export const SETTINGS_DEFAULTS = {
   waitForComplete: true,
   showGuard: true,
   showTrapboy: false,
-  showBoardPreview: true,
+  previewLastMove: false,
   showBookMoves: true,
   showChart: true,
   panelMinimized: false,
