@@ -36,6 +36,7 @@ let sfOnMessage = null;
 let pendingFen = null;
 let pendingSearchMoves = null;
 let activeFen = null;
+let tempMultiPV = 0; // non-zero = temporary MultiPV override active
 const realPostMessage = self.postMessage.bind(self);
 
 function sendUCI(cmd) {
@@ -87,22 +88,24 @@ function parseInfoLine(line) {
     pv: pvMoves,
   };
 
-  if (multipv >= 1 && multipv <= NUM_LINES) {
+  const effectiveLines = tempMultiPV || NUM_LINES;
+  if (multipv >= 1 && multipv <= effectiveLines) {
     currentLines[multipv - 1] = lineData;
   }
 
-  realPostMessage({
-    type: MSG_EVAL,
-    fen: activeFen,
-    depth,
-    lines: currentLines.filter(Boolean),
-    complete: false,
-  });
+  // Only emit after the last MultiPV line for this depth is collected
+  if (multipv === effectiveLines) {
+    realPostMessage({
+      type: MSG_EVAL,
+      fen: activeFen,
+      depth,
+      lines: currentLines.filter(Boolean),
+      complete: false,
+    });
+  }
 }
 
 let awaitingReady = false; // waiting for readyok before starting new analysis
-
-let tempMultiPV = 0; // non-zero = temporary MultiPV override active
 
 function startAnalysis(fen, searchMoves) {
   // When searchmoves is provided, temporarily raise MultiPV to cover all candidate moves
