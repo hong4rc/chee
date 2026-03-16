@@ -254,6 +254,10 @@ const PROMO_PIECES = ['q', 'r', 'b', 'n'];
  * Generate all pseudo-legal UCI moves from a specific square.
  * Does not check for leaving own king in check.
  */
+function isFriendly(target, isWhite) {
+  return target && (target === target.toUpperCase()) === isWhite;
+}
+
 export function generateMovesFromSquare(board, file, rank, turn) {
   const piece = board[LAST_RANK - rank][file];
   if (!piece) return [];
@@ -269,8 +273,11 @@ export function generateMovesFromSquare(board, file, rank, turn) {
     for (let tf = 0; tf < BOARD_SIZE; tf++) {
       for (let tr = 0; tr < BOARD_SIZE; tr++) {
         if (!canPawnReach(file, rank, tf, tr, board, turn)) continue;
-        // Exclude captures on empty squares unless en passant (we can't detect en passant without FEN)
-        if (tf !== file && board[LAST_RANK - tr][tf] === null) continue;
+        if (tf !== file) {
+          const target = board[LAST_RANK - tr][tf];
+          // Diagonal must capture an opponent piece
+          if (!target || isFriendly(target, isWhite)) continue;
+        }
         const to = FILES[tf] + (tr + 1);
         const promoRank = turn === TURN_WHITE ? LAST_RANK : 0;
         if (tr === promoRank) {
@@ -286,8 +293,7 @@ export function generateMovesFromSquare(board, file, rank, turn) {
         if (tf === file && tr === rank) continue;
         if (!canPieceReach(pieceType, file, rank, tf, tr, board)) continue;
         const target = board[LAST_RANK - tr][tf];
-        // Can't capture own piece
-        if (target && (target === target.toUpperCase()) === isWhite) continue;
+        if (isFriendly(target, isWhite)) continue;
         moves.push(from + FILES[tf] + (tr + 1));
       }
     }
