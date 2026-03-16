@@ -96,7 +96,7 @@ export class LichessAdapter extends BoardAdapter {
 
       const { file, rank } = pxToSquare(pos.x, pos.y, sqSize, orientation);
       if (file < 0 || file >= BOARD_SIZE || rank < 0 || rank >= BOARD_SIZE) {
-        log.warn('skipping piece: out of bounds', { file, rank });
+        log.warn(`skipping piece: out of bounds file:${file} rank:${rank}`);
         return;
       }
 

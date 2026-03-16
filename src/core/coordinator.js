@@ -130,7 +130,7 @@ export class AnalysisCoordinator {
     const prevNumLines = this._settings.numLines;
     const prevSearchDepth = this._settings.searchDepth;
     Object.assign(this._settings, newSettings);
-    log.info('settings changed:', this._settings);
+    log.info('settings changed:', JSON.stringify(newSettings));
 
     if ('debugMode' in newSettings) { // eslint-disable-line no-restricted-globals
       if (newSettings.debugMode) localStorage.debug = 'chee:*';
@@ -228,6 +228,11 @@ export class AnalysisCoordinator {
   }
 
   _applyEval(data) {
+    if (data.complete) {
+      const top = data.lines?.[0];
+      const score = top?.mate !== null ? `M${top.mate}` : top?.score;
+      log.info('eval complete — depth:', data.depth, `score: ${score} pv: ${top?.pv?.[0]}`);
+    }
     this._panel.updateEval(data);
     this._notifyPlugins('onEval', data, this._boardState, this._createRenderCtx());
     this._panel.recordScore(this._boardState.ply, data);
@@ -260,6 +265,7 @@ export class AnalysisCoordinator {
       this._boardPreview.invalidate();
       const fen = this._readFen();
       if (!fen) return;
+      log.info('board change — ply:', this._boardState.ply, 'turn:', this._boardState.turn, 'fen:', fen);
       this._secondaryAnalysis = null;
       this._notifyPlugins('onBoardChange', this._boardState, this._createRenderCtx());
       this._activeFen = fen;

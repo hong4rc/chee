@@ -85,19 +85,11 @@ export class MoveClassifier extends Emitter {
     // In Crazy-only mode, skip non-Crazy classifications
     if (!this._settings.showClassifications && result.label !== LABEL_CRAZY) return;
 
+    const prev = this._prevEval.mate !== null ? `M${this._prevEval.mate}` : this._prevEval.score;
+    const curr = data.lines[0].mate !== null ? `M${data.lines[0].mate}` : data.lines[0].score;
     log.info(
-      'classify:',
-      result.label,
-      'cpLoss:',
-      result.cpLoss,
-      'd:',
-      data.depth,
-      'move:',
-      this._playedMoveUci,
-      'prev:',
-      { cp: this._prevEval.score, m: this._prevEval.mate },
-      'curr:',
-      { cp: data.lines[0].score, m: data.lines[0].mate },
+      `classify: ${result.label} cpLoss:${result.cpLoss} d:${data.depth}`,
+      `move:${this._playedMoveUci} prev:${prev} curr:${curr}`,
     );
 
     const insight = this._detectInsight(result);

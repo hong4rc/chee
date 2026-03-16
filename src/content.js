@@ -1,7 +1,7 @@
 // Chee - Chess Analysis Extension
 // Entry point: bootstrap only — loads settings, creates modules, registers plugins.
 
-import createDebug from './lib/debug.js';
+import createDebug, { getLogBuffer } from './lib/debug.js';
 import pollUntil from './lib/poll.js';
 import { loadSettings } from './lib/settings.js';
 import { createAdapter } from './adapters/factory.js';
@@ -26,7 +26,7 @@ const log = createDebug('chee:content');
 
   const settings = await loadSettings();
   if (settings.debugMode) { localStorage.debug = 'chee:*'; } // eslint-disable-line no-restricted-globals
-  log.info('settings:', settings);
+  log.info('settings:', JSON.stringify(settings));
 
   const { href } = window.location;
 
@@ -129,5 +129,25 @@ const log = createDebug('chee:content');
       e.preventDefault();
       panel.toggleHidden();
     }
+  });
+
+  // Debug info message handler — responds to popup's diagnostic request
+  chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+    if (msg.type !== 'chee:debug-info') return false;
+    sendResponse({
+      url: window.location.href,
+      adapter: adapter.constructor.name,
+      engineState: engine.state,
+      engineFen: engine.currentFen,
+      boardFound: !!boardEl,
+      isHintPage,
+      isDailyPage,
+      hintMatch: hintMatch?.label || null,
+      plugins: coordinator._plugins.map((p) => p.name),
+      ply: boardState.ply,
+      turn: boardState.turn,
+      logs: getLogBuffer(),
+    });
+    return true;
   });
 }());

@@ -138,7 +138,7 @@ export class Engine extends Emitter {
   reconfigure(settings) {
     if (!this._worker || this._state === State.IDLE || this._state === State.INITIALIZING
       || this._state === State.ERROR) return;
-    log.info('reconfiguring engine:', { numLines: settings.numLines, searchDepth: settings.searchDepth });
+    log.info(`reconfiguring engine: lines:${settings.numLines} depth:${settings.searchDepth}`);
     this._worker.postMessage({
       type: MSG_RECONFIGURE,
       numLines: settings.numLines,
