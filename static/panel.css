@@ -197,6 +197,7 @@ body.chee-dragging {
   cursor: pointer;
   padding: 1px 2px;
   border-radius: 2px;
+  margin-right: 0.3em;
 }
 
 #chee-analysis-panel .chee-move:hover {

@@ -31,6 +31,7 @@ export class LineRenderer extends Emitter {
     this._lineEls = null;
     this._lineScoreEls = [];
     this._lineMovesEls = [];
+    this._moveSpanCache = [];
   }
 
   setBoard(board, turn) {
@@ -52,6 +53,7 @@ export class LineRenderer extends Emitter {
     if (numLines === this._numLines) return;
     this._numLines = numLines;
     this._lines = Array(numLines).fill(null);
+    this._moveSpanCache = [];
     if (!panelEl) return;
     const container = panelEl.querySelector('.chee-lines');
     if (!container) return;
@@ -95,6 +97,7 @@ export class LineRenderer extends Emitter {
       scoreEl.textContent = '';
       scoreEl.className = 'chee-line-score';
       movesEl.textContent = '';
+      this._moveSpanCache[lineIdx] = [];
       return null;
     }
 
@@ -112,26 +115,23 @@ export class LineRenderer extends Emitter {
     const sanMoves = this._formatLineMoves(line);
     const pv = line.pv ? take(line.pv, MAX_PV_MOVES) : [];
 
-    const existing = movesEl.querySelectorAll('.chee-move');
+    if (!this._moveSpanCache[lineIdx]) this._moveSpanCache[lineIdx] = [];
+    const cached = this._moveSpanCache[lineIdx];
+
     forEach(sanMoves, (san, m) => {
-      if (m < existing.length) {
-        if (existing[m].textContent !== san) existing[m].textContent = san;
+      if (m < cached.length) {
+        if (cached[m].textContent !== san) cached[m].textContent = san;
       } else {
-        if (movesEl.childNodes.length > 0) movesEl.appendChild(document.createTextNode(' '));
         const span = el('span', 'chee-move', san);
         span.dataset.idx = m;
         movesEl.appendChild(span);
+        cached.push(span);
       }
     });
-    // Remove excess spans (+ preceding text node separators)
-    const excess = existing.length - sanMoves.length;
-    times(excess, () => {
-      const last = movesEl.lastElementChild;
-      if (last && last.previousSibling && last.previousSibling.nodeType === Node.TEXT_NODE) {
-        movesEl.removeChild(last.previousSibling);
-      }
-      if (last) movesEl.removeChild(last);
-    });
+    // Remove excess spans
+    while (cached.length > sanMoves.length) {
+      movesEl.removeChild(cached.pop());
+    }
 
     return pv.length > 0 ? pv : null;
   }
@@ -162,6 +162,7 @@ export class LineRenderer extends Emitter {
     this._lineEls = null;
     this._lineScoreEls = [];
     this._lineMovesEls = [];
+    this._moveSpanCache = [];
     this.removeAllListeners();
   }
 }

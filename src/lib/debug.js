@@ -28,16 +28,20 @@ function isEnabled(namespace) {
 }
 
 const LOG_BUFFER_SIZE = 200;
-const logBuffer = [];
+const ringBuffer = new Array(LOG_BUFFER_SIZE);
+let ringHead = 0;
+let ringCount = 0;
 
 function pushLog(level, tag, args) {
   const entry = `${new Date().toISOString().slice(11, 23)} ${level} ${tag} ${args.map(String).join(' ')}`;
-  logBuffer.push(entry);
-  if (logBuffer.length > LOG_BUFFER_SIZE) logBuffer.shift();
+  ringBuffer[ringHead] = entry;
+  ringHead = (ringHead + 1) % LOG_BUFFER_SIZE;
+  if (ringCount < LOG_BUFFER_SIZE) ringCount++;
 }
 
 export function getLogBuffer() {
-  return logBuffer.slice();
+  if (ringCount < LOG_BUFFER_SIZE) return ringBuffer.slice(0, ringCount);
+  return ringBuffer.slice(ringHead).concat(ringBuffer.slice(0, ringHead));
 }
 
 export function refreshDebugFlag() {
