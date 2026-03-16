@@ -125,6 +125,7 @@ Line endings are enforced as LF on all platforms via `.gitattributes`.
 - **No console.log** — ESLint `no-console: 'error'`
 - **Max line length**: 120 chars
 - **Function call formatting**: when a function call has multiple arguments that don't fit on one line, put each argument on its own line with a trailing comma (ESLint `function-paren-newline` + `function-call-argument-newline`)
+- **Import formatting**: multi-item imports must use line breaks inside braces (ESLint `object-curly-newline`). Write `import {\n  a, b, c,\n} from '...'` not `import { a, b, c } from '...'`
 - **Commit style**: Conventional Commits (`feat:`, `fix:`, `refactor:`)
 - **No co-author** lines in commits
 - **Data-driven popup**: checkbox toggles use `data-key` attributes auto-wired to `chrome.storage` — adding a toggle requires only HTML
