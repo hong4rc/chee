@@ -487,7 +487,8 @@ describe('TrapboyPlugin', () => {
       plugin._trapData = { steps: [{ uci: 'e2e4', label: 'Bait' }], stepIndex: 0 };
       plugin._phase2Pending = true;
 
-      plugin.onSettingsChange({ showTrapboy: false });
+      const renderCtx = makeRenderCtx();
+      plugin.onSettingsChange({ showTrapboy: false }, renderCtx);
 
       expect(plugin._trapData).toBeNull();
       expect(plugin._phase2Pending).toBe(false);

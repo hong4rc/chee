@@ -58,10 +58,11 @@ describe('GuardPlugin.checkSquare', () => {
     expect(g.checkSquare(0, 1, STARTING_BOARD, TURN_WHITE)).toBe(false);
   });
 
-  it('onSettingsChange() updates settings', () => {
+  it('onSettingsChange() clears guard when disabled', () => {
     const g = makeGuard(true);
-    g.onSettingsChange({ showGuard: false });
-    expect(g.checkSquare(0, 1, STARTING_BOARD, TURN_WHITE)).toBe(false);
+    const renderCtx = { arrow: { clearGuard: vi.fn() } };
+    g.onSettingsChange({ showGuard: false }, renderCtx);
+    expect(renderCtx.arrow.clearGuard).toHaveBeenCalled();
   });
 
   it('onEngineReset() clears lines', () => {

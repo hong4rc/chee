@@ -198,7 +198,7 @@ describe('AnalysisCoordinator', () => {
       coordinator.registerPlugin(plugin);
 
       coordinator.applySettings({ showChart: false });
-      expect(spy).toHaveBeenCalledWith({ showChart: false });
+      expect(spy).toHaveBeenCalledWith({ showChart: false }, expect.any(Object));
     });
 
     it('handles debugMode setting', () => {

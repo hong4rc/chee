@@ -68,9 +68,12 @@ describe('ClassificationPlugin', () => {
 
   describe('onSettingsChange', () => {
     it('disables classifier when showClassifications=false and showCrazy=false', () => {
-      const plugin = makePlugin();
+      const settings = { showClassifications: true, showCrazy: false, showBookMoves: false };
+      const plugin = new ClassificationPlugin({ adapter: {}, settings });
       const spy = vi.spyOn(plugin.classifier, 'setEnabled');
 
+      // Simulate coordinator: update shared settings before notifying
+      settings.showClassifications = false;
       plugin.onSettingsChange({ showClassifications: false });
       expect(spy).toHaveBeenCalledWith(false);
     });
