@@ -47,6 +47,7 @@ Use the Agent tool to launch **parallel** review agents simultaneously:
 - **MultiPV partial fills**: At shallow depth, Stockfish may not fill all MultiPV lines. Don't wait for all lines — process what's available and treat unfilled moves as worst-case (Stockfish fills best-to-worst).
 - **Settings real-time**: Each plugin handles own ON/OFF in `onSettingsChange(settings, renderCtx)`. No broadcast replay patterns. Plugin must clear visuals on toggle-off and restore from cached data on toggle-on.
 - **localStorage storage event**: Only fires cross-tab, not same-page. After setting `localStorage.debug`, must call `refreshDebugFlag()` explicitly.
+- **Hover gaps**: Flex `gap` creates dead zones (target = parent, not child) that break mouseover delegation. Use `margin` on children instead. Child elements must fill full parent height (`align-items: stretch`) so vertical padding doesn't create dead zones above/below text.
 
 ### Agent 4: Performance review (`subagent_type: "Explore"`)
 - **Settings changes**: Does toggling trigger work in unrelated plugins? Each plugin self-handles
@@ -56,6 +57,7 @@ Use the Agent tool to launch **parallel** review agents simultaneously:
 - **Shared settings**: Settings reference replaced with partial update object?
 - **Log serialization**: Objects passed to `log()` are stored in ring buffer via `String()` — become `[object Object]`. Use `JSON.stringify()` or template literals
 - **SVG rendering**: Unicode chars may render differently across platforms. Prefer simple text (`!`, `?`) over emoji/symbols (`⚠`). Check circle radius, font-size, and positioning are proportional to square size
+- **Hover event dedup**: Event emitters that fire on `mouseover` must deduplicate consecutive identical emits (track last emitted key). Without dedup, moving between children that emit the same data causes clear+redraw flash. Also check that `boardPreview.clear()` is called when preview moves become empty (e.g. `previewLastMove` off + single-move hover → `slice(0,-1)` is empty)
 
 ## Step 3: Synthesize Results
 
