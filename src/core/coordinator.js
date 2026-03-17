@@ -350,6 +350,8 @@ export class AnalysisCoordinator {
             isFlipped,
             this._adapter,
           );
+        } else {
+          this._boardPreview.clear();
         }
       }
     });

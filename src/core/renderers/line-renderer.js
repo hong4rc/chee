@@ -140,19 +140,30 @@ export class LineRenderer extends Emitter {
     this._lineEls = panelEl.querySelectorAll('.chee-line');
     this._lineScoreEls = [];
     this._lineMovesEls = [];
+    this._lastHoverKey = null;
     const lineEls = this._lineEls;
     forEach(lineEls, (lineEl, i) => {
       this._lineScoreEls[i] = lineEl.querySelector('.chee-line-score');
       this._lineMovesEls[i] = lineEl.querySelector('.chee-line-moves');
       lineEl.addEventListener('mouseover', (e) => {
-        const moveSpan = e.target.closest('.chee-move');
-        if (!moveSpan) return; // in gap between spans — keep last hovered state
         const pv = this._lines[i];
         if (!pv) return;
-        const m = parseInt(moveSpan.dataset.idx, 10);
-        this.emit(EVT_LINE_HOVER, pv.slice(0, m + 1), this._turn);
+        const moveSpan = e.target.closest('.chee-move');
+        if (moveSpan) {
+          const m = parseInt(moveSpan.dataset.idx, 10);
+          const key = `${i}:m${m}`;
+          if (key === this._lastHoverKey) return;
+          this._lastHoverKey = key;
+          this.emit(EVT_LINE_HOVER, pv.slice(0, m + 1), this._turn);
+          return;
+        }
+        // rank/score/gap/moves-container — show first move
+        if (this._lastHoverKey === `${i}:fallback`) return;
+        this._lastHoverKey = `${i}:fallback`;
+        this.emit(EVT_LINE_HOVER, pv.slice(0, 1), this._turn);
       });
       lineEl.addEventListener('mouseleave', () => {
+        this._lastHoverKey = null;
         this.emit(EVT_LINE_LEAVE);
       });
     });
