@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.1](https://github.com/hong4rc/chee/compare/v2.0.0...v2.0.1) (2026-03-17)
+
+### Bug Fixes
+
+* line hover shows preview on full line area with dedup to prevent flash ([c197b6e](https://github.com/hong4rc/chee/commit/c197b6e50c33c55ec014e792216e43c5d73bc3e9))
+
+### Performance Improvements
+
+* batch MultiPV lines in worker before emitting eval messages ([5b8657d](https://github.com/hong4rc/chee/commit/5b8657dc0ac03354bb50efa4d25ad1c067211fc5))
+* ring buffer for debug logs, cached spans and CSS spacing in line renderer ([7317c76](https://github.com/hong4rc/chee/commit/7317c7623b173342b8e635d6d3ede53eda7eb8f5))
+
 ## [2.0.0](https://github.com/hong4rc/chee/compare/v1.7.0...v2.0.0) (2026-03-16)
 
 ### Features
